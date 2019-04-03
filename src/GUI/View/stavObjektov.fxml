@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox fx:id="contentVBox" prefHeight="900.0" prefWidth="900.0" spacing="10.0">
+            <children>
+            <JFXButton fx:id="buttonPokracuj" text="Pokračuj">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </JFXButton>
+            <HBox prefHeight="580.0" prefWidth="768.0" spacing="10.0">
+               <children>
+                  <VBox prefHeight="563.0" prefWidth="400.0">
+                     <children>
+                        <JFXComboBox fx:id="comboBoxCasnici" labelFloat="true" promptText="Čašníci" />
+                        <TableView fx:id="tableViewCasnici" editable="true" maxWidth="1.7976931348623157E308" prefHeight="150.0" prefWidth="500.0">
+                          <columns>
+                            <TableColumn fx:id="tableColumCasniciInfo" prefWidth="75.0" sortable="false" text="Info" />
+                          </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                           <VBox.margin>
+                              <Insets bottom="16.0" />
+                           </VBox.margin>
+                        </TableView>
+                        <JFXComboBox fx:id="comboBoxKuchari" labelFloat="true" promptText="Kuchári" />
+                        <TableView fx:id="tableViewKuchari" editable="true" layoutX="10.0" layoutY="35.0" maxWidth="1.7976931348623157E308" prefHeight="150.0" prefWidth="500.0">
+                           <columns>
+                              <TableColumn fx:id="tableColumKuchariInfo" prefWidth="75.0" sortable="false" text="Info" />
+                           </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                           <VBox.margin>
+                              <Insets bottom="16.0" />
+                           </VBox.margin>
+                        </TableView>
+                        <JFXComboBox fx:id="comboBoxStoly" labelFloat="true" promptText="Stoly" />
+                        <TableView fx:id="tableViewStoly" editable="true" layoutX="10.0" layoutY="218.0" maxWidth="1.7976931348623157E308" prefHeight="160.0" prefWidth="500.0">
+                           <columns>
+                              <TableColumn fx:id="tableColumStolyInfo" prefWidth="75.0" sortable="false" text="Info" />
+                           </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                     </children>
+                  </VBox>
+                  <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                     <children>
+                            <TableView fx:id="tableViewKalendarUdalosti" prefHeight="396.0" prefWidth="508.0">
+                                <columns>
+                              <TableColumn fx:id="tableColumnCasUdalosti" editable="false" maxWidth="140.0" minWidth="140.0" prefWidth="140.0" sortable="false" text="Čas udalosti" />
+                              <TableColumn fx:id="tableColumnNazovUdalosti" editable="false" prefWidth="148.0" sortable="false" text="Názov udalosti" />
+                              <TableColumn fx:id="tableColumnDodatocneInfo" editable="false" prefWidth="364.0" sortable="false" text="Dodatočné info" />
+                                </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                            </TableView>
+                        <TableView fx:id="tableViewStatistiky" prefHeight="396.0" prefWidth="508.0">
+                           <columns>
+                              <TableColumn fx:id="tableColumnNazovStatistiky" editable="false" prefWidth="148.0" sortable="false" text="Názov štatistiky" />
+                              <TableColumn fx:id="tableColumnHodnotaStatistiky" editable="false" prefWidth="148.0" sortable="false" text="Hodnota" />
+                           </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                     </children>
+                  </VBox>
+               </children>
+               <VBox.margin>
+                  <Insets top="8.0" />
+               </VBox.margin>
+            </HBox>
+            <GridPane hgap="10.0" vgap="10.0" VBox.vgrow="ALWAYS">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <TableView fx:id="tableViewFrontNaObsluhu" editable="true" prefHeight="150.0">
+                     <columns>
+                        <TableColumn fx:id="tableColumFrontNaObsluhu" prefWidth="75.0" sortable="false" text="Front stolov na obsluhu" />
+                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                  </TableView>
+                  <TableView fx:id="tableViewFrontJedal" editable="true" prefHeight="150.0" GridPane.columnIndex="1">
+                     <columns>
+                        <TableColumn fx:id="tableColumFrontJedal" prefWidth="75.0" sortable="false" text="Front jedál" />
+                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                  </TableView>
+                  <TableView fx:id="tableViewFrontOdnesenieJedla" editable="true" layoutX="321.0" layoutY="10.0" prefHeight="150.0" GridPane.columnIndex="2">
+                     <columns>
+                        <TableColumn fx:id="tableColumFrontOdnesenieJedla" prefWidth="75.0" sortable="false" text="Fron stolov na donesenie jedla" />
+                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                  </TableView>
+                  <TableView fx:id="tableViewFrontZaplatenie" editable="true" layoutX="514.0" layoutY="10.0" prefHeight="150.0" GridPane.columnIndex="3">
+                     <columns>
+                        <TableColumn fx:id="tableColumFrontZaplatenie" prefWidth="75.0" sortable="false" text="Front stolov na zaplatenie" />
+                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                  </TableView>
+               </children>
+            </GridPane>
+            </children>
+            <padding>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding>
+        </VBox>
+        <JFXDialog fx:id="dialog" overlayClose="false" transitionType="TOP">
+            <JFXDialogLayout fx:id="dialogLayout" minWidth="600">
+                <body>
+                    <VBox fx:id="dialogVBox" alignment="CENTER" spacing="10">
+                    </VBox>
+                </body>
+            </JFXDialogLayout>
+        </JFXDialog>
+    </children>
+</StackPane>

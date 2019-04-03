@@ -1,0 +1,20 @@
+
+.pane {
+    -fx-background-color: #99ffff;
+}
+
+.jfx-button:hover {
+    -fx-background-color: #D9D9D9;
+}
+
+.jfx-button {
+    -fx-background-color: white;
+}
+
+.chart-series-line {
+    -fx-stroke-width: 1px;
+}
+
+.default-color0.chart-series-line {
+    -fx-stroke: blue;
+}

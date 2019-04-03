@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import com.jfoenix.controls.JFXCheckBox?>
+<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox fx:id="contentVBox" prefHeight="800.0" prefWidth="800.0">
+            <children>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
+                     <children>
+                            <JFXTextField fx:id="textFieldPocetReplikaciiC" labelFloat="true" promptText="Počet replikácii">
+                           <VBox.margin>
+                              <Insets bottom="32.0" />
+                           </VBox.margin>
+                            </JFXTextField>
+                            <JFXTextField fx:id="textFieldPocetKucharov" labelFloat="true" promptText="Počet kuchárov">
+                           <VBox.margin>
+                              <Insets bottom="32.0" />
+                           </VBox.margin>
+                            </JFXTextField>
+                            <JFXTextField fx:id="textFieldMinPocetCasnikov" labelFloat="true" promptText="Spodný počet čašníkov">
+                           <VBox.margin>
+                              <Insets bottom="32.0" />
+                           </VBox.margin>
+                            </JFXTextField>
+                            <JFXTextField fx:id="textFieldMaxPocetCasnikov" labelFloat="true" promptText="Vrchný počet čašníkov">
+                           <VBox.margin>
+                              <Insets bottom="32.0" />
+                           </VBox.margin>
+                            </JFXTextField>
+                        <HBox alignment="TOP_CENTER" spacing="10.0">
+                           <children>
+                              <JFXButton fx:id="buttonSpustiZavislostCasnici" text="Spusti" />
+                              <JFXButton fx:id="buttonStopCasnici" text="Zastav" />
+                               <JFXCheckBox fx:id="checkBoxChladenieCasnik" mnemonicParsing="false" text="Chladenie"/>
+                           </children>
+                        </HBox>
+                            <LineChart fx:id="lineChartZavislostCasnici" animated="false" createSymbols="false" legendVisible="false">
+                                <xAxis>
+                                    <NumberAxis animated="false" forceZeroInRange="false" label="Počet čašníkov" side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis animated="false" forceZeroInRange="false" label="Priemerný čas strávený zákazníkom čakaním(s)" side="LEFT" upperBound="5.0" />
+                                </yAxis>
+                            </LineChart>
+                        <Label text="Závislosť čašníci" />
+                         <TableView fx:id="tableViewStatistikaZavislostCasnik">
+                             <columns>
+                                 <TableColumn fx:id="tableColumnNazovStatistikyC" editable="false" prefWidth="75.0" sortable="false" text="Názov štatistiky" />
+                                 <TableColumn fx:id="tableColumnHodnotaStatistikyC" editable="false" prefWidth="75.0" sortable="false" text="Hodnota" />
+                             </columns>
+                             <columnResizePolicy>
+                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                             </columnResizePolicy>
+                         </TableView>
+                     </children>
+                  </VBox>
+                  <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
+                     <children>
+                         <JFXTextField fx:id="textFieldPocetReplikaciiK" labelFloat="true" promptText="Počet replikácii">
+                             <VBox.margin>
+                                 <Insets bottom="32.0" />
+                             </VBox.margin>
+                         </JFXTextField>
+                         <JFXTextField fx:id="textFieldPocetCasnikov" labelFloat="true" promptText="Počet čašníkov">
+                             <VBox.margin>
+                                 <Insets bottom="32.0" />
+                             </VBox.margin>
+                         </JFXTextField>
+                         <JFXTextField fx:id="textFieldMinPocetKucharov" labelFloat="true" promptText="Spodný počet kuchárov">
+                             <VBox.margin>
+                                 <Insets bottom="32.0" />
+                             </VBox.margin>
+                         </JFXTextField>
+                         <JFXTextField fx:id="textFieldMaxPocetKucharov" labelFloat="true" promptText="Vrchný počet kuchárov">
+                             <VBox.margin>
+                                 <Insets bottom="32.0" />
+                             </VBox.margin>
+                         </JFXTextField>
+                        <HBox alignment="TOP_CENTER" spacing="10.0">
+                           <children>
+                              <JFXButton fx:id="buttonSpustiZavislostKuchari" text="Spusti" />
+                              <JFXButton fx:id="buttonStopKuchari" text="Zastav" />
+                               <JFXCheckBox fx:id="checkBoxChladenieKuchar" mnemonicParsing="false" text="Chladenie"/>
+                           </children>
+                        </HBox>
+                            <LineChart fx:id="lineChartZavislostKuchari" animated="false" createSymbols="false" legendVisible="false">
+                                <xAxis>
+                                    <NumberAxis animated="false" forceZeroInRange="false" label="Počet kuchárov" side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis animated="false" forceZeroInRange="false" label="Priemerný čas strávený zákazníkom čakaním(min)" side="LEFT" upperBound="5.0" />
+                                </yAxis>
+                            </LineChart>
+                        <Label text="Závislosť kuchári" />
+                         <TableView fx:id="tableViewStatistikaZavislostKuchar">
+                             <columns>
+                                 <TableColumn fx:id="tableColumnNazovStatistikyK" editable="false" prefWidth="75.0" sortable="false" text="Názov štatistiky" />
+                                 <TableColumn fx:id="tableColumnHodnotaStatistikyK" editable="false" prefWidth="75.0" sortable="false" text="Hodnota" />
+                             </columns>
+                             <columnResizePolicy>
+                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                             </columnResizePolicy>
+                         </TableView>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            </children>
+            <padding>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+            </padding>
+        </VBox>
+        <JFXDialog fx:id="dialog" overlayClose="false" transitionType="TOP">
+            <JFXDialogLayout fx:id="dialogLayout" minWidth="600">
+                <body>
+                    <VBox fx:id="dialogVBox" alignment="CENTER" spacing="10">
+                    </VBox>
+                </body>
+            </JFXDialogLayout>
+        </JFXDialog>
+    </children>
+</StackPane>
