@@ -1,5 +1,6 @@
 package Utils;
 
+import GUI.TableColumnItem;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
@@ -9,6 +10,7 @@ import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
@@ -16,10 +18,7 @@ import javafx.scene.input.*;
 import javafx.util.Callback;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static javafx.beans.binding.Bindings.createBooleanBinding;
@@ -330,6 +329,20 @@ public class Helper {
 
     public static String FormatujDouble(double cislo, int pocetDesatinnychMiest) {
         return String.format("%." + pocetDesatinnychMiest + "f", cislo);
+    }
+
+    public static <T> void PridajTabulkeStlpce(TableView<T> table, TableColumnItem<T>... attributes) {
+        table.getColumns().clear();
+        for (TableColumnItem atribut: attributes) {
+            TableColumn<T, String> tableColumn = new TableColumn<>(atribut.viewName_);
+            tableColumn.setCellValueFactory(param -> new SimpleStringProperty((String) atribut.spracuj_.apply(param.getValue())));
+            table.getColumns().add(tableColumn);
+        }
+    }
+
+    public static <T> void PridajTabulkeStlpce(TableView<T> table, List<TableColumnItem<T>> attributes) {
+        PridajTabulkeStlpce(table, (TableColumnItem<T>[]) attributes.toArray());
+
     }
 
 }

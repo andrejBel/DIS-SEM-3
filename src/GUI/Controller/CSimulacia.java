@@ -201,8 +201,11 @@ public class CSimulacia extends ControllerBase implements IObserver {
         textFieldPocetCasnikov.setText("2");
         textFieldPocetKucharov.setText("2");
 
-        tableColumnNazovStatistikyR.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getNazovStatistiky()));
-        tableColumnHodnotaStatistikyR.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getHodnotaStatistiky()));
+        StatistikaInfo s = new StatistikaInfo("", "");
+
+        Helper.PridajTabulkeStlpce(tableViewStatistikyR, StatistikaInfo.ATRIBUTY);
+        //tableColumnNazovStatistikyR.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getNazovStatistiky()));
+        //tableColumnHodnotaStatistikyR.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getHodnotaStatistiky()));
 
         tableColumnNazovStatistikyS.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getNazovStatistiky()));
         tableColumnHodnotaStatistikyS.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getHodnotaStatistiky()));

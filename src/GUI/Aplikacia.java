@@ -55,8 +55,8 @@ public class Aplikacia {
 
 
 
-        Scene scene = new Scene(tabPane_, 600, 800);
-        stage.setTitle("Diskrétna simulácia - semestrálna práca 2");
+        Scene scene = new Scene(tabPane_, 800, 800);
+        stage.setTitle("Diskrétna simulácia - semestrálna práca 3");
         stage.setScene(scene);
         stage.setMaximized(true);
 
