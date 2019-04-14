@@ -51,6 +51,7 @@ public abstract class ControllerBase {
         messageLabel_ = new Label();
         messageLabel_.setStyle("-fx-font-weight: bold");
         messageLabel_.setAlignment(Pos.CENTER);
+        loadView();
     }
 
     public Parent getView() {

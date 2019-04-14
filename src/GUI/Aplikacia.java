@@ -31,8 +31,7 @@ public class Aplikacia {
         tabPane_ = new JFXTabPane();
         tabPane_.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         controllers = Arrays.asList(
-                new CSimulacia(simulaciaWrapper_, stage),
-                new CGrafyZavislosti(simulaciaWrapper_, stage)
+                new CStanok(simulaciaWrapper_, stage)
         );
 
         for (ControllerBase controller : controllers) {
@@ -75,7 +74,7 @@ public class Aplikacia {
         */
         stage.setOnCloseRequest(e -> {
             Platform.exit();
-            simulaciaWrapper_.stop();
+            //simulaciaWrapper_.stop(); TODO zastavit beziace simulacie
         } );
     }
 
