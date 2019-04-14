@@ -336,6 +336,9 @@ public class Helper {
         for (TableColumnItem atribut: attributes) {
             TableColumn<T, String> tableColumn = new TableColumn<>(atribut.viewName_);
             tableColumn.setCellValueFactory(param -> new SimpleStringProperty((String) atribut.spracuj_.apply(param.getValue())));
+            tableColumn.setMinWidth(atribut.minWidth_);
+            tableColumn.setSortable(false);
+
             table.getColumns().add(tableColumn);
         }
     }
