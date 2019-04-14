@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import com.jfoenix.controls.JFXSlider?>
+<?import com.jfoenix.controls.JFXTabPane?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox fx:id="contentVBox" prefHeight="800.0" prefWidth="1000.0">
+         <children>
+            <JFXTabPane VBox.vgrow="ALWAYS">
+               <tabs>
+                  <Tab text="Simulácia">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <VBox maxWidth="350.0" minWidth="30.0" prefWidth="337.0" HBox.hgrow="ALWAYS">
+                                              <children>
+                                                  <JFXTextField fx:id="textFieldReplications" labelFloat="true" promptText="Počet replikácii">
+                                                      <VBox.margin>
+                                                          <Insets bottom="32.0" />
+                                                      </VBox.margin>
+                                                  </JFXTextField>
+                                                <JFXTextField fx:id="textFieldReplicationTime" labelFloat="true" promptText="Koncový replikačný čas">
+                                                   <VBox.margin>
+                                                      <Insets bottom="32.0" />
+                                                   </VBox.margin>
+                                                </JFXTextField>
+                                                  <HBox prefHeight="136.0" prefWidth="337.0" spacing="10.0">
+                                                      <children>
+                                                          <VBox prefHeight="182.0" prefWidth="149.0">
+                                                              <children>
+                                                                  <JFXButton fx:id="buttonStart" alignment="BOTTOM_CENTER" prefWidth="150" text="Štart">
+                                                                      <VBox.margin>
+                                                                          <Insets bottom="8.0" />
+                                                                      </VBox.margin>
+                                                                  </JFXButton>
+                                                                  <JFXButton fx:id="buttonStop" prefWidth="150" text="Stop">
+                                                                      <VBox.margin>
+                                                                          <Insets bottom="8.0" />
+                                                                      </VBox.margin>
+                                                                  </JFXButton>
+                                                                  <JFXButton fx:id="buttonPause" prefWidth="150" text="Pauza">
+                                                                      <VBox.margin>
+                                                                          <Insets bottom="8.0" />
+                                                                      </VBox.margin>
+                                                                  </JFXButton>
+                                                                  <JFXButton fx:id="buttonResume" prefWidth="150.0" text="Pokračovať">
+                                                                      <VBox.margin>
+                                                                          <Insets bottom="8.0" />
+                                                                      </VBox.margin>
+                                                            </JFXButton>
+                                                              </children>
+                                                          </VBox>
+                                                          <VBox prefHeight="207.0" prefWidth="188.0" HBox.hgrow="ALWAYS">
+                                                              <children>
+                                                                  <Label text="Mód">
+                                                                      <VBox.margin>
+                                                                          <Insets bottom="8.0" />
+                                                                      </VBox.margin>
+                                                                  </Label>
+                                                                  <JFXCheckBox fx:id="checkBoxNormalny" mnemonicParsing="false" text="Normálny">
+                                                                      <VBox.margin>
+                                                                          <Insets bottom="8.0" />
+                                                                      </VBox.margin>
+                                                                  </JFXCheckBox>
+                                                                  <JFXCheckBox fx:id="checkBoxZrychleny" mnemonicParsing="false" text="Zrýchlený">
+                                                                      <VBox.margin>
+                                                                          <Insets bottom="8.0" />
+                                                                      </VBox.margin>
+                                                                  </JFXCheckBox>
+                                                                  <JFXCheckBox fx:id="checkBoxKrokovanie" mnemonicParsing="false" text="Krokovanie">
+                                                                      <VBox.margin>
+                                                                          <Insets bottom="8.0" />
+                                                                      </VBox.margin>
+                                                                  </JFXCheckBox>
+                                                                  <JFXCheckBox fx:id="checkBoxPlanujPosunCasu" mnemonicParsing="false" text="Plánuj posun času" />
+                                                              </children>
+                                                          </VBox>
+                                                      </children>
+                                                  </HBox>
+                                                  <Label text="Spomalenie" />
+                                                  <JFXSlider fx:id="sliderSpomalenie" majorTickUnit="100.0" max="1000" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="0.0">
+                                                      <HBox.margin>
+                                                          <Insets right="36.0" />
+                                                      </HBox.margin>
+                                                      <VBox.margin>
+                                                          <Insets bottom="8.0" />
+                                                      </VBox.margin>
+                                                  </JFXSlider>
+                                                <Label text="Interval" />
+                                                <JFXSlider fx:id="sliderInterval" majorTickUnit="100.0" max="1000" min="1.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="0.0">
+                                                   <VBox.margin>
+                                                      <Insets bottom="8.0" />
+                                                   </VBox.margin>
+                                                </JFXSlider>
+                                                  <Label text="Step" />
+                                                  <JFXSlider fx:id="sliderStep" majorTickUnit="1000.0" max="1000" min="1" minorTickCount="1" value="1.0">
+                                                      <HBox.margin>
+                                                          <Insets right="36.0" />
+                                                      </HBox.margin>
+                                                      <VBox.margin>
+                                                          <Insets bottom="8.0" />
+                                                      </VBox.margin>
+                                                  </JFXSlider>
+                                                  <Label text="Skip" />
+                                                  <JFXSlider fx:id="sliderSkip" blockIncrement="1.0" majorTickUnit="10.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="0.0" />
+                                                  <GridPane>
+                                                      <columnConstraints>
+                                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="164.0" minWidth="10.0" prefWidth="103.0" />
+                                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="246.0" minWidth="10.0" prefWidth="105.0" />
+                                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="246.0" minWidth="10.0" prefWidth="129.0" />
+                                                      </columnConstraints>
+                                                      <rowConstraints>
+                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      </rowConstraints>
+                                                      <children>
+                                                          <Label text="Číslo replikácie" />
+                                                          <Label fx:id="labelCisloReplikacie" text="0" GridPane.columnIndex="1" />
+                                                      </children>
+                                                  </GridPane>
+                                              </children>
+                                             <padding>
+                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                                             </padding>
+                                          </VBox>
+                                          <TableView fx:id="tableViewInfo" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                                             <columnResizePolicy>
+                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                             </columnResizePolicy>
+                                          </TableView>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </Tab>
+               </tabs>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </JFXTabPane>
+         </children>
+        </VBox>
+        <JFXDialog fx:id="dialog" overlayClose="false" transitionType="TOP">
+            <JFXDialogLayout fx:id="dialogLayout" minWidth="600">
+                <body>
+                    <VBox fx:id="dialogVBox" alignment="CENTER" spacing="10">
+                    </VBox>
+                </body>
+            </JFXDialogLayout>
+        </JFXDialog>
+    </children>
+</StackPane>
