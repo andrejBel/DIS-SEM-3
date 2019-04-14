@@ -1,4 +1,4 @@
-package Simulacia.Model.Restauracia.Info;
+package Simulacia.Model.Info;
 
 import GUI.TableColumnItem;
 
