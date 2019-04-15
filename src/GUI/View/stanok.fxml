@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <VBox fx:id="contentVBox" prefHeight="800.0" prefWidth="1000.0">
          <children>
@@ -143,11 +143,20 @@
                                                 <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                              </padding>
                                           </VBox>
-                                          <TableView fx:id="tableViewInfo" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
-                                             <columnResizePolicy>
-                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                             </columnResizePolicy>
-                                          </TableView>
+                                          <VBox HBox.hgrow="ALWAYS">
+                                             <children>
+                                                <TableView fx:id="tableViewInfo" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                                   <columnResizePolicy>
+                                                      <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                   </columnResizePolicy>
+                                                </TableView>
+                                                <TableView fx:id="tableViewInfo1" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                                   <columnResizePolicy>
+                                                      <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                   </columnResizePolicy>
+                                                </TableView>
+                                             </children>
+                                          </VBox>
                                        </children>
                                     </HBox>
                                  </children>

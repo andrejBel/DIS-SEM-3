@@ -312,13 +312,14 @@ public class Helper {
         zvysok -= (hodiny * CASOVE_JEDNOTKY.HODINA.getPocetSekund());
 
         int minuty = (int) (zvysok / CASOVE_JEDNOTKY.MINUTA.getPocetSekund());
+        zvysok -= minuty * CASOVE_JEDNOTKY.MINUTA.getPocetSekund();
 
-        int sekundy = (int) (zvysok - ((double)minuty * CASOVE_JEDNOTKY.MINUTA.getPocetSekund()));
+        double sekundy = zvysok;
 
         if (dni > 0) {
-            return String.format("%d, %02d : %02d : %02d"  ,dni, hodiny, minuty, sekundy );
+            return String.format("%d, %02d : %02d : %.2f"  ,dni, hodiny, minuty, sekundy );
         } else {
-            return String.format("%02d : %02d : %02d"  , hodiny, minuty, sekundy );
+            return String.format("%02d : %02d : %.2f"  , hodiny, minuty, sekundy );
         }
 
     }

@@ -4,6 +4,7 @@ import OSPABA.Agent;
 import OSPABA.Simulation;
 import OSPDataStruct.SimQueue;
 import OSPStat.WStat;
+import Simulacia.Statistiky.WStatNamed;
 import Stanok.Asistenti.ProcesObsluhyZakaznika;
 import Stanok.Manazeri.ManazerStanku;
 import Stanok.Simulacia.Id;
@@ -22,7 +23,7 @@ public class AgentStanku extends Agent {
         new ManazerStanku(Id.manazerStanku, mySim, this);
 
         new ProcesObsluhyZakaznika(Id.procesObsluhyZakaznika, mySim, this);
-        zakaznici_ = new SimQueue<>(new WStat(mySim));
+        zakaznici_ = new SimQueue<>(new WStatNamed(mySim, "Priemerný počet zákazníkov vo fronte"));
 
         addOwnMessage(Mc.obsluzZakaznika);
         addOwnMessage(Mc.koniecObsluhyZakaznika);

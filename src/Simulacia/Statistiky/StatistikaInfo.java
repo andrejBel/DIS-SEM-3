@@ -1,4 +1,4 @@
-package Simulacia.Model.Info;
+package Simulacia.Statistiky;
 
 import GUI.TableColumnItem;
 

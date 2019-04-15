@@ -4,7 +4,7 @@ import OSPABA.ISimDelegate;
 import OSPABA.SimState;
 import OSPABA.Simulation;
 
-import Simulacia.Model.Info.StatistikaInfo;
+import Simulacia.Statistiky.StatistikaInfo;
 import Simulacia.SimulaciaWrapper;
 import Stanok.SimulaciaStanok;
 import Utils.Helper;
@@ -170,7 +170,8 @@ public class CStanok extends ControllerBase implements ISimDelegate {
         simulaciaStanok_.onSimulationWillStart(s -> {
             checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(true));
             buttonStart.setDisable(true);
-
+            sliderInterval.setDisable(true);
+            sliderSpomalenie.setDisable(true);
         });
 
         simulaciaStanok_.onReplicationWillStart(s -> {
@@ -184,9 +185,16 @@ public class CStanok extends ControllerBase implements ISimDelegate {
             }
         });
 
+        simulaciaStanok_.onReplicationDidFinish(s -> {
+
+        });
+
         simulaciaStanok_.onSimulationDidFinish(s -> {
             checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(false));
             buttonStart.setDisable(false);
+            sliderInterval.setDisable(false);
+            sliderSpomalenie.setDisable(false);
+
         });
 
     }
@@ -215,12 +223,13 @@ public class CStanok extends ControllerBase implements ISimDelegate {
     public void refresh(Simulation simulation) {
         System.out.println(simulaciaStanok_.currentTime());
         double simTime = simulaciaStanok_.currentTime();
-        double priemernyCas =  simulaciaStanok_.priemernyCasCakaniaZakaznikaRep_.mean();
+        StatistikaInfo priemernyCas =  simulaciaStanok_.priemernyCasCakaniaZakaznikaRep_.getStatistikaInfo();
 
         Platform.runLater(() -> {
             labelCisloReplikacie.setText(String.valueOf(simTime));
             tableViewData_.clear();
-            tableViewData_.add(new StatistikaInfo("priemerny cas", String.valueOf(priemernyCas )));
+            tableViewData_.add(priemernyCas);
+            tableViewData_.add(new StatistikaInfo("rep time", Helper.FormatujSimulacnyCas(simTime)));
         });
         try {
             Thread.sleep(10);

@@ -2,6 +2,7 @@ package Stanok;
 
 import OSPABA.Simulation;
 import OSPStat.Stat;
+import Simulacia.Statistiky.StatNamed;
 import Stanok.Agenti.AgentModelu;
 import Stanok.Agenti.AgentOkolia;
 import Stanok.Agenti.AgentStanku;
@@ -13,7 +14,7 @@ public class SimulaciaStanok extends Simulation {
     private AgentOkolia agentOkolia_;
     private AgentStanku agentStanku_;
 
-    public Stat priemernyCasCakaniaZakaznikaRep_ = new Stat();
+    public StatNamed priemernyCasCakaniaZakaznikaRep_ = new StatNamed("Priemerny cas cakania zakaznika");
     public Stat priemernyCasCakaniaZakaznikaSim_ = new Stat();
 
     public SimulaciaStanok() {
