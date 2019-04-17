@@ -1,7 +1,7 @@
-package Simulacia.Model;
+package Model;
 
 import OSPDataStruct.SimQueue;
-import Simulacia.Statistiky.WStatNamed;
+import Statistiky.WStatNamed;
 import Stanok.SimulaciaStanok;
 
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package Simulacia.Statistiky;
+package Statistiky;
 
 import GUI.TableColumnItem;
 

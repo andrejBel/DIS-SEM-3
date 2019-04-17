@@ -1,6 +1,6 @@
-package Simulacia.Model;
+package Model;
 
-import Simulacia.Model.Enumeracie.TYP_LINKY;
+import Model.Enumeracie.TYP_LINKY;
 
 import java.util.ArrayList;
 import java.util.List;

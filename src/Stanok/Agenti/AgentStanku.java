@@ -1,10 +1,8 @@
 package Stanok.Agenti;
 
 import OSPABA.Agent;
-import OSPABA.Simulation;
 import OSPDataStruct.SimQueue;
-import OSPStat.WStat;
-import Simulacia.Statistiky.WStatNamed;
+import Statistiky.WStatNamed;
 import Stanok.Asistenti.ProcesObsluhyZakaznika;
 import Stanok.Manazeri.ManazerStanku;
 import Stanok.Simulacia.Id;

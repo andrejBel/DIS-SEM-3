@@ -1,4 +1,4 @@
-package Simulacia.Model;
+package Model;
 
 public class ZastavkaLinky {
 

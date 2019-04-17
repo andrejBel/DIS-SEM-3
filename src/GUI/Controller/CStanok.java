@@ -4,7 +4,7 @@ import OSPABA.ISimDelegate;
 import OSPABA.SimState;
 import OSPABA.Simulation;
 
-import Simulacia.Statistiky.StatistikaInfo;
+import Statistiky.StatistikaInfo;
 import Simulacia.SimulaciaWrapper;
 import Stanok.SimulaciaStanok;
 import Utils.Helper;

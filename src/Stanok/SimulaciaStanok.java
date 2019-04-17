@@ -2,11 +2,11 @@ package Stanok;
 
 import OSPABA.Simulation;
 import OSPStat.Stat;
-import Simulacia.Model.Enumeracie.TYP_LINKY;
-import Simulacia.Model.Linka;
-import Simulacia.Model.Zastavka;
-import Simulacia.Model.ZastavkaLinky;
-import Simulacia.Statistiky.StatNamed;
+import Model.Enumeracie.TYP_LINKY;
+import Model.Linka;
+import Model.Zastavka;
+import Model.ZastavkaLinky;
+import Statistiky.StatNamed;
 import Stanok.Agenti.AgentModelu;
 import Stanok.Agenti.AgentOkolia;
 import Stanok.Agenti.AgentStanku;

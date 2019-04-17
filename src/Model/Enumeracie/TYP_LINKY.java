@@ -1,4 +1,4 @@
-package Simulacia.Model.Enumeracie;
+package Model.Enumeracie;
 
 public enum TYP_LINKY {
 
