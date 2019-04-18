@@ -14,4 +14,12 @@ public class Linka {
         this._zastavky = new ArrayList<>(zastavky);
         this._typLinky = typLinky;
     }
+
+    public ArrayList<ZastavkaLinky> getZastavky() {
+        return _zastavky;
+    }
+
+    public TYP_LINKY getTypLinky() {
+        return _typLinky;
+    }
 }

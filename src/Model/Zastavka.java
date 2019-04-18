@@ -10,7 +10,7 @@ public class Zastavka {
 
     private String _nazovZastavky;
     private double _parameterExpPrichodyZakaznikov;
-    private SimQueue<Zakaznik> _zakazniciNaZastavke;
+    private SimQueue<Cestujuci> _zakazniciNaZastavke;
 
     public Zastavka(String nazovZastavky, double parameterExpPrichodyZakaznikov, SimulaciaStanok simulacia) {
         this._nazovZastavky = nazovZastavky;
