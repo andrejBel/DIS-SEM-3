@@ -1,6 +1,6 @@
 package GUI.Controller;
 
-import Simulacia.SimulaciaWrapper;
+import simulation.SimulaciaWrapper;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -16,9 +16,8 @@ public abstract class CWindowBase extends ControllerBase {
         initView();
     }
 
-    @Override
+
     protected void initView() {
-        loadView();
         scene_= new Scene(getView());
         stageWindow_ = new Stage();
         stageWindow_.setScene(scene_);

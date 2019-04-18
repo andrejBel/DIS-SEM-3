@@ -1,12 +1,10 @@
 package GUI.Controller;
 
+import Model.Info.VozidloInfo;
 import OSPABA.ISimDelegate;
 import OSPABA.SimState;
 import OSPABA.Simulation;
-
 import Statistiky.StatistikaInfo;
-import simulation.SimulaciaWrapper;
-import Stanok.SimulaciaStanok;
 import Utils.Helper;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
@@ -20,11 +18,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import simulation.SimulaciaDopravy;
+import simulation.SimulaciaWrapper;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class CStanok extends ControllerBase implements ISimDelegate {
+public class CSimulacia extends ControllerBase implements ISimDelegate {
 
     @FXML
     private JFXTextField textFieldReplications;
@@ -73,9 +73,11 @@ public class CStanok extends ControllerBase implements ISimDelegate {
 
     @FXML
     private TableView<StatistikaInfo> tableViewInfo;
-    private ObservableList<StatistikaInfo> tableViewData_;
+    private ObservableList<StatistikaInfo> tableViewInfoData_;
 
-
+    @FXML
+    private TableView<VozidloInfo> tableViewVozidla;
+    private ObservableList<VozidloInfo> tableViewVozidloData_;
 
     private SimpleBooleanProperty isReplicationOK = new SimpleBooleanProperty(false);
     private SimpleBooleanProperty isReplicationTimeOK = new SimpleBooleanProperty(false);
@@ -87,12 +89,15 @@ public class CStanok extends ControllerBase implements ISimDelegate {
 
     private List<JFXTextField> textFields;
     private List<JFXCheckBox> checkBoxesToDisable;
-    private SimulaciaStanok simulaciaStanok_;
 
-    public CStanok(SimulaciaWrapper simulaciaWrapper, Stage stage) {
+
+    private SimulaciaDopravy _simulacia;
+
+    public CSimulacia(SimulaciaWrapper simulaciaWrapper, Stage stage) {
         super(simulaciaWrapper, stage);
-        simulaciaStanok_ = simulaciaWrapper_.getSimulaciaStanok();
-        simulaciaStanok_.registerDelegate(this);
+
+        _simulacia = simulaciaWrapper.getSimulaciaDopravy();
+        _simulacia.registerDelegate(this);
 
         checkBoxNormalny.selectedProperty().addListener( (observable, oldValue, newValue) -> {
             if (newValue) {
@@ -133,9 +138,12 @@ public class CStanok extends ControllerBase implements ISimDelegate {
         textFieldReplicationTime.setText(String.valueOf((long) Helper.CASOVE_JEDNOTKY.DEN.getPocetSekund() ));
 
         Helper.PridajTabulkeStlpce(tableViewInfo, StatistikaInfo.ATRIBUTY);
-        tableViewData_ = tableViewInfo.getItems();
-
+        tableViewInfoData_ = tableViewInfo.getItems();
         Helper.InstallCopyPasteHandler(tableViewInfo);
+
+        Helper.PridajTabulkeStlpce(tableViewVozidla, VozidloInfo.ATRIBUTY);
+        tableViewVozidloData_ = tableViewVozidla.getItems();
+        Helper.InstallCopyPasteHandler(tableViewVozidla);
 
         buttonStart.setOnAction(event -> {
             if (Helper.DisableButton(buttonStart, simpleBooleanProperties, () -> textFields.forEach(JFXTextField::validate))) {
@@ -146,50 +154,50 @@ public class CStanok extends ControllerBase implements ISimDelegate {
             int pocetReplikacii = Integer.parseInt(textFieldReplications.getText());
             double koncovyCasReplikacie =  Long.parseLong(textFieldReplicationTime.getText());
 
-            simulaciaStanok_.simulateAsync(pocetReplikacii, koncovyCasReplikacie);
+            _simulacia.simulateAsync(pocetReplikacii, koncovyCasReplikacie);
 
             buttonStart.disableProperty().unbind();
         });
 
 
         buttonStop.setOnAction(event -> {
-            simulaciaStanok_.stopSimulation();
+            _simulacia.stopSimulation();
 
         });
 
         buttonPause.setOnAction(event -> {
-            simulaciaStanok_.pauseSimulation();
+            _simulacia.pauseSimulation();
         });
 
         buttonResume.setOnAction(event -> {
-            simulaciaStanok_.resumeSimulation();
+            _simulacia.resumeSimulation();
         });
 
 
 
-        simulaciaStanok_.onSimulationWillStart(s -> {
+        _simulacia.onSimulationWillStart(s -> {
             checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(true));
             buttonStart.setDisable(true);
             sliderInterval.setDisable(true);
             sliderSpomalenie.setDisable(true);
         });
 
-        simulaciaStanok_.onReplicationWillStart(s -> {
+        _simulacia.onReplicationWillStart(s -> {
 
             if (!checkBoxZrychleny.isSelected()) {
                 double spomalenieCasu = sliderSpomalenie.getValue() * 0.001;
                 double interval =  sliderInterval.getValue() * 0.01;
-                simulaciaStanok_.setSimSpeed(interval, spomalenieCasu);
+                _simulacia.setSimSpeed(interval, spomalenieCasu);
             } else {
-                simulaciaStanok_.setMaxSimSpeed();
+                _simulacia.setMaxSimSpeed();
             }
         });
 
-        simulaciaStanok_.onReplicationDidFinish(s -> {
-
+        _simulacia.onReplicationDidFinish(s -> {
+            // TODO vypis globalnych statistik
         });
 
-        simulaciaStanok_.onSimulationDidFinish(s -> {
+        _simulacia.onSimulationDidFinish(s -> {
             checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(false));
             buttonStart.setDisable(false);
             sliderInterval.setDisable(false);
@@ -201,12 +209,12 @@ public class CStanok extends ControllerBase implements ISimDelegate {
 
     @Override
     protected String getViewFileName() {
-        return "stanok.fxml";
+        return "simulacia.fxml";
     }
 
     @Override
     public String getViewName() {
-        return "Stánok";
+        return "Simulácia";
     }
 
     @Override
@@ -216,15 +224,15 @@ public class CStanok extends ControllerBase implements ISimDelegate {
 
     @Override
     public void refresh(Simulation simulation) {
-        System.out.println(simulaciaStanok_.currentTime());
-        double simTime = simulaciaStanok_.currentTime();
-        StatistikaInfo priemernyCas =  simulaciaStanok_.priemernyCasCakaniaZakaznikaRep_.getStatistikaInfo();
+        System.out.println(_simulacia.currentTime());
+        double simTime = _simulacia.currentTime();
 
         Platform.runLater(() -> {
             labelCisloReplikacie.setText(String.valueOf(simTime));
-            tableViewData_.clear();
-            tableViewData_.add(priemernyCas);
-            tableViewData_.add(new StatistikaInfo("rep time", Helper.FormatujSimulacnyCas(simTime)));
+            tableViewInfoData_.clear();
+            tableViewInfoData_.add(new StatistikaInfo("rep time", Helper.FormatujSimulacnyCas(simTime)));
+
+
         });
         try {
             Thread.sleep(10);
@@ -232,5 +240,6 @@ public class CStanok extends ControllerBase implements ISimDelegate {
             e.printStackTrace();
         }
     }
+
 
 }

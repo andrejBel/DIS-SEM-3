@@ -1,7 +1,7 @@
 package GUI;
 
 import GUI.Controller.*;
-import Simulacia.SimulaciaWrapper;
+import simulation.SimulaciaWrapper;
 import com.jfoenix.controls.JFXTabPane;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -31,6 +31,7 @@ public class Aplikacia {
         tabPane_ = new JFXTabPane();
         tabPane_.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         controllers = Arrays.asList(
+                new CSimulacia(simulaciaWrapper_, stage),
                 new CStanok(simulaciaWrapper_, stage)
         );
 

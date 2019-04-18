@@ -1,6 +1,6 @@
 package GUI.Controller;
 
-import Simulacia.SimulaciaWrapper;
+import simulation.SimulaciaWrapper;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
@@ -66,9 +66,6 @@ public abstract class ControllerBase {
     public Runnable getRunnableOnUnSelection() {
         return null;
     }
-
-    // nutne zavolat v konstruktore
-    protected abstract void initView();
 
     // cesta k fxml suborom s view
     protected abstract String getViewFileName();
