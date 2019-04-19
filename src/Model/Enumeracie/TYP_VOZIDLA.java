@@ -33,4 +33,14 @@ public enum TYP_VOZIDLA {
     public int getObstaraciaCena() {
         return _obstaraciaCena;
     }
+
+    public static TYP_VOZIDLA GetTypVozidlaNaZakladeNazvu(String nazov) {
+        for (TYP_VOZIDLA typVozidla: TYP_VOZIDLA.values()) {
+            if (typVozidla.getNazov().equals(nazov)) {
+                return typVozidla;
+            }
+        }
+        return null;
+    }
+
 }

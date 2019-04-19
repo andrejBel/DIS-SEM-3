@@ -1,29 +1,33 @@
 package Model;
 
-import OSPDataStruct.SimQueue;
-import Statistiky.WStatNamed;
-import Stanok.SimulaciaStanok;
-
 import java.util.Objects;
 
-public class Zastavka {
+public class ZastavkaKonfiguracia {
 
     private String _nazovZastavky;
     private double _parameterExpPrichodyZakaznikov;
-    private SimQueue<Cestujuci> _zakazniciNaZastavke;
+    private boolean _vystup;
 
-    public Zastavka(String nazovZastavky, double parameterExpPrichodyZakaznikov, SimulaciaStanok simulacia) {
+    public ZastavkaKonfiguracia(String nazovZastavky, double parameterExpPrichodyZakaznikov) {
         this._nazovZastavky = nazovZastavky;
         this._parameterExpPrichodyZakaznikov = parameterExpPrichodyZakaznikov;
-        this._zakazniciNaZastavke = new SimQueue<>(new WStatNamed(simulacia, "Priemerný počet zákazníkov na zastávke " + nazovZastavky));
+        this._vystup = false;
+    }
+
+    public boolean isVystup() {
+        return _vystup;
+    }
+
+    public void setVystupnaZastavka() {
+        _vystup = true;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Zastavka zastavka = (Zastavka) o;
-        return Objects.equals(_nazovZastavky, zastavka._nazovZastavky);
+        ZastavkaKonfiguracia zastavkaKonfiguracia = (ZastavkaKonfiguracia) o;
+        return Objects.equals(_nazovZastavky, zastavkaKonfiguracia._nazovZastavky);
     }
 
     @Override

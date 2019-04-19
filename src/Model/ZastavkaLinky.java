@@ -2,11 +2,11 @@ package Model;
 
 public class ZastavkaLinky {
 
-    private Zastavka _zastavka;
+    private ZastavkaKonfiguracia _zastavka;
     private double _casPresunuNaDalsiuZastavku;
-    private Zastavka _dalsiaZastavka;
+    private ZastavkaKonfiguracia _dalsiaZastavka;
 
-    public ZastavkaLinky(Zastavka zastavka, double casPresunuNaDalsiuZastavku, Zastavka dalsiaZastavka) {
+    public ZastavkaLinky(ZastavkaKonfiguracia zastavka, double casPresunuNaDalsiuZastavku, ZastavkaKonfiguracia dalsiaZastavka) {
         if (zastavka == null || dalsiaZastavka == null) {
             throw new RuntimeException("Null");
         }
@@ -15,7 +15,7 @@ public class ZastavkaLinky {
         this._dalsiaZastavka = dalsiaZastavka;
     }
 
-    public Zastavka getZastavka() {
+    public ZastavkaKonfiguracia getZastavka() {
         return _zastavka;
     }
 
@@ -23,7 +23,7 @@ public class ZastavkaLinky {
         return _casPresunuNaDalsiuZastavku;
     }
 
-    public Zastavka getDalsiaZastavka() {
+    public ZastavkaKonfiguracia getDalsiaZastavka() {
         return _dalsiaZastavka;
     }
 }

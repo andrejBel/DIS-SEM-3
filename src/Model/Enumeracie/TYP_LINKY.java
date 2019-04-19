@@ -7,9 +7,23 @@ public enum TYP_LINKY {
     LINKA_C("Linka C"),
     ;
 
-    private String nazovLinky_;
+    private String _nazovLinky;
 
-    TYP_LINKY(String nazovLinky_) {
-        this.nazovLinky_ = nazovLinky_;
+    TYP_LINKY(String nazovLinky) {
+        this._nazovLinky = nazovLinky;
     }
+
+    public String getNazovLinky() {
+        return _nazovLinky;
+    }
+
+    public static TYP_LINKY GetTypLinkyNaZakladeNazvu(String nazov) {
+        for (TYP_LINKY typLinky: TYP_LINKY.values()) {
+            if (typLinky.getNazovLinky().equals(nazov)) {
+                return typLinky;
+            }
+        }
+        return null;
+    }
+
 }
