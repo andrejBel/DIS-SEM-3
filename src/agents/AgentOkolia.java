@@ -1,15 +1,26 @@
 package agents;
 
+import Model.Enumeracie.TYP_LINKY;
+import Model.Linka;
+import Model.ZastavkaKonfiguracia;
 import OSPABA.*;
 import simulation.*;
 import managers.*;
 import continualAssistants.*;
 import instantAssistants.*;
 
+import java.util.HashMap;
+
 //meta! id="3"
 public class AgentOkolia extends Agent {
-	public AgentOkolia(int id, Simulation mySim, Agent parent) {
+
+	private HashMap<String, ZastavkaKonfiguracia> _zastavky;
+	private HashMap<TYP_LINKY, Linka> _linky;
+
+	public AgentOkolia(int id, Simulation mySim, Agent parent, HashMap<String, ZastavkaKonfiguracia> zastavky, HashMap<TYP_LINKY, Linka> linky) {
 		super(id, mySim, parent);
+		this._zastavky = zastavky;
+		this._linky = linky;
 		init();
 	}
 
