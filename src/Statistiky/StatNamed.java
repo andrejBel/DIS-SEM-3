@@ -36,9 +36,6 @@ public class StatNamed extends Stat {
                                     decimalFormat.format(confidenceInteval[1])
             );
         }
-
-
-
     }
 
 }
