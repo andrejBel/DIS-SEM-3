@@ -3,6 +3,7 @@ package Utils;
 import GUI.TableColumnItem;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.DoubleValidator;
 import com.jfoenix.validation.RequiredFieldValidator;
@@ -21,9 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+
 import static javafx.beans.binding.Bindings.createBooleanBinding;
 
 public class Helper {
+
+    public static final char DEFAULT_SEPARATOR = ';';
 
     public static enum CASOVE_JEDNOTKY {
         ROK(86400 * 365),
@@ -107,6 +111,18 @@ public class Helper {
         });
     }
 
+    public static void DecorateComboBoxWithValidator(JFXComboBox comboBox, SimpleBooleanProperty propertyToBind) {
+        comboBox.getValidators().add(new RequiredFieldValidator() {
+            {
+                setMessage(EMPTY_WARNING_MESSAGE);
+            }
+        });
+        comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            boolean validateResult = comboBox.validate();
+            propertyToBind.set(validateResult);
+        });
+    }
+
     public static void DecorateNumberTextFieldWithValidator(JFXTextField textField, SimpleBooleanProperty propertyToBind) {
         textField.getValidators().addAll(new RequiredFieldValidator() {
             {
@@ -141,6 +157,7 @@ public class Helper {
         });
 
     }
+
 
     public static void DecorateDoubleTextFieldWithValidator(JFXTextField textField, SimpleBooleanProperty propertyToBind) {
         textField.getValidators().addAll(new RequiredFieldValidator() {
@@ -303,7 +320,7 @@ public class Helper {
         Clipboard.getSystemClipboard().setContent(clipboardContent);
     }
 
-    public static String FormatujSimulacnyCas(double cas) {
+    public static String FormatujSimulacnyCas(double cas, boolean sekundyZaokruhlit) {
         int dni = (int) (cas / CASOVE_JEDNOTKY.DEN.getPocetSekund());
 
         double zvysok = cas - (dni * CASOVE_JEDNOTKY.DEN.getPocetSekund());
@@ -316,12 +333,23 @@ public class Helper {
 
         double sekundy = zvysok;
 
-        if (dni > 0) {
-            return String.format("%d, %02d : %02d : %.2f"  ,dni, hodiny, minuty, sekundy );
+        if (sekundyZaokruhlit) {
+            if (dni > 0) {
+                return String.format("%d, %02d : %02d : %02d"  ,dni, hodiny, minuty, Math.round(sekundy) );
+            } else {
+                return String.format("%02d : %02d : %02d"  , hodiny, minuty, Math.round(sekundy) );
+            }
         } else {
-            return String.format("%02d : %02d : %.2f"  , hodiny, minuty, sekundy );
+            if (dni > 0) {
+                return String.format("%d, %02d : %02d : %.2f"  ,dni, hodiny, minuty, sekundy );
+            } else {
+                return String.format("%02d : %02d : %.2f"  , hodiny, minuty, sekundy );
+            }
         }
+    }
 
+    public static String FormatujSimulacnyCas(double cas) {
+        return FormatujSimulacnyCas(cas, true);
     }
 
     public static String FormatujDouble(double cislo) {
@@ -335,17 +363,49 @@ public class Helper {
     public static <T> void PridajTabulkeStlpce(TableView<T> table, TableColumnItem<T>... attributes) {
         table.getColumns().clear();
         for (TableColumnItem atribut: attributes) {
-            TableColumn<T, String> tableColumn = new TableColumn<>(atribut.viewName_);
+            TableColumn<T, String> tableColumn = new TableColumn<>(atribut._viewName);
             tableColumn.setCellValueFactory(param -> new SimpleStringProperty((String) atribut.spracuj_.apply(param.getValue())));
-            tableColumn.setMinWidth(atribut.minWidth_);
+            tableColumn.setMinWidth(atribut._minWidth);
+            if (atribut._maxWidth != TableColumnItem.IGNORE_MAX_WIDTH) {
+                tableColumn.setMaxWidth(atribut._maxWidth);
+            }
             tableColumn.setSortable(false);
-
             table.getColumns().add(tableColumn);
         }
     }
 
     public static <T> void PridajTabulkeStlpce(TableView<T> table, List<TableColumnItem<T>> attributes) {
         PridajTabulkeStlpce(table, (TableColumnItem<T>[]) attributes.toArray());
+
+    }
+
+    public static void ParseLine(String cvsLine,ArrayList<String> result) {
+
+        result.clear();
+        //if empty, return!
+        if (cvsLine == null || cvsLine.isEmpty()) {
+            return;
+        }
+        char separator = DEFAULT_SEPARATOR;
+        StringBuffer curVal = new StringBuffer();
+        char[] chars = cvsLine.toCharArray();
+        for (char ch : chars) {
+            if (ch == separator) {
+                result.add(curVal.toString());
+                curVal = new StringBuffer();
+            } else if (ch == '\r') {
+                //ignore LF characters
+                continue;
+            } else if (ch == '\n') {
+                //the end, break!
+                break;
+            } else {
+                curVal.append(ch);
+            }
+        }
+        if (curVal.length() > 0) {
+            result.add(curVal.toString());
+        }
 
     }
 
