@@ -1,5 +1,6 @@
 package managers;
 
+import Model.Vozidlo;
 import OSPABA.*;
 import simulation.*;
 import agents.*;
@@ -25,24 +26,54 @@ public class ManagerPohybu extends Manager {
 
 	//meta! sender="AgentPrepravy", id="96", type="Notice"
 	public void processInit(MessageForm message) {
-
+		for (Vozidlo vozidlo: myAgent().getVozidla()) {
+			Sprava copy = (Sprava) message.createCopy();
+			copy.setVozidlo(vozidlo);
+			copy.setAddressee(Id.asistentVyjazdu);
+			startContinualAssistant(copy);
+		}
 	}
 
 	//meta! sender="AgentPrepravy", id="101", type="Notice"
 	public void processPresunVozidlaNaDalsiuZastavku(MessageForm message) {
+
+		message.setAddressee(Id.asistentPresunu);
+		startContinualAssistant(message);
 	}
 
 	//meta! sender="AsistentVyjazdu", id="160", type="Notice"
 	public void processFinishAsistentVyjazdu(MessageForm message) {
+		Sprava sprava = (Sprava) message;
+		message.setAddressee(mySim().findAgent(Id.agentPrepravy));
+
+		if (mySim().isKrokovanie()) {
+			mySim().pauseSimulation();
+			Vozidlo vozidlo = sprava.getVozidlo();
+			mySim().setCoPozastaviloSimulaciu("Pristavenie vozidla " + vozidlo.getIdVozidla() + " k zastávke: " + vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky());
+		}
+
+		message.setCode(Mc.prichodVozidlaNaZastavku);
+		notice(message);
 	}
 
 	//meta! sender="AsistentPresunu", id="161", type="Notice"
 	public void processFinishAsistentPresunu(MessageForm message) {
+		Sprava sprava = (Sprava) message;
+		message.setAddressee(mySim().findAgent(Id.agentPrepravy));
+
+		if (mySim().isKrokovanie()) {
+			mySim().pauseSimulation();
+			Vozidlo vozidlo = sprava.getVozidlo();
+			mySim().setCoPozastaviloSimulaciu("Príchod vozidla " + vozidlo.getIdVozidla() + " k zastávke: " + vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky());
+		}
+
+		message.setCode(Mc.prichodVozidlaNaZastavku);
+		notice(message);
 	}
 
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
-		throw new RuntimeException("nemal by si tu dostat spravu");
+		throw new RuntimeException("do defaultu by si nemal dostat spravu");
 	}
 
 	//meta! userInfo="Generated code: do not modify", tag="begin"
@@ -84,4 +115,8 @@ public class ManagerPohybu extends Manager {
 		return (AgentPohybu)super.myAgent();
 	}
 
+	@Override
+	public SimulaciaDopravy mySim() {
+		return (SimulaciaDopravy) super.mySim();
+	}
 }
