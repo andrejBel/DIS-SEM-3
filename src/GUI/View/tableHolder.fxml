@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox fx:id="contentVBox">
+         <children>
+            <TableView fx:id="tableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+            </TableView>
+         </children>
+        </VBox>
+        <JFXDialog fx:id="dialog" overlayClose="false" transitionType="TOP">
+            <JFXDialogLayout fx:id="dialogLayout" minWidth="600">
+                <body>
+                    <VBox fx:id="dialogVBox" alignment="CENTER" spacing="10">
+                    </VBox>
+                </body>
+            </JFXDialogLayout>
+        </JFXDialog>
+    </children>
+</StackPane>
