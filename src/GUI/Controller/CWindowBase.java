@@ -18,7 +18,7 @@ public abstract class CWindowBase extends ControllerBase {
 
 
     protected void initView() {
-        scene_= new Scene(getView());
+        scene_= new Scene(getView(), 1200.0, 800.0);
         stageWindow_ = new Stage();
         stageWindow_.setScene(scene_);
         stageWindow_.setTitle(getViewName());
