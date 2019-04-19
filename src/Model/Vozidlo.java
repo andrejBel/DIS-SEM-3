@@ -2,6 +2,7 @@ package Model;
 
 import Model.Enumeracie.STAV_VOZIDLA;
 import Model.Enumeracie.TYP_VOZIDLA;
+import Model.Info.VozidloInfo;
 import OSPABA.Simulation;
 import OSPDataStruct.SimQueue;
 import Stanok.Simulacia.Sprava;
@@ -65,7 +66,7 @@ public class Vozidlo extends SimulationEntity {
         _zastavkaNaKtorejJeNaposledyBol = _linkaNaKtorejJazdi.getZastavky().get(_indexZastavkyLinky);
         _stavVozidla = STAV_VOZIDLA.CAKANIE_NA_ZASTAVKE;
         _pohybujeSa = false;
-
+        _casPrichoduNaDalsiuZastavu = mySim().currentTime();
     }
 
     /*
@@ -113,7 +114,7 @@ public class Vozidlo extends SimulationEntity {
         _kolkoSekundJazdilo += _zastavkaNaKtorejJeNaposledyBol.getCasPresunuNaDalsiuZastavku();
 
         ++_indexZastavkyLinky;
-        if (_indexZastavkyLinky > _linkaNaKtorejJazdi.getZastavky().size()) {
+        if (_indexZastavkyLinky >= _linkaNaKtorejJazdi.getZastavky().size()) {
             _indexZastavkyLinky = 0;
         }
         _zastavkaNaKtorejJeNaposledyBol = _linkaNaKtorejJazdi.getZastavky().get(_indexZastavkyLinky);
@@ -137,7 +138,8 @@ public class Vozidlo extends SimulationEntity {
                 info += ", prejdených " + Helper.FormatujDouble(kolkoPercentPrejdenych) + " %";
                 break;
             case CAKANIE_NA_ZASTAVKE:
-                info = "Čakanie na zastávke: " + getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() + ", nasledujúca zastávka: " + getNasledujucaZastavka().getNazovZastavky();
+                info = "Čakanie na zastávke: " + getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() +
+                        ", nasledujúca zastávka: " + getNasledujucaZastavka().getNazovZastavky() +", čas príchodu: " + Helper.FormatujSimulacnyCas(_casPrichoduNaDalsiuZastavu);
                 break;
             default:
                 break;
@@ -162,11 +164,11 @@ public class Vozidlo extends SimulationEntity {
         return _zastavkaNaKtorejJeNaposledyBol.getCasPresunuNaDalsiuZastavku();
     }
 
-    public Zastavka getAktualnaAleboPoslednaNavstivenaZastavka() {
+    public ZastavkaKonfiguracia getAktualnaAleboPoslednaNavstivenaZastavka() {
         return _zastavkaNaKtorejJeNaposledyBol.getZastavka();
     }
 
-    public Zastavka getNasledujucaZastavka() {
+    public ZastavkaKonfiguracia getNasledujucaZastavka() {
         return _zastavkaNaKtorejJeNaposledyBol.getDalsiaZastavka();
     }
 
@@ -174,6 +176,15 @@ public class Vozidlo extends SimulationEntity {
         return _stavVozidla;
     }
 
+    public double getCasPrijazduNaPrvuZastavku() {
+        return _casPrijazduNaPrvuZastavku;
+    }
 
+    public VozidloInfo getVozidloInfo() {
+        return new VozidloInfo(_idVozidla, _typVozidla.getNazov(), kolkoSekundSaJazdilo(), _stavVozidla.getStav(), infoOStave(), _cestujuciVoVozidle.size());
+    }
 
+    public long getIdVozidla() {
+        return _idVozidla;
+    }
 }
