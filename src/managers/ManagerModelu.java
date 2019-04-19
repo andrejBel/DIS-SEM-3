@@ -30,7 +30,7 @@ public class ManagerModelu extends Manager {
 
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
-		throw new RuntimeException("Tu sa nedostanes");
+		throw new RuntimeException("Default vetva by nemala nikdy nastat");
 	}
 
 

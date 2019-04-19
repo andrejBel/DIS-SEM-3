@@ -44,16 +44,12 @@ public class ManagerPrepravy extends Manager {
 
 	//meta! sender="AgentPohybu", id="94", type="Notice"
 	public void processPrichodVozidlaNaZastavkuAgentPohybu(MessageForm message) {
-
-
+        message.setAddressee(Id.procesNastupuZakaznikov);
+        startContinualAssistant(message);
 	}
 
 	//meta! sender="AgentZastavok", id="110", type="Response"
 	public void processPrichodVozidlaNaZastavkuAgentZastavok(MessageForm message) {
-	}
-
-	//meta! userInfo="Removed from model"
-	public void processFinish(MessageForm message) {
 	}
 
 	//meta! sender="AgentModelu", id="97", type="Notice"
@@ -64,10 +60,15 @@ public class ManagerPrepravy extends Manager {
 	public void processNastupVystupZakaznika(MessageForm message) {
 	}
 
+    public void processFinishProcesNastupuZakaznikov(MessageForm message) {
+        message.setAddressee(mySim().findAgent(Id.agentPohybu));
+        message.setCode(Mc.presunVozidlaNaDalsiuZastavku);
+        notice(message);
+    }
+
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
-		switch (message.code()) {
-		}
+		throw new RuntimeException("Default vetva by nemala nikdy nastat");
 	}
 
 	//meta! userInfo="Generated code: do not modify", tag="begin"
@@ -77,35 +78,45 @@ public class ManagerPrepravy extends Manager {
 	@Override
 	public void processMessage(MessageForm message) {
 		switch (message.code()) {
-		case Mc.prichodZakaznikaNaZastavku:
-			processPrichodZakaznikaNaZastavku(message);
-		break;
+			case Mc.prichodVozidlaNaZastavku:
+				switch (message.sender().id()) {
+					case Id.agentZastavok:
+						processPrichodVozidlaNaZastavkuAgentZastavok(message);
+						break;
 
-		case Mc.nastupVystupZakaznika:
-			processNastupVystupZakaznika(message);
-		break;
+					case Id.agentPohybu:
+						processPrichodVozidlaNaZastavkuAgentPohybu(message);
+						break;
+				}
+				break;
 
-		case Mc.prichodVozidlaNaZastavku:
-			switch (message.sender().id()) {
-			case Id.agentPohybu:
-				processPrichodVozidlaNaZastavkuAgentPohybu(message);
-			break;
+			case Mc.prichodZakaznikaNaZastavku:
+				processPrichodZakaznikaNaZastavku(message);
+				break;
 
-			case Id.agentZastavok:
-				processPrichodVozidlaNaZastavkuAgentZastavok(message);
-			break;
-			}
-		break;
+			case Mc.init:
+				processInit(message);
+				break;
 
-		case Mc.init:
-			processInit(message);
-		break;
+			case Mc.finish:
+				switch (message.sender().id()) {
 
-		default:
-			processDefault(message);
-		break;
+					case Id.procesNastupuZakaznikov:
+						processFinishProcesNastupuZakaznikov(message);
+						break;
+				}
+				break;
+
+			case Mc.nastupVystupZakaznika:
+				processNastupVystupZakaznika(message);
+				break;
+
+			default:
+				processDefault(message);
+				break;
 		}
 	}
+
 	//meta! tag="end"
 
 	@Override

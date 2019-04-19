@@ -33,8 +33,7 @@ public class ManagerZastavok extends Manager {
 
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
-		switch (message.code()) {
-		}
+		throw new RuntimeException("Default vetva by nemala nikdy nastat");
 	}
 
 	//meta! userInfo="Generated code: do not modify", tag="begin"

@@ -1,6 +1,7 @@
 package continualAssistants;
 
 import OSPABA.*;
+import Utils.Helper;
 import simulation.*;
 import agents.*;
 import OSPABA.Process;
@@ -19,16 +20,18 @@ public class ProcesNastupuZakaznikov extends Process {
 
 	//meta! sender="AgentPrepravy", id="188", type="Notice"
 	public void processZakazniciNastupili(MessageForm message) {
+		assistantFinished(message);
 	}
 
 	//meta! sender="AgentPrepravy", id="180", type="Notice"
 	public void processStart(MessageForm message) {
+		message.setCode(Mc.zakazniciNastupili);
+		hold(Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund(), message);
 	}
 
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
-		switch (message.code()) {
-		}
+		throw new RuntimeException("Default vetva by nemala nikdy nastat");
 	}
 
 	//meta! userInfo="Generated code: do not modify", tag="begin"

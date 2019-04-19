@@ -27,14 +27,13 @@ public class ManagerOkolia extends Manager {
 	public void processInit(MessageForm message) {
 	}
 
-	//meta! userInfo="Removed from model"
-	public void processPrichodZakaznika(MessageForm message) {
+	//meta! sender="PlanovacPrichodovZakaznikovNaZastavku", id="163", type="Notice"
+	public void processFinish(MessageForm message) {
 	}
 
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
-		switch (message.code()) {
-		}
+		throw new RuntimeException("Default vetva by nemala nikdy nastat");
 	}
 
 	//meta! userInfo="Generated code: do not modify", tag="begin"
@@ -44,13 +43,17 @@ public class ManagerOkolia extends Manager {
 	@Override
 	public void processMessage(MessageForm message) {
 		switch (message.code()) {
-		case Mc.init:
-			processInit(message);
-		break;
+			case Mc.init:
+				processInit(message);
+				break;
 
-		default:
-			processDefault(message);
-		break;
+			case Mc.finish:
+				processFinish(message);
+				break;
+
+			default:
+				processDefault(message);
+				break;
 		}
 	}
 	//meta! tag="end"
