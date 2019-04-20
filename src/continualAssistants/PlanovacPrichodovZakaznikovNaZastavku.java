@@ -11,6 +11,7 @@ public class PlanovacPrichodovZakaznikovNaZastavku extends Scheduler {
 
 	ExponentialRNG _exponentialRNG;
 	ZastavkaOkolie _zastavkaOkolie;
+	private int _pocetVygenerovanychZakaznikov;
 
 	public PlanovacPrichodovZakaznikovNaZastavku(int id, Simulation mySim, CommonAgent myAgent, ZastavkaOkolie zastavkaOkolie) {
 		super(id, mySim, myAgent);
@@ -22,6 +23,7 @@ public class PlanovacPrichodovZakaznikovNaZastavku extends Scheduler {
 	public void prepareReplication() {
 		super.prepareReplication();
 		// Setup component for the next replication
+		_pocetVygenerovanychZakaznikov = 0;
 	}
 
 	//meta! sender="AgentOkolia", id="148", type="Notice"
@@ -43,7 +45,8 @@ public class PlanovacPrichodovZakaznikovNaZastavku extends Scheduler {
 
 	//meta! sender="AgentOkolia", id="139", type="Notice"
 	public void processPrichodZakaznikaNaZastavku(MessageForm message) {
-		if (mySim().currentTime() < _zastavkaOkolie.getCasKoncaGenerovaniaPrichodovCestujucich()) {
+		_pocetVygenerovanychZakaznikov++;
+		if (mySim().currentTime() < _zastavkaOkolie.getCasKoncaGenerovaniaPrichodovCestujucich() && _pocetVygenerovanychZakaznikov < _zastavkaOkolie.getZastavkaKonfiguracia().getMaximalnyPocetCestujucich()) {
 			Sprava sprava = (Sprava) message.createCopy();
 			hold(_exponentialRNG.sample(), sprava);
 		}

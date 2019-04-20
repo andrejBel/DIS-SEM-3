@@ -21,5 +21,8 @@ public class Id extends IdList {
 	public static final int asistentVyjazdu = 1004;
 	public static final int asistentPresunu = 1005;
 	public static final int planovacPrichodovZakaznikovNaZastavku = 1006;
+
+
+	public static final int pociatocneIdPrePlanovacPrichodovZakaznikov_ = 10000;
 	//meta! tag="end"
 }
