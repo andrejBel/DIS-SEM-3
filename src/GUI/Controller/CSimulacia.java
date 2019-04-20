@@ -33,6 +33,7 @@ import simulation.SimulaciaWrapper;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CSimulacia extends ControllerBase implements ISimDelegate {
 
@@ -217,6 +218,10 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
         checkBoxesToDisable = Arrays.asList(checkBoxNormalny, checkBoxZrychleny);
 
+        checkBoxKrokovanie.selectedProperty().addListener( (observable, oldValue, newValue) -> {
+            _simulacia.setKrokovanie(newValue);
+        });
+
         // TEXTFIELDS
         textFields = Arrays.asList(
                 textFieldReplications
@@ -261,14 +266,37 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             _oknoKonfiguracie.openWindow();
         });
 
+        List<ZastavkaKonfiguracia> zastavky = _simulacia.getZoznamZastavok();
+
+        for (ZastavkaKonfiguracia zastavka: zastavky) {
+            CTableHolder<CestujuciInfo> statistikaInfoCTableHolder = new CTableHolder<>(simulaciaWrapper_, stage, zastavka.getNazovZastavky(), CestujuciInfo.ATRIBUTY);
+            zastavkyInfo_.put(zastavka.getNazovZastavky(), statistikaInfoCTableHolder);
+
+            tabPaneZastavky.getTabs().add(statistikaInfoCTableHolder.getTab());
+        }
+
         _simulacia.onSimulationWillStart(s -> {
             checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(true));
             buttonStart.setDisable(true);
             buttonKonfiguraciaVozidiel.setDisable(true);
+
+            statistikyReplikacieData_.clear();
+            statistikySimulacieData_.clear();
+
         });
 
         _simulacia.onReplicationWillStart(s -> {
             setSimulationSpeed();
+
+            Platform.runLater(() -> {
+                zastavkyInfo_.forEach( (n, holder) -> { holder.clearTableViewData();});
+            });
+
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         });
 
@@ -306,13 +334,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             setSimulationSpeed();
         });
 
-        List<ZastavkaKonfiguracia> zastavky = _simulacia.getZoznamZastavok();
 
-        for (ZastavkaKonfiguracia zastavka: zastavky) {
-            CTableHolder<CestujuciInfo> statistikaInfoCTableHolder = new CTableHolder<>(simulaciaWrapper_, stage, zastavka.getNazovZastavky(), CestujuciInfo.ATRIBUTY);
-
-            tabPaneZastavky.getTabs().add(statistikaInfoCTableHolder.getTab());
-        }
     }
 
     @Override
@@ -341,9 +363,23 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             statistikyReplikacieData_.clear();
             statistikyReplikacieData_.addAll(behReplikacieInfo.statistiky_);
             tableViewVozidla.setItems(behReplikacieInfo.vozidlaInfo_);
+
+            for (Map.Entry<String, CTableHolder<CestujuciInfo>> zastavkaEntry: zastavkyInfo_.entrySet()) {
+
+                String nazovZastavky = zastavkaEntry.getKey();
+                CTableHolder<CestujuciInfo> tableHolder = zastavkaEntry.getValue();
+                if (_simulacia.isKrokovanie()) {
+                    tableHolder.setTableViewData(behReplikacieInfo.cestujuciInfo_.get(nazovZastavky));
+                } else {
+                    tableHolder.setTableViewDataLazy(behReplikacieInfo.cestujuciInfo_.get(nazovZastavky));
+                }
+
+            }
+
+
         });
         try {
-            Thread.sleep(1);
+            Thread.sleep(10);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

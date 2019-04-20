@@ -18,25 +18,31 @@ public class CTableHolder<T> extends CWindowBase {
 
     @FXML
     private TableView<T> tableView;
-    private ObservableList<T> tableViewData_;
+
+    private ObservableList<T> tableViewDataLazy_;
 
     public CTableHolder(SimulaciaWrapper simulaciaWrapper, Stage stage, String viewName, List<TableColumnItem<T>> tableColumnItems) {
         super(simulaciaWrapper, stage);
         getStage().setTitle(viewName);
         this.viewName_ = viewName;
         Helper.PridajTabulkeStlpce(tableView, tableColumnItems);
-        Helper.InstallCopyPasteHandler(tableView);
-        tableViewData_ = tableView.getItems();
+        tableViewDataLazy_ = tableView.getItems();
+        //Helper.InstallCopyPasteHandler(tableView);
     }
 
     @Override
     public Runnable getRunnableOnSelection() {
-        return () -> { selected_ = true; };
+        return () -> {
+            tableView.setItems(tableViewDataLazy_);
+            selected_ = true;
+        };
     }
 
     @Override
     public Runnable getRunnableOnUnSelection() {
-        return () -> { selected_ = false; };
+        return () -> {
+            selected_ = false;
+        };
     }
 
     @Override
@@ -75,13 +81,26 @@ public class CTableHolder<T> extends CWindowBase {
         return selected_;
     }
 
-    public void setTableViewData(List<T> tableViewData) {
-        tableViewData_.clear();
-        tableViewData_.addAll(tableViewData);
+
+    public void setTableViewData(ObservableList<T> list) {
+        tableViewDataLazy_ = list;
+        tableView.setItems(list);
+    }
+
+    public void setTableViewDataLazy(ObservableList<T> list) {
+        tableViewDataLazy_ = list;
+        if (selected_) {
+            tableView.setItems(list);
+        }
     }
 
     public ObservableList<T> getTableViewData() {
-        return tableViewData_;
+        return tableView.getItems();
     }
+
+    public void clearTableViewData() {
+        this.tableView.getItems().clear();
+    }
+
 
 }
