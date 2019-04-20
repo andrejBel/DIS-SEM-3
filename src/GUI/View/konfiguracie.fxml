@@ -20,7 +20,7 @@
             <GridPane hgap="10.0">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
@@ -39,6 +39,7 @@
             <GridPane alignment="CENTER" hgap="16.0" vgap="16.0">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                </columnConstraints>
@@ -49,10 +50,11 @@
                <children>
                       <JFXComboBox fx:id="comboBoxTypVozidla" labelFloat="true" prefWidth="200.0" promptText="Typ vozidla" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
                       <JFXComboBox fx:id="comboBoxLinky" labelFloat="true" prefWidth="200.0" promptText="Linka" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                      <JFXButton fx:id="buttonPridajKonfiguraciu" prefWidth="150.0" text="Pridať" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
-                  <JFXButton fx:id="buttonOdstranKonfiguracie" prefWidth="150.0" text="Odstráň" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                  <JFXButton fx:id="buttonUlozKonfiguraciu" prefWidth="150.0" text="Ulož konfiguráciu" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
-                  <JFXButton fx:id="buttonNacitajKonfiguraciu" prefWidth="150.0" text="Načítaj konfiguráciu" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                      <JFXButton fx:id="buttonPridajKonfiguraciu" prefWidth="100.0" text="Pridať" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                  <JFXButton fx:id="buttonOdstranKonfiguracie" prefWidth="100.0" text="Odstráň" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                  <JFXButton fx:id="buttonUlozKonfiguraciu" prefWidth="150.0" text="Ulož konfiguráciu" GridPane.columnIndex="3" GridPane.halignment="CENTER" />
+                  <JFXButton fx:id="buttonNacitajKonfiguraciu" prefWidth="150.0" text="Načítaj konfiguráciu" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                  <JFXComboBox fx:id="comboBoxPrevadzkaLinky" labelFloat="true" layoutX="10.0" layoutY="10.0" prefWidth="200.0" promptText="Spôsob prevádzky linky" GridPane.columnIndex="2" GridPane.halignment="LEFT" />
                </children>
                <VBox.margin>
                   <Insets bottom="22.0" />

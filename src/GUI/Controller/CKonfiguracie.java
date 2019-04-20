@@ -1,7 +1,9 @@
 package GUI.Controller;
 
+import Model.Enumeracie.PREVADZKA_LINIEK;
 import Model.Enumeracie.TYP_LINKY;
 import Model.Enumeracie.TYP_VOZIDLA;
+import Model.Info.KonfiguraciaVozidiel;
 import Model.VozidloKonfiguracia;
 import Utils.Helper;
 import com.jfoenix.controls.JFXButton;
@@ -39,6 +41,9 @@ public class CKonfiguracie extends CWindowBase {
     private JFXComboBox<TYP_LINKY> comboBoxLinky;
 
     @FXML
+    private JFXComboBox<PREVADZKA_LINIEK> comboBoxPrevadzkaLinky;
+
+    @FXML
     private JFXButton buttonPridajKonfiguraciu;
 
     @FXML
@@ -56,6 +61,7 @@ public class CKonfiguracie extends CWindowBase {
     private SimpleBooleanProperty isCasPrichoduOk = new SimpleBooleanProperty(false);
     private SimpleBooleanProperty isTypVozidlaOk = new SimpleBooleanProperty(false);
     private SimpleBooleanProperty isTypLinkyOk = new SimpleBooleanProperty(false);
+    private SimpleBooleanProperty isPrevadzkaLinkyOk = new SimpleBooleanProperty(false);
 
     private SimpleBooleanProperty isNazovSuboruOkOK = new SimpleBooleanProperty(false);
 
@@ -63,6 +69,7 @@ public class CKonfiguracie extends CWindowBase {
 
     private TYP_VOZIDLA typVozidla_ = null;
     private TYP_LINKY typLinky_ = null;
+    private PREVADZKA_LINIEK prevadzkaLiniek_ = null;
 
     private FileChooser.ExtensionFilter extFilter_;
     private FileChooser fileChooser_;
@@ -131,9 +138,32 @@ public class CKonfiguracie extends CWindowBase {
 
         comboBoxLinky.getItems().addAll(TYP_LINKY.values());
 
+
+        comboBoxPrevadzkaLinky.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            PREVADZKA_LINIEK prevadzkaLiniek = newValue;
+            isPrevadzkaLinkyOk.set(prevadzkaLiniek != null);
+            this.prevadzkaLiniek_ = prevadzkaLiniek;
+        });
+
+        comboBoxPrevadzkaLinky.setConverter(new StringConverter<PREVADZKA_LINIEK>() {
+            @Override
+            public String toString(PREVADZKA_LINIEK object) {
+                if (object == null) {
+                    return "";
+                }
+                return object.getNazov();
+            }
+
+            @Override
+            public PREVADZKA_LINIEK fromString(String string) {
+                return null;
+            }
+        });
+        comboBoxPrevadzkaLinky.getItems().addAll(PREVADZKA_LINIEK.values());
+
         Helper.DecorateComboBoxWithValidator(comboBoxTypVozidla, isTypVozidlaOk);
         Helper.DecorateComboBoxWithValidator(comboBoxLinky, isTypLinkyOk);
-
+        Helper.DecorateComboBoxWithValidator(comboBoxPrevadzkaLinky, isPrevadzkaLinkyOk);
 
         Helper.DecorateNumberTextFieldWithValidator(textFieldPrichod, isCasPrichoduOk);
         Helper.DecorateTextFieldWithValidator(textFieldNazovSuboru, isNazovSuboruOkOK);
@@ -172,8 +202,9 @@ public class CKonfiguracie extends CWindowBase {
         });
 
         buttonUlozKonfiguraciu.setOnAction(event -> {
-            if (Helper.DisableButton(buttonUlozKonfiguraciu, Arrays.asList(isNazovSuboruOkOK), () -> {
+            if (Helper.DisableButton(buttonUlozKonfiguraciu, Arrays.asList(isNazovSuboruOkOK, isPrevadzkaLinkyOk), () -> {
                 textFieldNazovSuboru.validate();
+                comboBoxPrevadzkaLinky.validate();
             })) {
                 return;
             }
@@ -203,10 +234,11 @@ public class CKonfiguracie extends CWindowBase {
             if (file != null) {
                 String filePath = file.getAbsolutePath();
                 System.out.println(filePath);
-                ArrayList<VozidloKonfiguracia> konfiguracie = new ArrayList<>();
-                if (_simulacia.nacitajKonfiguraciuVozidiel(filePath, konfiguracie)) {
+                KonfiguraciaVozidiel konfiguracia = new KonfiguraciaVozidiel();
+                if (_simulacia.nacitajKonfiguraciuVozidiel(filePath, konfiguracia)) {
                     tableViewKonfiguracie.getItems().clear();
-                    tableViewKonfiguracie.getItems().addAll(konfiguracie);
+                    tableViewKonfiguracie.getItems().addAll(konfiguracia.getKonfiguraciaVozidiel());
+                    comboBoxPrevadzkaLinky.getSelectionModel().select(konfiguracia.getPrevadzkaLiniek());
 
                     showSuccessDialog("Konfigurácia úspešne načítaná");
                 } else {
@@ -234,6 +266,9 @@ public class CKonfiguracie extends CWindowBase {
 
         comboBoxLinky.disableProperty().unbind();
         comboBoxLinky.setDisable(false);
+
+        comboBoxPrevadzkaLinky.disableProperty().unbind();
+        comboBoxPrevadzkaLinky.setDisable(false);
 
         textFieldPrichod.setText("");
         textFieldNazovSuboru.setText("");
@@ -263,10 +298,10 @@ public class CKonfiguracie extends CWindowBase {
         return "Konfigurácie";
     }
 
-    public ArrayList<VozidloKonfiguracia> getKonfiguracie() {
+    public KonfiguraciaVozidiel getKonfiguracie() {
         ArrayList<VozidloKonfiguracia> konfiguracie = new ArrayList<>();
         konfiguracie.addAll(tableViewKonfiguracie.getItems());
-        return konfiguracie;
+        return new KonfiguraciaVozidiel(prevadzkaLiniek_, konfiguracie);
     }
 
 

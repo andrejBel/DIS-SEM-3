@@ -1,10 +1,12 @@
 package simulation;
 
 import Model.*;
+import Model.Enumeracie.PREVADZKA_LINIEK;
 import Model.Enumeracie.TYP_LINKY;
 import Model.Enumeracie.TYP_VOZIDLA;
 import Model.Info.BehReplikacieInfo;
 import Model.Info.BehSimulacieInfo;
+import Model.Info.KonfiguraciaVozidiel;
 import Model.Info.VozidloInfo;
 import OSPABA.*;
 import Statistiky.StatistikaInfo;
@@ -294,10 +296,11 @@ public AgentNastupuVystupu agentNastupuVystupu()
 		return info;
 	}
 
-	public boolean ulozKonfiguraciuVozidiel(String cesta, List<VozidloKonfiguracia> konfiguracie) {
+	public boolean ulozKonfiguraciuVozidiel(String cesta, KonfiguraciaVozidiel konfiguraciaVozidiel) {
 		try (PrintWriter writer = new PrintWriter(cesta)) {
-			for (VozidloKonfiguracia konfiguracia: konfiguracie) {
-				StringBuilder stringBuilder = new StringBuilder();
+			writer.println(konfiguraciaVozidiel.getPrevadzkaLiniek().getNazov());
+			for (VozidloKonfiguracia konfiguracia: konfiguraciaVozidiel.getKonfiguraciaVozidiel()) {
+
 				writer.println(
 								konfiguracia.getTypVozidla().getNazov() + Helper.DEFAULT_SEPARATOR +
 								konfiguracia.getTypLinky().getNazovLinky() + Helper.DEFAULT_SEPARATOR +
@@ -312,20 +315,25 @@ public AgentNastupuVystupu agentNastupuVystupu()
 		return true;
 	}
 
-	public boolean nacitajKonfiguraciuVozidiel(String cesta, List<VozidloKonfiguracia> vyslednaKonfiguracia) {
+	public boolean nacitajKonfiguraciuVozidiel(String cesta, KonfiguraciaVozidiel vyslednaKonfiguracia) {
 		try(BufferedReader br = new BufferedReader(new FileReader(cesta))) {
 			ArrayList<String> parsedLine = new ArrayList<>();
-			vyslednaKonfiguracia.clear();
-			for(String line; (line = br.readLine()) != null; ) {
+
+			String line = br.readLine();
+			Helper.ParseLine(line, parsedLine);
+			vyslednaKonfiguracia.setPrevadzkaLiniek(PREVADZKA_LINIEK.GetPrevadzkuLiniekPodlaNazvu(parsedLine.get(0)));
+			ArrayList<VozidloKonfiguracia> konfiguraciaVozidiel = new ArrayList<>();
+			for(; (line = br.readLine()) != null; ) {
 				Helper.ParseLine(line, parsedLine);
 
-				vyslednaKonfiguracia.add(new VozidloKonfiguracia(
+				konfiguraciaVozidiel.add(new VozidloKonfiguracia(
 						TYP_VOZIDLA.GetTypVozidlaNaZakladeNazvu(parsedLine.get(0)),
 						TYP_LINKY.GetTypLinkyNaZakladeNazvu(parsedLine.get(1)),
 						Double.parseDouble(parsedLine.get(2))
 				));
 
 			}
+			vyslednaKonfiguracia.setKonfiguraciaVozidiel(konfiguraciaVozidiel);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
