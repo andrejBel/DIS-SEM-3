@@ -4,31 +4,37 @@ import Model.*;
 import Model.Enumeracie.PREVADZKA_LINIEK;
 import Model.Enumeracie.TYP_LINKY;
 import Model.Enumeracie.TYP_VOZIDLA;
-import Model.Info.BehReplikacieInfo;
-import Model.Info.BehSimulacieInfo;
-import Model.Info.KonfiguraciaVozidiel;
-import Model.Info.VozidloInfo;
+import Model.Info.*;
 import OSPABA.*;
+import OSPStat.Stat;
+import Statistiky.StatNamed;
 import Statistiky.StatistikaInfo;
 import Utils.Helper;
 import agents.*;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class SimulaciaDopravy extends Simulation {
 
     private List<ZastavkaKonfiguracia> _zoznamZastavok = new ArrayList<>();
     private HashMap<String, ZastavkaKonfiguracia> _zastavkyKonfiguracia = new HashMap<>();
-    private ArrayList<VozidloKonfiguracia> _vozidlaKonfiguracia = new ArrayList<>();
+    private KonfiguraciaVozidiel konfiguraciaVozidiel_ = new KonfiguraciaVozidiel(null, null);
 	private HashMap<TYP_LINKY, Linka> _linky = new HashMap<>();
 
     private boolean _krokovanie = false;
     private String _coPozastaviloSimulaciu;
+	private double _casZaciatkuZapasu;
+
+
+	// GLOBALNE STATISTIKY
+	private StatNamed pocetCestujucichSim = new StatNamed("Počet cestujúcich");
+
+	private List<Stat> _simStats = Arrays.asList(
+			pocetCestujucichSim
+	);
 
 
 	public SimulaciaDopravy() {
@@ -38,45 +44,46 @@ public class SimulaciaDopravy extends Simulation {
 	//meta! userInfo="Generated code: do not modify", tag="begin"
 	private void init() {
         _zoznamZastavok = Arrays.asList(
-                new ZastavkaKonfiguracia("AA",3900.0/123.0),
-                new ZastavkaKonfiguracia("AB",3900.0/92.0),
-                new ZastavkaKonfiguracia("AC",3900.0/241.0),
-                new ZastavkaKonfiguracia("AD",3900.0/123.0),
-                new ZastavkaKonfiguracia("AE",3900.0/215.0),
-                new ZastavkaKonfiguracia("AF",3900.0/245.0),
-                new ZastavkaKonfiguracia("AG",3900.0/137.0),
-                new ZastavkaKonfiguracia("AH",3900.0/132.0),
-                new ZastavkaKonfiguracia("AI",3900.0/164.0),
-                new ZastavkaKonfiguracia("AJ",3900.0/124.0),
-                new ZastavkaKonfiguracia("AK",3900.0/213.0),
-                new ZastavkaKonfiguracia("AL",3900.0/185.0),
-                new ZastavkaKonfiguracia("BA",3900.0/79.0),
-                new ZastavkaKonfiguracia("BB",3900.0/69.0),
-                new ZastavkaKonfiguracia("BC",3900.0/43.0),
-                new ZastavkaKonfiguracia("BD",3900.0/127.0),
-                new ZastavkaKonfiguracia("BE",3900.0/30.0),
-                new ZastavkaKonfiguracia("BF",3900.0/69.0),
-                new ZastavkaKonfiguracia("BG",3900.0/162.0),
-                new ZastavkaKonfiguracia("BH",3900.0/90.0),
-                new ZastavkaKonfiguracia("BI",3900.0/148.0),
-                new ZastavkaKonfiguracia("BJ",3900.0/171.0),
-                new ZastavkaKonfiguracia("CA",3900.0/240.0),
-                new ZastavkaKonfiguracia("CB",3900.0/310.0),
-                new ZastavkaKonfiguracia("CC",3900.0/131.0),
-                new ZastavkaKonfiguracia("CD",3900.0/190.0),
-                new ZastavkaKonfiguracia("CE",3900.0/132.0),
-                new ZastavkaKonfiguracia("CF",3900.0/128.0),
-                new ZastavkaKonfiguracia("CG",3900.0/70.0),
-                new ZastavkaKonfiguracia("K1",3900.0/260.0),
-                new ZastavkaKonfiguracia("K2",3900.0/210.0),
-                new ZastavkaKonfiguracia("K3",3900.0/220.0),
-                new ZastavkaKonfiguracia("ST", 0.0)
+				new ZastavkaKonfiguracia("AA",123),
+				new ZastavkaKonfiguracia("AB",92),
+				new ZastavkaKonfiguracia("AC",241),
+				new ZastavkaKonfiguracia("AD",123),
+				new ZastavkaKonfiguracia("AE",215),
+				new ZastavkaKonfiguracia("AF",245),
+				new ZastavkaKonfiguracia("AG",137),
+				new ZastavkaKonfiguracia("AH",132),
+				new ZastavkaKonfiguracia("AI",164),
+				new ZastavkaKonfiguracia("AJ",124),
+				new ZastavkaKonfiguracia("AK",213),
+				new ZastavkaKonfiguracia("AL",185),
+				new ZastavkaKonfiguracia("BA",79),
+				new ZastavkaKonfiguracia("BB",69),
+				new ZastavkaKonfiguracia("BC",43),
+				new ZastavkaKonfiguracia("BD",127),
+				new ZastavkaKonfiguracia("BE",30),
+				new ZastavkaKonfiguracia("BF",69),
+				new ZastavkaKonfiguracia("BG",162),
+				new ZastavkaKonfiguracia("BH",90),
+				new ZastavkaKonfiguracia("BI",148),
+				new ZastavkaKonfiguracia("BJ",171),
+				new ZastavkaKonfiguracia("CA",240),
+				new ZastavkaKonfiguracia("CB",310),
+				new ZastavkaKonfiguracia("CC",131),
+				new ZastavkaKonfiguracia("CD",190),
+				new ZastavkaKonfiguracia("CE",132),
+				new ZastavkaKonfiguracia("CF",128),
+				new ZastavkaKonfiguracia("CG",70),
+				new ZastavkaKonfiguracia("K1",260),
+                new ZastavkaKonfiguracia("K2",210),
+                new ZastavkaKonfiguracia("K3",220),
+                new ZastavkaKonfiguracia(KONSTANTY.STADION, 0)
         );
 
         for (ZastavkaKonfiguracia zastavkaKonfiguracia : _zoznamZastavok) {
             _zastavkyKonfiguracia.put(zastavkaKonfiguracia.getNazovZastavky(), zastavkaKonfiguracia);
         }
-        _zastavkyKonfiguracia.get("ST").setVystupnaZastavka();
+        ZastavkaKonfiguracia stadion = _zastavkyKonfiguracia.get(KONSTANTY.STADION);
+        stadion.setVystupnaZastavka();
 
 		Linka linkaA = new Linka(Arrays.asList(
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("AA"), 3.2 * 60.0, _zastavkyKonfiguracia.get("AB")),
@@ -92,8 +99,8 @@ public class SimulaciaDopravy extends Simulation {
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("AI"), 4.6 * 60.0, _zastavkyKonfiguracia.get("AJ")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("AJ"), 3.4 * 60.0, _zastavkyKonfiguracia.get("AK")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("AK"), 1.2 * 60.0, _zastavkyKonfiguracia.get("AL")),
-				new ZastavkaLinky(_zastavkyKonfiguracia.get("AL"), 0.9 * 60.0, _zastavkyKonfiguracia.get("ST")),
-				new ZastavkaLinky(_zastavkyKonfiguracia.get("ST"), 25 * 60.0, _zastavkyKonfiguracia.get("AA"))
+				new ZastavkaLinky(_zastavkyKonfiguracia.get("AL"), 0.9 * 60.0, _zastavkyKonfiguracia.get(KONSTANTY.STADION)),
+				new ZastavkaLinky(_zastavkyKonfiguracia.get(KONSTANTY.STADION), 25 * 60.0, _zastavkyKonfiguracia.get("AA"))
 		), TYP_LINKY.LINKA_A);
 
 		Linka linkaB = new Linka(Arrays.asList(
@@ -103,31 +110,46 @@ public class SimulaciaDopravy extends Simulation {
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("BD"), 4.3 * 60.0, _zastavkyKonfiguracia.get("K2")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("K2"), 1.2 * 60.0, _zastavkyKonfiguracia.get("BE")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("BE"), 2.7 * 60.0, _zastavkyKonfiguracia.get("BF")),
-				new ZastavkaLinky(_zastavkyKonfiguracia.get("BF"), 3.3 * 60.0, _zastavkyKonfiguracia.get("K3")),
-				new ZastavkaLinky(_zastavkyKonfiguracia.get("K3"), 6.6 * 60.0, _zastavkyKonfiguracia.get("BG")),
+				new ZastavkaLinky(_zastavkyKonfiguracia.get("BF"), 3.0 * 60.0, _zastavkyKonfiguracia.get("K3")),
+				new ZastavkaLinky(_zastavkyKonfiguracia.get("K3"), 6.0 * 60.0, _zastavkyKonfiguracia.get("BG")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("BG"), 4.3 * 60.0, _zastavkyKonfiguracia.get("BH")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("BH"), 0.5 * 60.0, _zastavkyKonfiguracia.get("BI")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("BI"), 2.7 * 60.0, _zastavkyKonfiguracia.get("BJ")),
-				new ZastavkaLinky(_zastavkyKonfiguracia.get("BJ"), 1.3 * 60.0, _zastavkyKonfiguracia.get("ST")),
-				new ZastavkaLinky(_zastavkyKonfiguracia.get("ST"), 10 * 60.0, _zastavkyKonfiguracia.get("BA"))
+				new ZastavkaLinky(_zastavkyKonfiguracia.get("BJ"), 1.3 * 60.0, _zastavkyKonfiguracia.get(KONSTANTY.STADION)),
+				new ZastavkaLinky(_zastavkyKonfiguracia.get(KONSTANTY.STADION), 10 * 60.0, _zastavkyKonfiguracia.get("BA"))
 		), TYP_LINKY.LINKA_B);
 
 		Linka linkaC = new Linka(Arrays.asList(
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("CA"), 0.6 * 60.0, _zastavkyKonfiguracia.get("CB")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("CB"), 2.3 * 60.0, _zastavkyKonfiguracia.get("K1")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("K1"), 4.1 * 60.0, _zastavkyKonfiguracia.get("K2")),
-				new ZastavkaLinky(_zastavkyKonfiguracia.get("K2"), 6.6 * 60.0, _zastavkyKonfiguracia.get("CC")),
+				new ZastavkaLinky(_zastavkyKonfiguracia.get("K2"), 6 * 60.0, _zastavkyKonfiguracia.get("CC")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("CC"), 2.3 * 60.0, _zastavkyKonfiguracia.get("CD")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("CD"), 7.1 * 60.0, _zastavkyKonfiguracia.get("CE")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("CE"), 4.8 * 60.0, _zastavkyKonfiguracia.get("CF")),
 				new ZastavkaLinky(_zastavkyKonfiguracia.get("CF"), 3.7 * 60.0, _zastavkyKonfiguracia.get("CG")),
-				new ZastavkaLinky(_zastavkyKonfiguracia.get("CG"), 7.2 * 60.0, _zastavkyKonfiguracia.get("ST")),
-				new ZastavkaLinky(_zastavkyKonfiguracia.get("ST"), 30 * 60.0, _zastavkyKonfiguracia.get("CA"))
+				new ZastavkaLinky(_zastavkyKonfiguracia.get("CG"), 7.2 * 60.0, _zastavkyKonfiguracia.get(KONSTANTY.STADION)),
+				new ZastavkaLinky(_zastavkyKonfiguracia.get(KONSTANTY.STADION), 30 * 60.0, _zastavkyKonfiguracia.get("CA"))
 		), TYP_LINKY.LINKA_C);
 
 		_linky.put(linkaA.getTypLinky(), linkaA);
 		_linky.put(linkaB.getTypLinky(), linkaB);
 		_linky.put(linkaC.getTypLinky(), linkaC);
+
+		// najdi zastavku, co je najdalej od stadiona
+		double najdlhsiCasPresunuZoZastavkyNaStadiona = 0;
+		for (Map.Entry<TYP_LINKY, Linka> infoOLinke: _linky.entrySet()) {
+			double vzdialenostKStadionu = 0.0;
+			ArrayList<ZastavkaLinky> zastavkyLinky = infoOLinke.getValue().getZastavky();
+			System.out.println(infoOLinke.getKey().getNazovLinky());
+			for (int indexLinky = zastavkyLinky.size() - 2; indexLinky >= 0; indexLinky--) { // ignorujem stadion
+				vzdialenostKStadionu += zastavkyLinky.get(indexLinky).getCasPresunuNaDalsiuZastavku();
+				zastavkyLinky.get(indexLinky).setVzdialenostKStadionu(vzdialenostKStadionu);
+			}
+			najdlhsiCasPresunuZoZastavkyNaStadiona = Math.max(najdlhsiCasPresunuZoZastavkyNaStadiona, vzdialenostKStadionu);
+		}
+		this._casZaciatkuZapasu = najdlhsiCasPresunuZoZastavkyNaStadiona + KONSTANTY.NAJSKORSI_PRICHOD_NA_ZASTAVKU;
+		System.out.println("Cas zaciatku zapasu: " + this._casZaciatkuZapasu);
 
 
 		setAgentModelu(new AgentModelu(Id.agentModelu, this, null));
@@ -222,13 +244,19 @@ public AgentNastupuVystupu agentNastupuVystupu()
     @Override
     public void prepareSimulation() {
         super.prepareSimulation();
-        setKonfiguraciuVozdiel( Arrays.asList(
-                //new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_A, 30.0),
-				//new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_B, 60.0),
-				new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, 90.0)
-        ));
 
-        agentPohybu().inizializujVozidla(_vozidlaKonfiguracia);
+        if (konfiguraciaVozidiel_.getKonfiguraciaVozidiel() == null) {
+			setKonfiguracia(
+					new KonfiguraciaVozidiel(PREVADZKA_LINIEK.PO_NASTUPENI_ODCHADZA, new ArrayList<>(Arrays.asList(
+
+							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, 90.0)
+					)))
+			);
+		}
+
+        agentPohybu().inizializujVozidla(konfiguraciaVozidiel_.getKonfiguraciaVozidiel());
+
+		_simStats.forEach(Stat::clear);
     }
 
     @Override
@@ -243,6 +271,8 @@ public AgentNastupuVystupu agentNastupuVystupu()
     public void replicationFinished() {
         // Collect local statistics into global, update UI, etc...
         super.replicationFinished();
+
+        pocetCestujucichSim.addSample(_agentZastavok.getPocetCestujucichRep());
     }
 
     @Override
@@ -251,9 +281,8 @@ public AgentNastupuVystupu agentNastupuVystupu()
         super.simulationFinished();
     }
 
-    public void setKonfiguraciuVozdiel(List<VozidloKonfiguracia> konfiguraciaVozidiel) {
-        this._vozidlaKonfiguracia.clear();
-        this._vozidlaKonfiguracia.addAll(konfiguraciaVozidiel);
+    public void setKonfiguracia(KonfiguraciaVozidiel konfiguraciaVozidiel) {
+        this.konfiguraciaVozidiel_ = konfiguraciaVozidiel;
     }
 
     public List<ZastavkaKonfiguracia> getZoznamZastavok() {
@@ -274,6 +303,7 @@ public AgentNastupuVystupu agentNastupuVystupu()
 
 		statistiky.add(new StatistikaInfo("Číslo replikácie", (this.currentReplication() + 1) + ""));
 		statistiky.add(new StatistikaInfo("Čas replikácie", Helper.FormatujSimulacnyCas(this.currentTime(), false)));
+		statistiky.add(new StatistikaInfo("Počet cestujúcich", String.valueOf(_agentZastavok.getPocetCestujucichRep()) ));
 		if (_krokovanie) {
 			statistiky.add(new StatistikaInfo("Čo pozastavilo simuláciu", _coPozastaviloSimulaciu));
 		}
@@ -281,6 +311,19 @@ public AgentNastupuVystupu agentNastupuVystupu()
 		ObservableList<VozidloInfo> vozidlaStatistiky = info.vozidlaInfo_;
 		for (Vozidlo vozidlo: agentPohybu().getVozidla()) {
 			vozidlaStatistiky.add(vozidlo.getVozidloInfo());
+		}
+
+		HashMap<String, ObservableList<CestujuciInfo>> cestujuciInfo = info.cestujuciInfo_;
+
+		for (Map.Entry<String, Zastavka> zastavkaEntry: _agentZastavok.getZastavky().entrySet()) {
+			String nazovZastavky = zastavkaEntry.getKey();
+			Zastavka zastavka =  zastavkaEntry.getValue();
+			ObservableList<CestujuciInfo> infoOCestujucichNaZastavke = FXCollections.observableArrayList();
+			for (Sprava sprava: zastavka.getCestujuciNaZastavke()) {
+				Cestujuci cestujuci = sprava.getCestujuci();
+				infoOCestujucichNaZastavke.add(cestujuci.getCestujuciInfo());
+			}
+			cestujuciInfo.put(nazovZastavky, infoOCestujucichNaZastavke);
 		}
 
 		return info;
@@ -291,7 +334,7 @@ public AgentNastupuVystupu agentNastupuVystupu()
 		ObservableList<StatistikaInfo> statistiky = info.statistiky_;
 		statistiky.add(new StatistikaInfo("Číslo replikácie", (this.currentReplication() + 1) + ""));
 		statistiky.add(new StatistikaInfo("Koniec replikácie", Helper.FormatujSimulacnyCas(this.currentTime())));
-
+		statistiky.add(pocetCestujucichSim.getStatistikaInfo());
 
 		return info;
 	}
@@ -341,5 +384,9 @@ public AgentNastupuVystupu agentNastupuVystupu()
 		return true;
 	}
 
-    //meta! tag="end"
+	public double getCasZaciatkuZapasu() {
+		return _casZaciatkuZapasu;
+	}
+
+	//meta! tag="end"
 }
