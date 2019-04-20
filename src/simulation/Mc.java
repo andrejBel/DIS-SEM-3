@@ -7,6 +7,7 @@ public class Mc extends IdList {
 	public static final int prichodZakaznikaNaZastavku = 1051;
 	public static final int init = 1004;
 	//public static final int start = 1052;
+	public static final int zacniGenerovat = 1062;
 	public static final int prichodVozidlaNaZastavku = 1040;
 	//public static final int finish = 1055;
 	public static final int presunVozidlaNaDalsiuZastavku = 1044;
