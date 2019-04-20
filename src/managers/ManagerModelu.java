@@ -1,6 +1,7 @@
 package managers;
 
 import OSPABA.*;
+import Utils.Helper;
 import simulation.*;
 import agents.*;
 import continualAssistants.*;
@@ -42,14 +43,16 @@ public class ManagerModelu extends Manager {
 		switch (message.code()) {
 		case Mc.prichodZakaznikaNaZastavku:
 		{
-
+			Sprava sprava = (Sprava) message;
+			sprava.setAddressee(Id.agentPrepravy);
+			notice(sprava);
 			break;
 		}
 		case Mc.init:
 		{
-			// prvu mozem preposlat priamo, druhu musim skopirovat
+			// prvu mozem preposlat priamo, druhu musim skopirovat, ale radsej skopirujem
 			{
-				Sprava sprava = (Sprava) message;
+				Sprava sprava = (Sprava) message.createCopy();
 				sprava.setAddressee(mySim().findAgent(Id.agentPrepravy));
 				notice(sprava);
 			}

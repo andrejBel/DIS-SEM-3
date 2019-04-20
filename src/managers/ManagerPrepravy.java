@@ -1,6 +1,7 @@
 package managers;
 
 import OSPABA.*;
+import Utils.Helper;
 import simulation.*;
 import agents.*;
 import continualAssistants.*;
@@ -54,6 +55,9 @@ public class ManagerPrepravy extends Manager {
 
 	//meta! sender="AgentModelu", id="97", type="Notice"
 	public void processPrichodZakaznikaNaZastavku(MessageForm message) {
+		Sprava sprava = (Sprava) message;
+		sprava.setAddressee(Id.agentZastavok);
+		notice(sprava);
 	}
 
 	//meta! sender="AgentNastupuVystupu", id="111", type="Response"

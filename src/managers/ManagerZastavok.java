@@ -1,13 +1,15 @@
 package managers;
 
+import Model.Cestujuci;
 import OSPABA.*;
 import simulation.*;
 import agents.*;
-import continualAssistants.*;
-import instantAssistants.*;
 
 //meta! id="87"
 public class ManagerZastavok extends Manager {
+
+	private long _indexerCestujucich;
+
 	public ManagerZastavok(int id, Simulation mySim, Agent myAgent) {
 		super(id, mySim, myAgent);
 		init();
@@ -21,6 +23,7 @@ public class ManagerZastavok extends Manager {
 		if (petriNet() != null) {
 			petriNet().clear();
 		}
+		_indexerCestujucich = 1;
 	}
 
 	//meta! sender="AgentPrepravy", id="110", type="Request"
@@ -29,6 +32,19 @@ public class ManagerZastavok extends Manager {
 
 	//meta! sender="AgentPrepravy", id="98", type="Notice"
 	public void processPrichodZakaznikaNaZastavku(MessageForm message) {
+		Sprava sprava = (Sprava) message;
+
+		//System.out.println("Cestujuci prisiel na zastavku: " + sprava.getZastavkaKonfiguracie().getNazovZastavky() + ", cas: " + Helper.FormatujSimulacnyCas(mySim().currentTime())); // TODO delete
+
+		Cestujuci cestujuci = new Cestujuci(_indexerCestujucich++, sprava.getZastavkaKonfiguracie(), mySim().currentTime());
+		sprava.setCestujuci(cestujuci);
+
+		myAgent().getZastavka(sprava.getZastavkaKonfiguracie().getNazovZastavky()).pridajCestujucehoNaZastavku(sprava);
+		myAgent().zvysPocetCestujucich();
+		if (mySim().isKrokovanie()) {
+			mySim().pauseSimulation();
+			mySim().setCoPozastaviloSimulaciu("Príchod cestujúceho " + cestujuci.getIdCestujuceho() + " na zastávku: " + sprava.getZastavkaKonfiguracie().getNazovZastavky());
+		}
 	}
 
 	//meta! userInfo="Process messages defined in code", id="0"
@@ -63,4 +79,8 @@ public class ManagerZastavok extends Manager {
 		return (AgentZastavok)super.myAgent();
 	}
 
+	@Override
+	public SimulaciaDopravy mySim() {
+		return (SimulaciaDopravy) super.mySim();
+	}
 }
