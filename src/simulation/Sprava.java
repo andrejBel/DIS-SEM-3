@@ -2,12 +2,15 @@ package simulation;
 
 import Model.Cestujuci;
 import Model.Vozidlo;
+import Model.ZastavkaKonfiguracia;
 import OSPABA.*;
 
 public class Sprava extends MessageForm {
 
-	private Cestujuci _cestujuci = null;
-	private Vozidlo _vozidlo = null;
+	// nenastavuj na null ani keby nic!!!
+	private Cestujuci _cestujuci;
+	private Vozidlo _vozidlo;
+	private ZastavkaKonfiguracia _zastavkaKonfiguracie;
 
 	public Sprava(Simulation sim) {
 		super(sim);
@@ -29,6 +32,7 @@ public class Sprava extends MessageForm {
 		Sprava original = (Sprava)message;
 		this._cestujuci = original._cestujuci;
 		this._vozidlo = original._vozidlo;
+		this._zastavkaKonfiguracie = original._zastavkaKonfiguracie;
 	}
 
 	@Override
@@ -51,4 +55,13 @@ public class Sprava extends MessageForm {
 	public void setVozidlo(Vozidlo vozidlo) {
 		this._vozidlo = vozidlo;
 	}
+
+	public ZastavkaKonfiguracia getZastavkaKonfiguracie() {
+		return _zastavkaKonfiguracie;
+	}
+
+	public void setZastavkaKonfiguracie(ZastavkaKonfiguracia zastavkaKonfiguracie) {
+		this._zastavkaKonfiguracie = zastavkaKonfiguracie;
+	}
+
 }

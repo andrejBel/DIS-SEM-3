@@ -5,12 +5,12 @@ import java.util.Objects;
 public class ZastavkaKonfiguracia {
 
     private String _nazovZastavky;
-    private double _parameterExpPrichodyZakaznikov;
+    private int _maximalnyPocetCestujucich;
     private boolean _vystup;
 
-    public ZastavkaKonfiguracia(String nazovZastavky, double parameterExpPrichodyZakaznikov) {
+    public ZastavkaKonfiguracia(String nazovZastavky, int maximalnyPocetCestujucich) {
         this._nazovZastavky = nazovZastavky;
-        this._parameterExpPrichodyZakaznikov = parameterExpPrichodyZakaznikov;
+        this._maximalnyPocetCestujucich = maximalnyPocetCestujucich;
         this._vystup = false;
     }
 
@@ -39,7 +39,7 @@ public class ZastavkaKonfiguracia {
         return _nazovZastavky;
     }
 
-    public double getParameterExpPrichodyZakaznikov() {
-        return _parameterExpPrichodyZakaznikov;
+    public double getMaximalnyPocetCestujucich() {
+        return _maximalnyPocetCestujucich;
     }
 }

@@ -24,6 +24,7 @@ import java.util.function.Function;
 
 
 import static javafx.beans.binding.Bindings.createBooleanBinding;
+import static simulation.KONSTANTY.NULL_TIME;
 
 public class Helper {
 
@@ -321,6 +322,10 @@ public class Helper {
     }
 
     public static String FormatujSimulacnyCas(double cas, boolean sekundyZaokruhlit) {
+        if (cas == NULL_TIME) {
+            return "-";
+        }
+
         int dni = (int) (cas / CASOVE_JEDNOTKY.DEN.getPocetSekund());
 
         double zvysok = cas - (dni * CASOVE_JEDNOTKY.DEN.getPocetSekund());

@@ -5,6 +5,8 @@ public class ZastavkaLinky {
     private ZastavkaKonfiguracia _zastavka;
     private double _casPresunuNaDalsiuZastavku;
     private ZastavkaKonfiguracia _dalsiaZastavka;
+    private double _vzdialenostKStadionu = -1;
+
 
     public ZastavkaLinky(ZastavkaKonfiguracia zastavka, double casPresunuNaDalsiuZastavku, ZastavkaKonfiguracia dalsiaZastavka) {
         if (zastavka == null || dalsiaZastavka == null) {
@@ -25,5 +27,13 @@ public class ZastavkaLinky {
 
     public ZastavkaKonfiguracia getDalsiaZastavka() {
         return _dalsiaZastavka;
+    }
+
+    public double getVzdialenostKStadionu() {
+        return _vzdialenostKStadionu;
+    }
+
+    public void setVzdialenostKStadionu(double vzdialenostKStadionu) {
+        this._vzdialenostKStadionu = vzdialenostKStadionu;
     }
 }
