@@ -75,7 +75,8 @@ public class Aplikacia {
         */
         stage.setOnCloseRequest(e -> {
             Platform.exit();
-            //simulaciaWrapper_.stop(); TODO zastavit beziace simulacie
+            simulaciaWrapper_.getSimulaciaDopravy().stopSimulation();
+            // TODO zastavit beziace simulacie
         } );
     }
 

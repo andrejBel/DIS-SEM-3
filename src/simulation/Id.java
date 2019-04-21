@@ -29,6 +29,7 @@ public class Id extends IdList {
 	public static final int akciaNastupCestujuceho = 1016;
 	public static final int processNastupuCestujuceho = 1010;
 	public static final int vlozVozidloDoFrontuVozidielCakajucichNaZastavke = 1017;
+	public static final int naplanujPresunVozidlaNaZastavku = 1020;
 
 	public static final int pociatocneIdPrePlanovacPrichodovZakaznikov_ = 10000;
 	//meta! tag="end"
