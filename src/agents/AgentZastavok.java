@@ -42,6 +42,7 @@ public class AgentZastavok extends Agent {
 		addOwnMessage(Mc.prichodVozidlaNaZastavku);
 		addOwnMessage(Mc.prichodZakaznikaNaZastavku);
 	}
+	//meta! tag="end"
 
 	@Override
 	public SimulaciaDopravy mySim() {
@@ -64,5 +65,5 @@ public class AgentZastavok extends Agent {
 		return _pocetCestujucichRep;
 	}
 
-	//meta! tag="end"
+
 }

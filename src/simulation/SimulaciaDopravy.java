@@ -21,7 +21,7 @@ public class SimulaciaDopravy extends Simulation {
 
     private List<ZastavkaKonfiguracia> _zoznamZastavok = new ArrayList<>();
     private HashMap<String, ZastavkaKonfiguracia> _zastavkyKonfiguracia = new HashMap<>();
-    private KonfiguraciaVozidiel konfiguraciaVozidiel_ = new KonfiguraciaVozidiel(null, null);
+    private KonfiguraciaVozidiel _konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, null);
 	private HashMap<TYP_LINKY, Linka> _linky = new HashMap<>();
 
     private boolean _krokovanie = false;
@@ -245,7 +245,7 @@ public AgentNastupuVystupu agentNastupuVystupu()
     public void prepareSimulation() {
         super.prepareSimulation();
 
-        if (konfiguraciaVozidiel_.getKonfiguraciaVozidiel() == null) {
+        if (_konfiguraciaVozidiel.getKonfiguraciaVozidiel() == null) {
 			setKonfiguracia(
 					new KonfiguraciaVozidiel(PREVADZKA_LINIEK.PO_NASTUPENI_ODCHADZA, new ArrayList<>(Arrays.asList(
 
@@ -254,7 +254,7 @@ public AgentNastupuVystupu agentNastupuVystupu()
 			);
 		}
 
-        agentPohybu().inizializujVozidla(konfiguraciaVozidiel_.getKonfiguraciaVozidiel());
+        agentPohybu().inizializujVozidla(_konfiguraciaVozidiel.getKonfiguraciaVozidiel());
 
 		_simStats.forEach(Stat::clear);
     }
@@ -282,8 +282,12 @@ public AgentNastupuVystupu agentNastupuVystupu()
     }
 
     public void setKonfiguracia(KonfiguraciaVozidiel konfiguraciaVozidiel) {
-        this.konfiguraciaVozidiel_ = konfiguraciaVozidiel;
+        this._konfiguraciaVozidiel = konfiguraciaVozidiel;
     }
+
+    public KonfiguraciaVozidiel getKonfiguraciaVozidiel() {
+		return _konfiguraciaVozidiel;
+	}
 
     public List<ZastavkaKonfiguracia> getZoznamZastavok() {
         return _zoznamZastavok;
