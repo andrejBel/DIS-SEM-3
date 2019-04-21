@@ -4,9 +4,9 @@ import OSPABA.*;
 import simulation.*;
 import agents.*;
 
-//meta! id="192"
-public class Query1 extends Query {
-	public Query1(int id, Simulation mySim, CommonAgent myAgent) {
+//meta! id="271"
+public class AkciePrichodVozidlaNaZastavku extends Action {
+	public AkciePrichodVozidlaNaZastavku(int id, Simulation mySim, CommonAgent myAgent) {
 		super(id, mySim, myAgent);
 	}
 

@@ -31,38 +31,37 @@ public class ManagerPrepravy extends Manager {
 			copy.setAddressee(mySim().findAgent(Id.agentPohybu));
 			notice(copy);
 		}
-		{
-			Sprava copy = (Sprava) message.createCopy();
-			copy.setAddressee(mySim().findAgent(Id.agentZastavok));
-			//notice(copy); // TODO zaregistrovat spravu agentovi a odkomentovat
-		}
-		{
-			Sprava copy = (Sprava) message.createCopy();
-			copy.setAddressee(mySim().findAgent(Id.agentNastupuVystupu));
-			//notice(copy); // TODO zaregistrovat spravu agentovi a odkomentovat
-		}
 	}
 
 	//meta! sender="AgentPohybu", id="94", type="Notice"
-	public void processPrichodVozidlaNaZastavkuAgentPohybu(MessageForm message) {
-        message.setAddressee(Id.procesNastupuZakaznikov);
-        startContinualAssistant(message);
-	}
-
-	//meta! sender="AgentZastavok", id="110", type="Response"
-	public void processPrichodVozidlaNaZastavkuAgentZastavok(MessageForm message) {
+	public void processPrichodVozidlaNaZastavku(MessageForm message) {
+		message.setAddressee(Id.procesNastupuZakaznikov);
+		startContinualAssistant(message);
 	}
 
 	//meta! sender="AgentModelu", id="97", type="Notice"
-	public void processPrichodZakaznikaNaZastavku(MessageForm message) {
+	public void processPrichodZakaznikaNaZastavkuAgentModelu(MessageForm message) {
 		Sprava sprava = (Sprava) message;
 		sprava.setAddressee(Id.agentZastavok);
 		notice(sprava);
 	}
 
-	//meta! sender="AgentNastupuVystupu", id="111", type="Response"
-	public void processNastupVystupZakaznika(MessageForm message) {
+	//meta! sender="AgentZastavok", id="258", type="Response"
+	public void processCestujuciNaZastavke(MessageForm message) {
 	}
+
+	//meta! sender="AgentNastupuVystupu", id="213", type="Response"
+	public void processNastupCestujuceho(MessageForm message) {
+	}
+
+	//meta! sender="AgentNastupuVystupu", id="217", type="Response"
+	public void processVystupCestujuceho(MessageForm message) {
+	}
+
+	//meta! sender="AgentZastavok", id="98", type="Response"
+	public void processPrichodZakaznikaNaZastavkuAgentZastavok(MessageForm message) {
+	}
+
 
     public void processFinishProcesNastupuZakaznikov(MessageForm message) {
         message.setAddressee(mySim().findAgent(Id.agentPohybu));
@@ -72,6 +71,7 @@ public class ManagerPrepravy extends Manager {
 
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
+		System.out.println(message.code());
 		throw new RuntimeException("Default vetva by nemala nikdy nastat");
 	}
 
@@ -82,39 +82,44 @@ public class ManagerPrepravy extends Manager {
 	@Override
 	public void processMessage(MessageForm message) {
 		switch (message.code()) {
-			case Mc.prichodVozidlaNaZastavku:
-				switch (message.sender().id()) {
-					case Id.agentZastavok:
-						processPrichodVozidlaNaZastavkuAgentZastavok(message);
-						break;
-
-					case Id.agentPohybu:
-						processPrichodVozidlaNaZastavkuAgentPohybu(message);
-						break;
-				}
-				break;
-
-			case Mc.prichodZakaznikaNaZastavku:
-				processPrichodZakaznikaNaZastavku(message);
-				break;
-
 			case Mc.init:
 				processInit(message);
 				break;
 
-			case Mc.finish:
-				switch (message.sender().id()) {
+			case Mc.cestujuciNaZastavke:
+				processCestujuciNaZastavke(message);
+				break;
 
-					case Id.procesNastupuZakaznikov:
-						processFinishProcesNastupuZakaznikov(message);
+			case Mc.vystupCestujuceho:
+				processVystupCestujuceho(message);
+				break;
+
+			case Mc.prichodZakaznikaNaZastavku:
+				switch (message.sender().id()) {
+					case Id.agentModelu:
+						processPrichodZakaznikaNaZastavkuAgentModelu(message);
+						break;
+
+					case Id.agentZastavok:
+						processPrichodZakaznikaNaZastavkuAgentZastavok(message);
 						break;
 				}
 				break;
 
-			case Mc.nastupVystupZakaznika:
-				processNastupVystupZakaznika(message);
+			case Mc.nastupCestujuceho:
+				processNastupCestujuceho(message);
 				break;
 
+			case Mc.prichodVozidlaNaZastavku:
+				processPrichodVozidlaNaZastavku(message);
+				break;
+			case Mc.finish:
+				switch (message.sender().id()) {
+					case Id.procesNastupuZakaznikov:
+						processFinishProcesNastupuZakaznikov(message);
+					break;
+			}
+			break;
 			default:
 				processDefault(message);
 				break;

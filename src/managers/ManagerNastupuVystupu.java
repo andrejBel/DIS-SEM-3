@@ -23,13 +23,30 @@ public class ManagerNastupuVystupu extends Manager {
 		}
 	}
 
-	//meta! sender="AgentPrepravy", id="111", type="Request"
+	//meta! userInfo="Removed from model"
 	public void processNastupVystupZakaznika(MessageForm message) {
 	}
 
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
-		throw new RuntimeException("Default vetva by nemala nikdy nastat");
+		switch (message.code()) {
+		}
+	}
+
+	//meta! sender="AgentPrepravy", id="213", type="Request"
+	public void processNastupCestujuceho(MessageForm message) {
+	}
+
+	//meta! sender="AgentPrepravy", id="217", type="Request"
+	public void processVystupCestujuceho(MessageForm message) {
+	}
+
+	//meta! sender="ProcessNastupuCestujuceho", id="233", type="Notice"
+	public void processFinishProcessNastupuCestujuceho(MessageForm message) {
+	}
+
+	//meta! sender="ProcessVystupuCestujuceho", id="241", type="Notice"
+	public void processFinishProcessVystupuCestujuceho(MessageForm message) {
 	}
 
 	//meta! userInfo="Generated code: do not modify", tag="begin"
@@ -39,8 +56,24 @@ public class ManagerNastupuVystupu extends Manager {
 	@Override
 	public void processMessage(MessageForm message) {
 		switch (message.code()) {
-		case Mc.nastupVystupZakaznika:
-			processNastupVystupZakaznika(message);
+		case Mc.vystupCestujuceho:
+			processVystupCestujuceho(message);
+		break;
+
+		case Mc.nastupCestujuceho:
+			processNastupCestujuceho(message);
+		break;
+
+		case Mc.finish:
+			switch (message.sender().id()) {
+			case Id.processNastupuCestujuceho:
+				processFinishProcessNastupuCestujuceho(message);
+			break;
+
+			case Id.processVystupuCestujuceho:
+				processFinishProcessVystupuCestujuceho(message);
+			break;
+			}
 		break;
 
 		default:

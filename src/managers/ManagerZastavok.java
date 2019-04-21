@@ -47,6 +47,10 @@ public class ManagerZastavok extends Manager {
 		}
 	}
 
+	//meta! sender="AgentPrepravy", id="258", type="Request"
+	public void processCestujuciNaZastavke(MessageForm message) {
+	}
+
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
 		throw new RuntimeException("Default vetva by nemala nikdy nastat");
@@ -59,17 +63,17 @@ public class ManagerZastavok extends Manager {
 	@Override
 	public void processMessage(MessageForm message) {
 		switch (message.code()) {
-		case Mc.prichodZakaznikaNaZastavku:
-			processPrichodZakaznikaNaZastavku(message);
-		break;
+			case Mc.prichodZakaznikaNaZastavku:
+				processPrichodZakaznikaNaZastavku(message);
+				break;
 
-		case Mc.prichodVozidlaNaZastavku:
-			processPrichodVozidlaNaZastavku(message);
-		break;
+			case Mc.cestujuciNaZastavke:
+				processCestujuciNaZastavke(message);
+				break;
 
-		default:
-			processDefault(message);
-		break;
+			default:
+				processDefault(message);
+				break;
 		}
 	}
 	//meta! tag="end"

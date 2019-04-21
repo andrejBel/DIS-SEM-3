@@ -22,13 +22,14 @@ public class AgentNastupuVystupu extends Agent {
 	//meta! userInfo="Generated code: do not modify", tag="begin"
 	private void init() {
 		new ManagerNastupuVystupu(Id.managerNastupuVystupu, mySim(), this);
-		addOwnMessage(Mc.nastupVystupZakaznika);
+		new ProcessNastupuCestujuceho(Id.processNastupuCestujuceho, mySim(), this);
+		new ProcessVystupuCestujuceho(Id.processVystupuCestujuceho, mySim(), this);
+		addOwnMessage(Mc.koniecNastupu);
+		addOwnMessage(Mc.nastupCestujuceho);
+		addOwnMessage(Mc.start);
+		addOwnMessage(Mc.koniecVystupu);
+		addOwnMessage(Mc.vystupCestujuceho);
+		addOwnMessage(Mc.finish);
 	}
-
-	@Override
-	public SimulaciaDopravy mySim() {
-		return (SimulaciaDopravy) super.mySim();
-	}
-
 	//meta! tag="end"
 }

@@ -1,14 +1,13 @@
 package continualAssistants;
-// TODO VON!!!
+
 import OSPABA.*;
-import Utils.Helper;
 import simulation.*;
 import agents.*;
 import OSPABA.Process;
 
-//meta! id="177"
-public class ProcesNastupuZakaznikov extends Process {
-	public ProcesNastupuZakaznikov(int id, Simulation mySim, CommonAgent myAgent) {
+//meta! id="221"
+public class ProcessNastupuCestujuceho extends Process {
+	public ProcessNastupuCestujuceho(int id, Simulation mySim, CommonAgent myAgent) {
 		super(id, mySim, myAgent);
 	}
 
@@ -18,32 +17,30 @@ public class ProcesNastupuZakaznikov extends Process {
 		// Setup component for the next replication
 	}
 
-	//meta! sender="AgentPrepravy", id="188", type="Notice"
-	public void processZakazniciNastupili(MessageForm message) {
-		assistantFinished(message);
+	//meta! sender="AgentNastupuVystupu", id="239", type="Notice"
+	public void processKoniecNastupu(MessageForm message) {
 	}
 
-	//meta! sender="AgentPrepravy", id="180", type="Notice"
+	//meta! sender="AgentNastupuVystupu", id="229", type="Notice"
 	public void processStart(MessageForm message) {
-		message.setCode(Mc.zakazniciNastupili);
-		hold(Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund(), message);
 	}
 
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
-		throw new RuntimeException("Default vetva by nemala nikdy nastat");
+		switch (message.code()) {
+		}
 	}
 
 	//meta! userInfo="Generated code: do not modify", tag="begin"
 	@Override
 	public void processMessage(MessageForm message) {
 		switch (message.code()) {
-		case Mc.zakazniciNastupili:
-			processZakazniciNastupili(message);
-		break;
-
 		case Mc.start:
 			processStart(message);
+		break;
+
+		case Mc.koniecNastupu:
+			processKoniecNastupu(message);
 		break;
 
 		default:
@@ -54,8 +51,8 @@ public class ProcesNastupuZakaznikov extends Process {
 	//meta! tag="end"
 
 	@Override
-	public AgentPrepravy myAgent() {
-		return (AgentPrepravy)super.myAgent();
+	public AgentNastupuVystupu myAgent() {
+		return (AgentNastupuVystupu)super.myAgent();
 	}
 
 }

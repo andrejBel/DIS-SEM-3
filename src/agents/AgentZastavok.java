@@ -39,7 +39,7 @@ public class AgentZastavok extends Agent {
 	//meta! userInfo="Generated code: do not modify", tag="begin"
 	private void init() {
 		new ManagerZastavok(Id.managerZastavok, mySim(), this);
-		addOwnMessage(Mc.prichodVozidlaNaZastavku);
+		addOwnMessage(Mc.cestujuciNaZastavke);
 		addOwnMessage(Mc.prichodZakaznikaNaZastavku);
 	}
 	//meta! tag="end"

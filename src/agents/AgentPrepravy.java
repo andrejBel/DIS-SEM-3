@@ -22,14 +22,22 @@ public class AgentPrepravy extends Agent {
 	//meta! userInfo="Generated code: do not modify", tag="begin"
 	private void init() {
 		new ManagerPrepravy(Id.managerPrepravy, mySim(), this);
-		new ProcesNastupuZakaznikov(Id.procesNastupuZakaznikov, mySim(), this);
-		addOwnMessage(Mc.zakazniciNastupili);
+		new AkciaVystupCestujuceho(Id.akciaVystupCestujuceho, mySim(), this);
+		new AkciaPresunVozidloNaDalsiuZastavku(Id.akciaPresunVozidloNaDalsiuZastavku, mySim(), this);
+		new VlozVozidloDoFrontuVozidielCakajucichNaZastavke(Id.vlozVozidloDoFrontuVozidielCakajucichNaZastavke, mySim(), this);
+		new AkciaNastupCestujuceho(Id.akciaNastupCestujuceho, mySim(), this);
+		new AkciePrichodVozidlaNaZastavku(Id.akciePrichodVozidlaNaZastavku, mySim(), this);
+		new VyberVozidloZFrontuVozidielCakajucichNaZastavke(Id.vyberVozidloZFrontuVozidielCakajucichNaZastavke, mySim(), this);
+		new AkciaPrichodZakaznika(Id.akciaPrichodZakaznika, mySim(), this);
+		new ProcesNastupuZakaznikov(Id.procesNastupuZakaznikov, mySim(), this); // TODO REMOVE
+		addOwnMessage(Mc.zakazniciNastupili); // TODO REMOVE
 		addOwnMessage(Mc.init);
-		addOwnMessage(Mc.start);
+		addOwnMessage(Mc.cestujuciNaZastavke);
+		addOwnMessage(Mc.nastupCestujuceho);
 		addOwnMessage(Mc.prichodVozidlaNaZastavku);
-		addOwnMessage(Mc.finish);
+		addOwnMessage(Mc.vystupCestujuceho);
 		addOwnMessage(Mc.prichodZakaznikaNaZastavku);
-		addOwnMessage(Mc.nastupVystupZakaznika);
+
 	}
 	//meta! tag="end"
 }
