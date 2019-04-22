@@ -16,7 +16,7 @@ public class PlanovacPrichodovZakaznikovNaZastavku extends Scheduler {
 	public PlanovacPrichodovZakaznikovNaZastavku(int id, Simulation mySim, CommonAgent myAgent, ZastavkaOkolie zastavkaOkolie) {
 		super(id, mySim, myAgent);
 		this._zastavkaOkolie = zastavkaOkolie;
-		_exponentialRNG = new ExponentialRNG(zastavkaOkolie.getParameterExponencialnehoRozdelenia());
+		_exponentialRNG = new ExponentialRNG(zastavkaOkolie.getParameterExponencialnehoRozdelenia(), SimulaciaDopravy.GENERATOR_NASAD);
 	}
 
 	@Override

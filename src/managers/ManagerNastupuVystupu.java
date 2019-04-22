@@ -23,30 +23,33 @@ public class ManagerNastupuVystupu extends Manager {
 		}
 	}
 
-	//meta! userInfo="Removed from model"
-	public void processNastupVystupZakaznika(MessageForm message) {
-	}
-
 	//meta! userInfo="Process messages defined in code", id="0"
 	public void processDefault(MessageForm message) {
-		switch (message.code()) {
-		}
+		throw new RuntimeException("default vetva by nemala nastat");
 	}
 
 	//meta! sender="AgentPrepravy", id="213", type="Request"
 	public void processNastupCestujuceho(MessageForm message) {
+		message.setAddressee(Id.processNastupuCestujuceho);
+		startContinualAssistant(message);
 	}
 
 	//meta! sender="AgentPrepravy", id="217", type="Request"
 	public void processVystupCestujuceho(MessageForm message) {
+		message.setAddressee(Id.processVystupuCestujuceho);
+		startContinualAssistant(message);
 	}
 
 	//meta! sender="ProcessNastupuCestujuceho", id="233", type="Notice"
 	public void processFinishProcessNastupuCestujuceho(MessageForm message) {
+		message.setCode(Mc.nastupCestujuceho);
+		response(message);
 	}
 
 	//meta! sender="ProcessVystupuCestujuceho", id="241", type="Notice"
 	public void processFinishProcessVystupuCestujuceho(MessageForm message) {
+		message.setCode(Mc.vystupCestujuceho);
+		response(message);
 	}
 
 	//meta! userInfo="Generated code: do not modify", tag="begin"
