@@ -1,136 +1,283 @@
 package managers;
 
+import Model.Cestujuci;
+import Model.Enumeracie.PREVADZKA_LINIEK;
+import Model.Vozidlo;
+import Model.ZastavkaKonfiguracia;
 import OSPABA.*;
-import Utils.Helper;
+import OSPDataStruct.SimQueue;
 import simulation.*;
 import agents.*;
-import continualAssistants.*;
-import instantAssistants.*;
 
 //meta! id="5"
 public class ManagerPrepravy extends Manager {
-	public ManagerPrepravy(int id, Simulation mySim, Agent myAgent) {
-		super(id, mySim, myAgent);
-		init();
-	}
-
-	@Override
-	public void prepareReplication() {
-		super.prepareReplication();
-		// Setup component for the next replication
-
-		if (petriNet() != null) {
-			petriNet().clear();
-		}
-	}
-
-	//meta! sender="AgentModelu", id="92", type="Notice"
-	public void processInit(MessageForm message) {
-		{
-			Sprava copy = (Sprava) message.createCopy();
-			copy.setAddressee(mySim().findAgent(Id.agentPohybu));
-			notice(copy);
-		}
-	}
-
-	//meta! sender="AgentPohybu", id="94", type="Notice"
-	public void processPrichodVozidlaNaZastavku(MessageForm message) {
-		message.setAddressee(Id.procesNastupuZakaznikov);
-		startContinualAssistant(message);
-	}
-
-	//meta! sender="AgentModelu", id="97", type="Notice"
-	public void processPrichodZakaznikaNaZastavkuAgentModelu(MessageForm message) {
-		Sprava sprava = (Sprava) message;
-		sprava.setAddressee(Id.agentZastavok);
-		notice(sprava);
-	}
-
-	//meta! sender="AgentZastavok", id="258", type="Response"
-	public void processCestujuciNaZastavke(MessageForm message) {
-	}
-
-	//meta! sender="AgentNastupuVystupu", id="213", type="Response"
-	public void processNastupCestujuceho(MessageForm message) {
-	}
-
-	//meta! sender="AgentNastupuVystupu", id="217", type="Response"
-	public void processVystupCestujuceho(MessageForm message) {
-	}
-
-	//meta! sender="AgentZastavok", id="98", type="Response"
-	public void processPrichodZakaznikaNaZastavkuAgentZastavok(MessageForm message) {
-	}
-
-
-    public void processFinishProcesNastupuZakaznikov(MessageForm message) {
-        message.setAddressee(mySim().findAgent(Id.agentPohybu));
-        message.setCode(Mc.presunVozidlaNaDalsiuZastavku);
-        notice(message);
+    public ManagerPrepravy(int id, Simulation mySim, Agent myAgent) {
+        super(id, mySim, myAgent);
+        init();
     }
 
-	//meta! userInfo="Process messages defined in code", id="0"
-	public void processDefault(MessageForm message) {
-		System.out.println(message.code());
-		throw new RuntimeException("Default vetva by nemala nikdy nastat");
-	}
+    @Override
+    public void prepareReplication() {
+        super.prepareReplication();
+        // Setup component for the next replication
 
-	//meta! userInfo="Generated code: do not modify", tag="begin"
-	public void init() {
-	}
+        if (petriNet() != null) {
+            petriNet().clear();
+        }
+    }
 
-	@Override
-	public void processMessage(MessageForm message) {
-		switch (message.code()) {
-			case Mc.init:
-				processInit(message);
-				break;
+    //meta! sender="AgentModelu", id="92", type="Notice"
+    public void processInit(MessageForm message) {
+        {
+            Sprava copy = (Sprava) message.createCopy();
+            copy.setAddressee(mySim().findAgent(Id.agentPohybu));
+            notice(copy);
+        }
+    }
 
-			case Mc.cestujuciNaZastavke:
-				processCestujuciNaZastavke(message);
-				break;
+    //meta! sender="AgentPohybu", id="94", type="Notice"
+    public void processPrichodVozidlaNaZastavku(MessageForm message) {
+        Sprava sprava = (Sprava) message;
+        Vozidlo vozidlo = sprava.getVozidlo();
+        ZastavkaKonfiguracia zastavkaNaKtoruPrisloVozidlo = vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka();
+        System.out.println("Vozidlo prislo na zastavku: " +  zastavkaNaKtoruPrisloVozidlo.getNazovZastavky());
 
-			case Mc.vystupCestujuceho:
-				processVystupCestujuceho(message);
-				break;
+        sprava.getVozidlo().setVozidloVoFronteVozidielCakajucichNaZastavke(false);
 
-			case Mc.prichodZakaznikaNaZastavku:
-				switch (message.sender().id()) {
-					case Id.agentModelu:
-						processPrichodZakaznikaNaZastavkuAgentModelu(message);
-						break;
+        if (zastavkaNaKtoruPrisloVozidlo.isVystup()) { // cestujuci maju vystupovat na stadione
+            if (vozidlo.getCelkovyPocetCestujucichVoVozidle() == 0) {
+                myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(message);
+                return;
+            }
+            while (vozidlo.suVolneDvere() && vozidlo.getPocetCestujucichVAutobuseBezNastupujusichAVystupujucich() > 0) {
+                myAgent().getAkciaVystupCestujuceho().execute(sprava);
+            }
+            return; // presunieme sa do metody koniec vystupu cestujuceho
 
-					case Id.agentZastavok:
-						processPrichodZakaznikaNaZastavkuAgentZastavok(message);
-						break;
-				}
-				break;
+        } else { // cestujuci mozu nastupovat, ak tma nejaky su a je miesto
+            if (vozidlo.jeVolneMiestoVoVozidle()) {
+                sprava.setCode(Mc.cestujuciNaZastavke);
+                sprava.setAddressee(mySim().findAgent(Id.agentZastavok));
+                request(sprava);
+                return;
+            } else { // idem na dalsiu
+                myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+                return;
+            }
+        }
+    }
 
-			case Mc.nastupCestujuceho:
-				processNastupCestujuceho(message);
-				break;
+    //meta! sender="AgentModelu", id="97", type="Notice"
+    public void processPrichodZakaznikaNaZastavkuAgentModelu(MessageForm message) {
+        Sprava sprava = (Sprava) message;
+        sprava.setAddressee(Id.agentZastavok);
+        request(sprava);
+    }
 
-			case Mc.prichodVozidlaNaZastavku:
-				processPrichodVozidlaNaZastavku(message);
-				break;
-			case Mc.finish:
-				switch (message.sender().id()) {
-					case Id.procesNastupuZakaznikov:
-						processFinishProcesNastupuZakaznikov(message);
-					break;
-			}
-			break;
-			default:
-				processDefault(message);
-				break;
-		}
-	}
+    //meta! sender="AgentZastavok", id="98", type="Response"
+    public void processPrichodZakaznikaNaZastavkuAgentZastavok(MessageForm message) {
+        Sprava sprava = (Sprava) message;
+        // response, odpovedal mi, ze prisiel
 
-	//meta! tag="end"
+        Sprava spravaSVozidlom = myAgent().getPrveVolneVozidloZFrontuVozidielCakajucichNaZastavke((Sprava) message);
+        if (spravaSVozidlom != null) {
+            if (!sprava.getZastavkaKonfiguracie().getNazovZastavky().equals(spravaSVozidlom.getZastavkaKonfiguracie().getNazovZastavky())) {
+                throw new RuntimeException("Zastavka musi byt rovnaka");
+            }
+            sprava.setVozidlo(spravaSVozidlom.getVozidlo());
+            sprava.setCode(Mc.cestujuciNaZastavke);
+            sprava.setAddressee(mySim().findAgent(Id.agentZastavok));
+            request(sprava);
+        }
+        // tu dorobit, ze ak su nejake vozidla cakajuce na zastavke, aby nastupil do nich
+    }
 
-	@Override
-	public AgentPrepravy myAgent() {
-		return (AgentPrepravy)super.myAgent();
-	}
+    //meta! sender="AgentZastavok", id="258", type="Response"
+    public void processCestujuciNaZastavke(MessageForm message) {
+        // poziadal som o prichod cestujuceho
+        Sprava sprava = (Sprava) message;
+        Cestujuci cestuciNaZastavke = sprava.getCestujuci();
+        Vozidlo vozidlo = sprava.getVozidlo();
 
+        if (cestuciNaZastavke == null) { // na zastavke nikto nie je
+            if (vozidlo.getPocetNastupujucichCestujucich() == 0) { // ak vsetci nastupili
+                if (mySim().getKonfiguraciaVozidiel().getPrevadzkaLiniek() == PREVADZKA_LINIEK.PO_NASTUPENI_ODCHADZA) { // hned po nastupeni odchadza
+                    myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+                } else { // 1,5 minuty caka, 90s // inak
+                    if (!vozidlo.isVozidloVoFronteVozidielCakajucichNaZastavke()) {
+
+                        message.setAddressee(myAgent().findAssistant(Id.naplanujPresunVozidlaNaZastavku));
+                        startContinualAssistant(message);
+                    } else {
+                        double timeDifference = mySim().currentTime() - vozidlo.getCasVstupuDoFrontuVozidielNaZastavke();
+                        if (timeDifference >= KONSTANTY.KOLKO_CAKA_PO_NASTUPE_VSETKYCH_CESTUJUCICH) { // todo > ? >=
+                            myAgent().odstranVozidloZFrontuVozidielCakajucichNaZastavke(sprava);
+                            myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+                        }
+                    }
+                }
+            }
+        } else {
+            // mam cestujuceho a mam isto volne miesto, musim ho usadit
+            if (sprava.getVozidlo() == null) {
+                System.out.println("stop");
+            }
+            myAgent().getAkciaNastupCestujuceho().execute(sprava);
+            if (vozidlo.jeVolneMiestoVoVozidle() && vozidlo.suVolneDvere()) {
+                // poziadam o dalsieho cestujuceho
+                Sprava copy = (Sprava) sprava.createCopy();
+                copy.setCode(Mc.cestujuciNaZastavke);
+                copy.setAddressee(mySim().findAgent(Id.agentZastavok));
+                request(copy);
+            }
+        }
+
+    }
+
+    //meta! sender="AgentNastupuVystupu", id="213", type="Response"
+    public void processNastupCestujuceho(MessageForm message) {
+        // cestujuci nastupil
+        Sprava sprava = (Sprava) message;
+        Vozidlo vozidlo = sprava.getVozidlo();
+        int indexVstupnychDveri = sprava.getCestujuci().getIndexVstupnychDveri();
+        vozidlo.uvolniPouzivaneDvere(indexVstupnychDveri);
+        Cestujuci cestujuci = sprava.getCestujuci();
+        vozidlo.odstranCestujucehoNaNastup(cestujuci.getIdCestujuceho());
+        vozidlo.pridajCestujucehoDoVozidla((Sprava) sprava.createCopy());
+        // dotialto je to OK
+
+
+        if (vozidlo.jeVolneMiestoVoVozidle()) {
+            // poziadam o dalsieho cestujuceho
+            sprava.setCode(Mc.cestujuciNaZastavke);
+            sprava.setAddressee(mySim().findAgent(Id.agentZastavok));
+            request(sprava);
+        } else {
+            if (vozidlo.getPocetNastupujucichCestujucich() == 0) {
+                if (mySim().getKonfiguraciaVozidiel().getPrevadzkaLiniek() == PREVADZKA_LINIEK.PO_NASTUPENI_CAKA) {
+                    if (vozidlo.isVozidloVoFronteVozidielCakajucichNaZastavke()) {
+                        if (vozidlo.getIdVozidla() == 2) {
+                            System.out.println("stoj");
+                        }
+
+                        myAgent().odstranVozidloZFrontuVozidielCakajucichNaZastavke(sprava);
+                        myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+                    } else {
+                        myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+                    }
+                } else if (mySim().getKonfiguraciaVozidiel().getPrevadzkaLiniek() == PREVADZKA_LINIEK.PO_NASTUPENI_ODCHADZA) {
+                    myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+                }
+            }
+        }
+    }
+
+    //meta! sender="AgentNastupuVystupu", id="217", type="Response"
+    public void processVystupCestujuceho(MessageForm message) {
+        Sprava sprava = (Sprava) message;
+        Vozidlo vozidlo = sprava.getVozidlo();
+        Cestujuci cestujuci = sprava.getCestujuci();
+        vozidlo.uvolniPouzivaneDvere(cestujuci.getIndexVystupnychDveri());
+        vozidlo.odstranCestujucehoNaVystup(cestujuci.getIdCestujuceho());
+
+        Sprava copy = (Sprava) sprava.createCopy();
+        copy.setAddressee(mySim().findAgent(Id.agentZastavok));
+        copy.setCode(Mc.prichodCestujucehoNaStadion);
+        notice(copy);
+
+        if (vozidlo.getPocetCestujucichVAutobuseBezNastupujusichAVystupujucich() > 0) {
+            myAgent().getAkciaVystupCestujuceho().execute(sprava);
+        } else if (vozidlo.getCelkovyPocetCestujucichVoVozidle() == 0) {
+            // vsetci vystupili
+            myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+        }
+
+    }
+
+    public void processFinishNaplanujPresunVozidlaNaZastavku(MessageForm message) {
+        Sprava sprava = (Sprava) message;
+        Vozidlo vozidlo = sprava.getVozidlo();
+        if (vozidlo.getIdVozidla() == 2) {
+            System.out.println("stoj");
+        }
+
+        //if (vozidlo.isVozidloVoFronteVozidielCakajucichNaZastavke() && vozidlo.getPocetNastupujucichCestujucich() == 0) { // nikto nenastupuje, cas uplynul, TODO osetrenie vyberania!!!!, funguje iba ak je vzdialenost medzi zastavkami > ako 1,5 minuty!!!!
+        if (vozidlo.getPocetNastupujucichCestujucich() == 0)
+            // !!! TODO PREROBIT
+            myAgent().odstranVozidloZFrontuVozidielCakajucichNaZastavke(sprava);
+
+            myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+        }
+
+    }
+
+    //meta! userInfo="Process messages defined in code", id="0"
+    public void processDefault(MessageForm message) {
+        System.out.println(message.code());
+        throw new RuntimeException("Default vetva by nemala nikdy nastat");
+    }
+
+    //meta! userInfo="Generated code: do not modify", tag="begin"
+    public void init() {
+    }
+
+    @Override
+    public void processMessage(MessageForm message) {
+        switch (message.code()) {
+            case Mc.init:
+                processInit(message);
+                break;
+
+            case Mc.cestujuciNaZastavke:
+                processCestujuciNaZastavke(message);
+                break;
+
+            case Mc.vystupCestujuceho:
+                processVystupCestujuceho(message);
+                break;
+
+            case Mc.prichodZakaznikaNaZastavku:
+                switch (message.sender().id()) {
+                    case Id.agentModelu:
+                        processPrichodZakaznikaNaZastavkuAgentModelu(message);
+                        break;
+
+                    case Id.agentZastavok:
+                        processPrichodZakaznikaNaZastavkuAgentZastavok(message);
+                        break;
+                }
+                break;
+
+            case Mc.nastupCestujuceho:
+                processNastupCestujuceho(message);
+                break;
+
+            case Mc.prichodVozidlaNaZastavku:
+                processPrichodVozidlaNaZastavku(message);
+                break;
+            case Mc.finish:
+                switch (message.sender().id()) {
+                    case Id.naplanujPresunVozidlaNaZastavku:
+                        processFinishNaplanujPresunVozidlaNaZastavku(message);
+                        break;
+                }
+                break;
+            default:
+                processDefault(message);
+                break;
+        }
+    }
+
+
+    //meta! tag="end"
+
+    @Override
+    public AgentPrepravy myAgent() {
+        return (AgentPrepravy) super.myAgent();
+    }
+
+    @Override
+    public SimulaciaDopravy mySim() {
+        return (SimulaciaDopravy) super.mySim();
+    }
 }

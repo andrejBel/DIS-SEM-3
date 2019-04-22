@@ -4,8 +4,6 @@ import Model.Vozidlo;
 import OSPABA.*;
 import simulation.*;
 import agents.*;
-import continualAssistants.*;
-import instantAssistants.*;
 
 //meta! id="86"
 public class ManagerPohybu extends Manager {
@@ -44,27 +42,29 @@ public class ManagerPohybu extends Manager {
 	//meta! sender="AsistentVyjazdu", id="160", type="Notice"
 	public void processFinishAsistentVyjazdu(MessageForm message) {
 		Sprava sprava = (Sprava) message;
-		message.setAddressee(mySim().findAgent(Id.agentPrepravy));
-
+		sprava.setAddressee(mySim().findAgent(Id.agentPrepravy));
+		Vozidlo vozidlo = sprava.getVozidlo();
+		sprava.setZastavkaKonfiguracie(vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka());
 		if (mySim().isKrokovanie()) {
 			mySim().pauseSimulation();
-			Vozidlo vozidlo = sprava.getVozidlo();
-			mySim().setCoPozastaviloSimulaciu("Pristavenie vozidla " + vozidlo.getIdVozidla() + " k zastávke: " + vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky());
+
+			mySim().pridajUdalostCoPozastavilaSimulaciu("Pristavenie vozidla " + vozidlo.getIdVozidla() + " k zastávke: " + vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky());
 		}
 
 		message.setCode(Mc.prichodVozidlaNaZastavku);
-		notice(message);
+		notice(sprava);
 	}
 
 	//meta! sender="AsistentPresunu", id="161", type="Notice"
 	public void processFinishAsistentPresunu(MessageForm message) {
 		Sprava sprava = (Sprava) message;
 		message.setAddressee(mySim().findAgent(Id.agentPrepravy));
-
+		Vozidlo vozidlo = sprava.getVozidlo();
+		sprava.setZastavkaKonfiguracie(vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka());
 		if (mySim().isKrokovanie()) {
 			mySim().pauseSimulation();
-			Vozidlo vozidlo = sprava.getVozidlo();
-			mySim().setCoPozastaviloSimulaciu("Príchod vozidla " + vozidlo.getIdVozidla() + " k zastávke: " + vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky());
+
+			mySim().pridajUdalostCoPozastavilaSimulaciu("Príchod vozidla " + vozidlo.getIdVozidla() + " k zastávke: " + vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky());
 		}
 
 		message.setCode(Mc.prichodVozidlaNaZastavku);

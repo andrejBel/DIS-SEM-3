@@ -1,7 +1,11 @@
 package managers;
 
 import Model.Cestujuci;
+import Model.Enumeracie.STAV_CESTUJUCI;
+import Model.Zastavka;
+import Model.ZastavkaKonfiguracia;
 import OSPABA.*;
+import OSPDataStruct.SimQueue;
 import simulation.*;
 import agents.*;
 
@@ -36,19 +40,46 @@ public class ManagerZastavok extends Manager {
 
 		//System.out.println("Cestujuci prisiel na zastavku: " + sprava.getZastavkaKonfiguracie().getNazovZastavky() + ", cas: " + Helper.FormatujSimulacnyCas(mySim().currentTime())); // TODO delete
 
-		Cestujuci cestujuci = new Cestujuci(_indexerCestujucich++, sprava.getZastavkaKonfiguracie(), mySim().currentTime());
+		Cestujuci cestujuci = new Cestujuci(_indexerCestujucich++, sprava.getZastavkaKonfiguracie(), mySim().currentTime(), STAV_CESTUJUCI.CAKA_NA_ZASTAVKE);
 		sprava.setCestujuci(cestujuci);
 
 		myAgent().getZastavka(sprava.getZastavkaKonfiguracie().getNazovZastavky()).pridajCestujucehoNaZastavku(sprava);
 		myAgent().zvysPocetCestujucich();
 		if (mySim().isKrokovanie()) {
-			mySim().pauseSimulation();
-			mySim().setCoPozastaviloSimulaciu("Príchod cestujúceho " + cestujuci.getIdCestujuceho() + " na zastávku: " + sprava.getZastavkaKonfiguracie().getNazovZastavky());
+			mySim().pauseSimulation(); //TODO uncomment
+			mySim().pridajUdalostCoPozastavilaSimulaciu("Príchod cestujúceho " + cestujuci.getIdCestujuceho() + " na zastávku: " + sprava.getZastavkaKonfiguracie().getNazovZastavky());
 		}
+		response(sprava);
 	}
 
 	//meta! sender="AgentPrepravy", id="258", type="Request"
 	public void processCestujuciNaZastavke(MessageForm message) {
+		Sprava sprava = (Sprava) message;
+		ZastavkaKonfiguracia ktoraZastavka = sprava.getZastavkaKonfiguracie();
+		Zastavka zastavka = myAgent().getZastavka(ktoraZastavka.getNazovZastavky());
+		SimQueue<Sprava> cestujuci = zastavka.getCestujuciNaZastavke();
+		if (sprava.getVozidlo() == null) {
+			System.out.println("stop");
+		}
+		if (cestujuci.size() == 0) {
+			sprava.setCestujuci(null);
+		} else {
+			sprava.setCestujuci(cestujuci.poll().getCestujuci());
+		}
+
+		response(sprava);
+	}
+
+	//meta! sender="AgentPrepravy", id="319", type="Notice"
+	public void processPrichodCestujucehoNaStadion(MessageForm message) {
+		Sprava sprava = (Sprava) message;
+		myAgent().getZastavka(KONSTANTY.STADION).pridajCestujucehoNaZastavku(sprava);
+		Cestujuci cestujuci = sprava.getCestujuci();
+		cestujuci.setStavCestujuci(STAV_CESTUJUCI.NA_STADIONE);
+		if (mySim().isKrokovanie()) {
+			mySim().pauseSimulation();
+			mySim().pridajUdalostCoPozastavilaSimulaciu("Príchod cestjúceho " + cestujuci.getIdCestujuceho() + " na štadión");
+		}
 	}
 
 	//meta! userInfo="Process messages defined in code", id="0"
@@ -69,6 +100,10 @@ public class ManagerZastavok extends Manager {
 
 			case Mc.cestujuciNaZastavke:
 				processCestujuciNaZastavke(message);
+				break;
+
+			case Mc.prichodCestujucehoNaStadion:
+				processPrichodCestujucehoNaStadion(message);
 				break;
 
 			default:
