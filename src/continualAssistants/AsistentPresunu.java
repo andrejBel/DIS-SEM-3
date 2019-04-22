@@ -28,7 +28,7 @@ public class AsistentPresunu extends Scheduler {
 
 		if (mySim().isKrokovanie()) {
 			mySim().pauseSimulation();
-			mySim().setCoPozastaviloSimulaciu("Začiatok presunu vozidla " + vozidlo.getIdVozidla() + ": " + vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() + "->" + vozidlo.getNasledujucaZastavka().getNazovZastavky());
+			mySim().pridajUdalostCoPozastavilaSimulaciu("Začiatok presunu vozidla " + vozidlo.getIdVozidla() + ": " + vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() + "->" + vozidlo.getNasledujucaZastavka().getNazovZastavky());
 		}
 
 		hold(casPotrebnyNaPresunKDalsejZastavke, sprava);

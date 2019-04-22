@@ -19,13 +19,15 @@ import java.util.*;
 
 public class SimulaciaDopravy extends Simulation {
 
+	public static final Random GENERATOR_NASAD = new Random(10);
+
     private List<ZastavkaKonfiguracia> _zoznamZastavok = new ArrayList<>();
     private HashMap<String, ZastavkaKonfiguracia> _zastavkyKonfiguracia = new HashMap<>();
     private KonfiguraciaVozidiel _konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, null);
 	private HashMap<TYP_LINKY, Linka> _linky = new HashMap<>();
 
     private boolean _krokovanie = false;
-    private String _coPozastaviloSimulaciu;
+    private LinkedList<String> _zoznamUdalostiCoPozastaviliSimulaciu = new LinkedList<>();
 	private double _casZaciatkuZapasu;
 
 
@@ -154,7 +156,7 @@ public class SimulaciaDopravy extends Simulation {
 
 		setAgentModelu(new AgentModelu(Id.agentModelu, this, null));
 		setAgentOkolia(new AgentOkolia(Id.agentOkolia, this, agentModelu(), _zastavkyKonfiguracia, _linky));
-		setAgentPrepravy(new AgentPrepravy(Id.agentPrepravy, this, agentModelu()));
+		setAgentPrepravy(new AgentPrepravy(Id.agentPrepravy, this, agentModelu(), _zoznamZastavok));
 		setAgentPohybu(new AgentPohybu(Id.agentPohybu, this, agentPrepravy(), _linky));
 		setAgentZastavok(new AgentZastavok(Id.agentZastavok, this, agentPrepravy(), _zastavkyKonfiguracia));
 		setAgentNastupuVystupu(new AgentNastupuVystupu(Id.agentNastupuVystupu, this, agentPrepravy()));
@@ -247,9 +249,13 @@ public AgentNastupuVystupu agentNastupuVystupu()
 
         if (_konfiguraciaVozidiel.getKonfiguraciaVozidiel() == null) {
 			setKonfiguracia(
-					new KonfiguraciaVozidiel(PREVADZKA_LINIEK.PO_NASTUPENI_ODCHADZA, new ArrayList<>(Arrays.asList(
-
-							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, 90.0)
+					new KonfiguraciaVozidiel(PREVADZKA_LINIEK.PO_NASTUPENI_CAKA, new ArrayList<>(Arrays.asList(
+							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 10),
+							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_2, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 15),
+							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_2, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 20),
+							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 25),
+							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 28),
+							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_2, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 30)
 					)))
 			);
 		}
@@ -264,7 +270,7 @@ public AgentNastupuVystupu agentNastupuVystupu()
         super.prepareReplication();
         // Reset entities, queues, local statistics, etc...
         _agentModelu.spustiSimulaciu();
-
+		_zoznamUdalostiCoPozastaviliSimulaciu.clear();
     }
 
     @Override
@@ -293,13 +299,11 @@ public AgentNastupuVystupu agentNastupuVystupu()
         return _zoznamZastavok;
     }
 
-    public void setCoPozastaviloSimulaciu(String coPozastaviloSimulaciu) {
-        this._coPozastaviloSimulaciu = coPozastaviloSimulaciu;
+    public void pridajUdalostCoPozastavilaSimulaciu(String coPozastaviloSimulaciu) {
+		_zoznamUdalostiCoPozastaviliSimulaciu.add(coPozastaviloSimulaciu);
     }
 
-    public String getCoPozastaviloSimulaciu() {
-        return _coPozastaviloSimulaciu;
-    }
+
 
 	public BehReplikacieInfo getStatistikyVRamciPreplikacie() {
 		BehReplikacieInfo info = new BehReplikacieInfo();
@@ -308,8 +312,12 @@ public AgentNastupuVystupu agentNastupuVystupu()
 		statistiky.add(new StatistikaInfo("Číslo replikácie", (this.currentReplication() + 1) + ""));
 		statistiky.add(new StatistikaInfo("Čas replikácie", Helper.FormatujSimulacnyCas(this.currentTime(), false)));
 		statistiky.add(new StatistikaInfo("Počet cestujúcich", String.valueOf(_agentZastavok.getPocetCestujucichRep()) ));
-		if (_krokovanie) {
-			statistiky.add(new StatistikaInfo("Čo pozastavilo simuláciu", _coPozastaviloSimulaciu));
+		if (_krokovanie && !_zoznamUdalostiCoPozastaviliSimulaciu.isEmpty()) {
+			statistiky.add(new StatistikaInfo("Čo pozastavilo simuláciu", ""));
+			while (!_zoznamUdalostiCoPozastaviliSimulaciu.isEmpty()) {
+				statistiky.add(new StatistikaInfo("", _zoznamUdalostiCoPozastaviliSimulaciu.removeFirst()));
+			}
+
 		}
 
 		ObservableList<VozidloInfo> vozidlaStatistiky = info.vozidlaInfo_;
