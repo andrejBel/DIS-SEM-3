@@ -65,8 +65,10 @@ public class AgentOkolia extends Agent {
 
 		int pociatocneId = Id.pociatocneIdPrePlanovacPrichodovZakaznikov_;
 		for (ZastavkaOkolie zastavkaOkolie: _zastavkyOkolia) {
-			_planovacovePrichodov.add(new PlanovacPrichodovZakaznikovNaZastavku(pociatocneId, mySim(), this, zastavkaOkolie));
-			pociatocneId++;
+			//if (zastavkaOkolie.getZastavkaKonfiguracia().getNazovZastavky() == "CA" ) {
+				_planovacovePrichodov.add(new PlanovacPrichodovZakaznikovNaZastavku(pociatocneId, mySim(), this, zastavkaOkolie));
+				pociatocneId++;
+			//}
 			//break; // TODO remove, iba na test
 		}
 		//new PlanovacPrichodovZakaznikovNaZastavku(Id.planovacPrichodovZakaznikovNaZastavku, mySim(), this);

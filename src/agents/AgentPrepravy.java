@@ -1,37 +1,63 @@
 package agents;
 
+import Model.Vozidlo;
+import Model.ZastavkaKonfiguracia;
 import OSPABA.*;
+import OSPDataStruct.SimQueue;
 import simulation.*;
 import managers.*;
 import continualAssistants.*;
 import instantAssistants.*;
 
+import javax.management.relation.RoleUnresolved;
+import java.util.HashMap;
+import java.util.List;
+
 //meta! id="5"
 public class AgentPrepravy extends Agent {
-	public AgentPrepravy(int id, Simulation mySim, Agent parent) {
+
+	private AkciaVystupCestujuceho _akciaVystupCestujuceho;
+	private AkciaPresunVozidloNaDalsiuZastavku _akciaPresunVozidloNaDalsiuZastavku;
+	private VlozVozidloDoFrontuVozidielCakajucichNaZastavke _vlozVozidloDoFrontuVozidielCakajucichNaZastavke;
+	private AkciaNastupCestujuceho _akciaNastupCestujuceho;
+	private AkciePrichodVozidlaNaZastavku _akciePrichodVozidlaNaZastavku;
+	private VyberVozidloZFrontuVozidielCakajucichNaZastavke _vyberVozidloZFrontuVozidielCakajucichNaZastavke;
+	private AkciaPrichodZakaznika _akciaPrichodZakaznika;
+	private NaplanujPresunVozidlaNaZastavku _naplanujPresunVozidlaNaZastavku;
+
+	private HashMap<String, SimQueue<Sprava>> _frontyVozidielCakajucichNaZastavkach = new HashMap<>();
+
+	public AgentPrepravy(int id, Simulation mySim, Agent parent, List<ZastavkaKonfiguracia> zoznamZastavok) {
 		super(id, mySim, parent);
+
+		for (ZastavkaKonfiguracia zastavka: zoznamZastavok) {
+			_frontyVozidielCakajucichNaZastavkach.put(zastavka.getNazovZastavky(), new SimQueue<>());
+		}
 		init();
 	}
+
 
 	@Override
 	public void prepareReplication() {
 		super.prepareReplication();
+
+		_frontyVozidielCakajucichNaZastavkach.forEach((s, frontVozidiel) -> {
+			frontVozidiel.clear();
+		});
 		// Setup component for the next replication
 	}
 
 	//meta! userInfo="Generated code: do not modify", tag="begin"
 	private void init() {
 		new ManagerPrepravy(Id.managerPrepravy, mySim(), this);
-		new AkciaVystupCestujuceho(Id.akciaVystupCestujuceho, mySim(), this);
-		new AkciaPresunVozidloNaDalsiuZastavku(Id.akciaPresunVozidloNaDalsiuZastavku, mySim(), this);
-		new VlozVozidloDoFrontuVozidielCakajucichNaZastavke(Id.vlozVozidloDoFrontuVozidielCakajucichNaZastavke, mySim(), this);
-		new AkciaNastupCestujuceho(Id.akciaNastupCestujuceho, mySim(), this);
-		new AkciePrichodVozidlaNaZastavku(Id.akciePrichodVozidlaNaZastavku, mySim(), this);
-		new VyberVozidloZFrontuVozidielCakajucichNaZastavke(Id.vyberVozidloZFrontuVozidielCakajucichNaZastavke, mySim(), this);
-		new AkciaPrichodZakaznika(Id.akciaPrichodZakaznika, mySim(), this);
-		new ProcesNastupuZakaznikov(Id.procesNastupuZakaznikov, mySim(), this); // TODO REMOVE
-		new NaplanujPresunVozidlaNaZastavku(Id.naplanujPresunVozidlaNaZastavku, mySim(), this);
-		addOwnMessage(Mc.zakazniciNastupili); // TODO REMOVE
+		_akciaVystupCestujuceho = new AkciaVystupCestujuceho(Id.akciaVystupCestujuceho, mySim(), this);
+		_akciaPresunVozidloNaDalsiuZastavku =new AkciaPresunVozidloNaDalsiuZastavku(Id.akciaPresunVozidloNaDalsiuZastavku, mySim(), this);
+		_vlozVozidloDoFrontuVozidielCakajucichNaZastavke = new VlozVozidloDoFrontuVozidielCakajucichNaZastavke(Id.vlozVozidloDoFrontuVozidielCakajucichNaZastavke, mySim(), this);
+		_akciaNastupCestujuceho = new AkciaNastupCestujuceho(Id.akciaNastupCestujuceho, mySim(), this);
+		_akciePrichodVozidlaNaZastavku = new AkciePrichodVozidlaNaZastavku(Id.akciePrichodVozidlaNaZastavku, mySim(), this);
+		_vyberVozidloZFrontuVozidielCakajucichNaZastavke = new VyberVozidloZFrontuVozidielCakajucichNaZastavke(Id.vyberVozidloZFrontuVozidielCakajucichNaZastavke, mySim(), this);
+		_akciaPrichodZakaznika = new AkciaPrichodZakaznika(Id.akciaPrichodZakaznika, mySim(), this);
+		_naplanujPresunVozidlaNaZastavku = new NaplanujPresunVozidlaNaZastavku(Id.naplanujPresunVozidlaNaZastavku, mySim(), this);
 		addOwnMessage(Mc.init);
 		addOwnMessage(Mc.cestujuciNaZastavke);
 		addOwnMessage(Mc.nastupCestujuceho);
@@ -43,5 +69,85 @@ public class AgentPrepravy extends Agent {
 	//meta! tag="end"
 
 
+	public AkciaVystupCestujuceho getAkciaVystupCestujuceho() {
+		return _akciaVystupCestujuceho;
+	}
+
+	public AkciaPresunVozidloNaDalsiuZastavku getAkciaPresunVozidloNaDalsiuZastavku() {
+		return _akciaPresunVozidloNaDalsiuZastavku;
+	}
+
+	public VlozVozidloDoFrontuVozidielCakajucichNaZastavke getVlozVozidloDoFrontuVozidielCakajucichNaZastavke() {
+		return _vlozVozidloDoFrontuVozidielCakajucichNaZastavke;
+	}
+
+	public AkciaNastupCestujuceho getAkciaNastupCestujuceho() {
+		return _akciaNastupCestujuceho;
+	}
+
+	public AkciePrichodVozidlaNaZastavku getAkciePrichodVozidlaNaZastavku() {
+		return _akciePrichodVozidlaNaZastavku;
+	}
+
+	public VyberVozidloZFrontuVozidielCakajucichNaZastavke getVyberVozidloZFrontuVozidielCakajucichNaZastavke() {
+		return _vyberVozidloZFrontuVozidielCakajucichNaZastavke;
+	}
+
+	public AkciaPrichodZakaznika getAkciaPrichodZakaznika() {
+		return _akciaPrichodZakaznika;
+	}
+
+	public NaplanujPresunVozidlaNaZastavku getNaplanujPresunVozidlaNaZastavku() {
+		return _naplanujPresunVozidlaNaZastavku;
+	}
+
+	public SimQueue<Sprava> getFrontVozidielCakajucichNaZastavke(String nazov) {
+		return _frontyVozidielCakajucichNaZastavkach.get(nazov);
+	}
+
+	public void vlozVozidloDoFrontuVozidielCakajucichNaZastavke(Sprava spravaSVozidlom) {
+
+		ZastavkaKonfiguracia zastavkaKonfiguracia = spravaSVozidlom.getZastavkaKonfiguracie();
+		SimQueue<Sprava> frontVozidiel = this._frontyVozidielCakajucichNaZastavkach.get(zastavkaKonfiguracia.getNazovZastavky());
+		for (Sprava sprava: frontVozidiel) {
+			if (sprava.getVozidlo().getIdVozidla() == spravaSVozidlom.getVozidlo().getIdVozidla()) {
+				throw new RuntimeException("Nemozno vlozit vozidlo, ktore uz caka");
+			}
+		}
+		frontVozidiel.add(spravaSVozidlom);
+		spravaSVozidlom.getVozidlo().setVozidloVoFronteVozidielCakajucichNaZastavke(true);
+		spravaSVozidlom.getVozidlo().setCasVstupuDoFrontuVozidielNaZastavke(mySim().currentTime());
+	}
+
+	public void odstranVozidloZFrontuVozidielCakajucichNaZastavke(Sprava spravaSVozidlom) {
+		ZastavkaKonfiguracia zastavkaKonfiguracia = spravaSVozidlom.getZastavkaKonfiguracie();
+
+		SimQueue<Sprava> frontVozidiel = this._frontyVozidielCakajucichNaZastavkach.get(zastavkaKonfiguracia.getNazovZastavky());
+		int indexVozidlaVoFronte = -1;
+		int index = 0;
+		for (Sprava sprava: frontVozidiel) {
+			if (sprava.getVozidlo().getIdVozidla() == spravaSVozidlom.getVozidlo().getIdVozidla()) {
+				indexVozidlaVoFronte = index;
+				break;
+			}
+			index++;
+		}
+		if (indexVozidlaVoFronte == -1) {
+			throw new RuntimeException("Vozidlo sa nenachadza vo fronte");
+		}
+		frontVozidiel.remove(indexVozidlaVoFronte);
+		spravaSVozidlom.getVozidlo().setVozidloVoFronteVozidielCakajucichNaZastavke(false);
+	}
+
+	public Sprava getPrveVolneVozidloZFrontuVozidielCakajucichNaZastavke(Sprava spravaSoZastavkou) {
+		ZastavkaKonfiguracia zastavkaKonfiguracia = spravaSoZastavkou.getZastavkaKonfiguracie();
+		SimQueue<Sprava> frontVozidiel = this._frontyVozidielCakajucichNaZastavkach.get(zastavkaKonfiguracia.getNazovZastavky());
+		for (Sprava sprava: frontVozidiel) {
+			if (sprava.getVozidlo().suVolneDvere() && sprava.getVozidlo().jeVolneMiestoVoVozidle()) {
+				return (Sprava) sprava.createCopy();
+			}
+		}
+		return null;
+	}
 
 }

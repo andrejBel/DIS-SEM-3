@@ -26,10 +26,8 @@ public class AgentNastupuVystupu extends Agent {
 		new ProcessVystupuCestujuceho(Id.processVystupuCestujuceho, mySim(), this);
 		addOwnMessage(Mc.koniecNastupu);
 		addOwnMessage(Mc.nastupCestujuceho);
-		addOwnMessage(Mc.start);
 		addOwnMessage(Mc.koniecVystupu);
 		addOwnMessage(Mc.vystupCestujuceho);
-		addOwnMessage(Mc.finish);
 	}
 	//meta! tag="end"
 }
