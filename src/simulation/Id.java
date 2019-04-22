@@ -16,7 +16,6 @@ public class Id extends IdList {
 	public static final int managerNastupuVystupu = 109;
 	public static final int managerPohybu = 107;
 	public static final int managerZastavok = 108;
-	public static final int procesNastupuZakaznikov = 1007; // TODO von
 	public static final int asistentVyjazdu = 1004;
 	public static final int asistentPresunu = 1005;
 	public static final int processVystupuCestujuceho = 1011;

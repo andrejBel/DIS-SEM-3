@@ -5,10 +5,12 @@ import Model.Enumeracie.TYP_VOZIDLA;
 import Model.Info.VozidloInfo;
 import OSPABA.Simulation;
 import OSPDataStruct.SimQueue;
-import Stanok.Simulacia.Sprava;
 import Statistiky.WStatNamed;
 import Utils.Helper;
 import simulation.SimulaciaDopravy;
+import simulation.Sprava;
+
+import java.util.HashMap;
 
 public class Vozidlo extends SimulationEntity {
 
@@ -22,6 +24,9 @@ public class Vozidlo extends SimulationEntity {
     private final TYP_VOZIDLA _typVozidla;
 
     private SimQueue<Sprava> _cestujuciVoVozidle;
+    private HashMap<Long, Sprava> _nastupujuciCestujuci;
+    private HashMap<Long, Sprava> _vystupujuciCestujuci;
+    private Boolean[] _obsadenostDveri;
 
     private STAV_VOZIDLA _stavVozidla = STAV_VOZIDLA.CAKA_NA_VYJAZD;
 
@@ -31,6 +36,8 @@ public class Vozidlo extends SimulationEntity {
     private boolean _pohybujeSa = false;
     private double _kolkoSekundJazdilo = 0.0;
     private int _indexZastavkyLinky = -1;
+    private double _casVstupuDoFrontuVozidielNaZastavke = 0.0;
+    private boolean _vozidloVoFronteVozidielCakajucichNaZastavke = false;
 
     public Vozidlo(Simulation mySim, long idVozidla, double casPrijazduNaPrvuZastavku, Linka linkaNaKtorejJazdi, TYP_VOZIDLA typVozidla) {
         super(mySim);
@@ -40,11 +47,22 @@ public class Vozidlo extends SimulationEntity {
         this._linkaNaKtorejJazdi = linkaNaKtorejJazdi;
         this._typVozidla = typVozidla;
         this._cestujuciVoVozidle = new SimQueue<>(new WStatNamed(mySim(), "Priemerný počet cestujúcich"));
+        this._nastupujuciCestujuci = new HashMap<>();
+        this._vystupujuciCestujuci = new HashMap<>();
+        this._obsadenostDveri = new Boolean[typVozidla.getPocetDveri()];
+        for (int indexDveri = 0; indexDveri < this._obsadenostDveri.length; indexDveri++) {
+            this._obsadenostDveri[indexDveri] = false;
+        }
     }
 
     @Override
     public void beforeReplication() {
         _cestujuciVoVozidle.clear();
+        _nastupujuciCestujuci.clear();
+        _vystupujuciCestujuci.clear();
+        for (int indexDveri = 0; indexDveri < this._obsadenostDveri.length; indexDveri++) {
+            this._obsadenostDveri[indexDveri] = false;
+        }
 
         _stavVozidla = STAV_VOZIDLA.CAKA_NA_VYJAZD;
 
@@ -54,6 +72,8 @@ public class Vozidlo extends SimulationEntity {
         _pohybujeSa = false;
         _kolkoSekundJazdilo = 0.0;
         _indexZastavkyLinky = -1;
+        _casVstupuDoFrontuVozidielNaZastavke = 0.0;
+        _vozidloVoFronteVozidielCakajucichNaZastavke = false;
     }
 
     @Override
@@ -187,4 +207,157 @@ public class Vozidlo extends SimulationEntity {
     public long getIdVozidla() {
         return _idVozidla;
     }
+
+    public TYP_VOZIDLA getTypVozidla() {
+        return _typVozidla;
+    }
+
+    public Integer obsadPrvyIndexVolnychDveri() {
+        for (int indexDveri = 0; indexDveri < this._obsadenostDveri.length; indexDveri++) {
+            if (this._obsadenostDveri[indexDveri] == false) {
+                this._obsadenostDveri[indexDveri] = true;
+                return indexDveri;
+            }
+        }
+        return null;
+    }
+
+    public boolean suVolneDvere() {
+        for (int indexDveri = 0; indexDveri < this._obsadenostDveri.length; indexDveri++) {
+            if (this._obsadenostDveri[indexDveri] == false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void uvolniPouzivaneDvere(int indexDveri) {
+        if (indexDveri < 0 || indexDveri > this._obsadenostDveri.length) {
+            throw new RuntimeException("Index dveri out of range");
+        }
+        this._obsadenostDveri[indexDveri] = false;
+    }
+
+    public int getCelkovyPocetCestujucichVoVozidle() {
+        return this._cestujuciVoVozidle.size() + this._nastupujuciCestujuci.size() + this._vystupujuciCestujuci.size();
+    }
+
+    public boolean jeVolneMiestoVoVozidle() {
+        return getCelkovyPocetCestujucichVoVozidle() < this._maximalnaKapacita;
+    }
+
+    public void pridajCestujucehoNaNastup(Sprava spravaSCestujucim) {
+        long idCestujuceho = spravaSCestujucim.getCestujuci().getIdCestujuceho();
+        if (this._nastupujuciCestujuci.containsKey(idCestujuceho)) {
+            throw new RuntimeException("Cestujuci uz nastupuje");
+        }
+        this._cestujuciVoVozidle.forEach(c-> {
+            if (c.getCestujuci().getIdCestujuceho() == idCestujuceho) {
+                throw new RuntimeException("Cestujuci uz nastupil");
+            }
+        });
+        if (this._vystupujuciCestujuci.containsKey(idCestujuceho)) {
+            throw new RuntimeException("Cestujuci vystupuje");
+        }
+        this._nastupujuciCestujuci.put(idCestujuceho, spravaSCestujucim);
+    }
+
+    public Sprava odstranCestujucehoNaNastup(long idCestujuceho) {
+        Sprava sprava = this._nastupujuciCestujuci.remove(idCestujuceho);
+        if (sprava == null) {
+            throw new RuntimeException("Cestujuci s danym id nenastupuje");
+        }
+        return sprava;
+    }
+
+    public void pridajCestujucehoNaVystup(Sprava spravaSCestujucim) {
+        long idCestujuceho = spravaSCestujucim.getCestujuci().getIdCestujuceho();
+        if (this._nastupujuciCestujuci.containsKey(idCestujuceho)) {
+            throw new RuntimeException("Cestujuci nastupuje");
+        }
+        if (this._vystupujuciCestujuci.containsKey(idCestujuceho)) {
+            throw new RuntimeException("Cestujuci uz vystupuje");
+        }
+        boolean cestujuciNajdeny = false;
+        for (Sprava sprava:_cestujuciVoVozidle) {
+            Cestujuci cestujuci = sprava.getCestujuci();
+            if (idCestujuceho == cestujuci.getIdCestujuceho()) {
+                cestujuciNajdeny = true;
+                break;
+            }
+        }
+        if (cestujuciNajdeny == true) {
+            throw new RuntimeException("Cestujuci nemoze vo vozidle aby mohol vystupit");
+        }
+        this._vystupujuciCestujuci.put(idCestujuceho, spravaSCestujucim);
+    }
+
+    public Sprava odstranCestujucehoNaVystup(long idCestujuceho) {
+        Sprava sprava = this._vystupujuciCestujuci.remove(idCestujuceho);
+        if (sprava == null) {
+            throw new RuntimeException("Cestujuci s danym id nevystupoval");
+        }
+        return sprava;
+    }
+
+    public void pridajCestujucehoDoVozidla(Sprava spravaSCestujucim) {
+        long idCestujuceho = spravaSCestujucim.getCestujuci().getIdCestujuceho();
+
+        if (_nastupujuciCestujuci.containsKey(idCestujuceho)) {
+            throw new RuntimeException("Cestujuci nastupuje");
+        }
+
+        if (_vystupujuciCestujuci.containsKey(idCestujuceho)) {
+            throw new RuntimeException("Cestujuci nastupuje");
+        }
+
+        for (Sprava sprava:_cestujuciVoVozidle) {
+            Cestujuci cestujuci = sprava.getCestujuci();
+            if (idCestujuceho == cestujuci.getIdCestujuceho()) {
+                throw new RuntimeException("Cestujuci je uz vo vozidle");
+            }
+        }
+        _cestujuciVoVozidle.add(spravaSCestujucim);
+    }
+
+    public Sprava odstranCestujucehoVoVozidle() {
+        if (_cestujuciVoVozidle.size() == 0) {
+            throw new RuntimeException("Pocet cestujucich je 0");
+        }
+        return _cestujuciVoVozidle.poll();
+    }
+
+    public boolean isVozidloPrazdne() {
+        return getCelkovyPocetCestujucichVoVozidle() == 0;
+    }
+
+    public int getPocetNastupujucichCestujucich() {
+        return this._nastupujuciCestujuci.size();
+    }
+
+    public int getPocetVystupujucichCestujucich() {
+        return this._vystupujuciCestujuci.size();
+    }
+
+    public int getPocetCestujucichVAutobuseBezNastupujusichAVystupujucich() {
+        return _cestujuciVoVozidle.size();
+    }
+
+    public double getCasVstupuDoFrontuVozidielNaZastavke() {
+        return _casVstupuDoFrontuVozidielNaZastavke;
+    }
+
+    public void setCasVstupuDoFrontuVozidielNaZastavke(double casVstupuDoFrontuVozidielNaZastavke) {
+        this._casVstupuDoFrontuVozidielNaZastavke = casVstupuDoFrontuVozidielNaZastavke;
+    }
+
+    public boolean isVozidloVoFronteVozidielCakajucichNaZastavke() {
+        return _vozidloVoFronteVozidielCakajucichNaZastavke;
+    }
+
+    public void setVozidloVoFronteVozidielCakajucichNaZastavke(boolean vozidloVoFronteVozidielCakajucichNaZastavke) {
+        this._vozidloVoFronteVozidielCakajucichNaZastavke = vozidloVoFronteVozidielCakajucichNaZastavke;
+    }
+
+
 }

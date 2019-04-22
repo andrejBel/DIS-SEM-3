@@ -14,8 +14,8 @@ public class Mc extends IdList {
 	public static final int presunVozidlaNaDalsiuZastavku = 1044;
 	public static final int koniecVystupu = 1068;
 	public static final int koniecNastupu = 1070;
-	public static final int zakazniciNastupili = 1090; // TODO remove
 	public static final int presunVozidlo = 1076;
+	public static final int prichodCestujucehoNaStadion = 1077;
 	//meta! tag="end"
 
 	// 1..1000 range reserved for user

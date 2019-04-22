@@ -19,6 +19,9 @@ public class CestujuciInfo {
     private double _casZaciatkuVystupovania;
     private double _casKoncaVystupovania; // cas prichoduNaStadion
     private String _vozidlo; // _vozidlo, v ktorom sa vezie, viezol
+    private Integer _dvereKtorymiNastupuje;
+    private Integer _dvereKtorymiVystupuje;
+    private String _stavCestujuci;
 
     public static List<TableColumnItem<CestujuciInfo>> ATRIBUTY = Arrays.asList(
             new TableColumnItem<CestujuciInfo>(vozidloInfo -> String.valueOf(vozidloInfo._id), "ID", 50, 100),
@@ -28,10 +31,24 @@ public class CestujuciInfo {
             new TableColumnItem<CestujuciInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._casKoncaNastupovania), "Čas konca nastupovania", 70, 120),
             new TableColumnItem<CestujuciInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._casZaciatkuVystupovania), "Čas začiatku vystupovania", 70, 120),
             new TableColumnItem<CestujuciInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._casKoncaVystupovania), "Čas konca vystupovania", 70, 120),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._vozidlo, "Vozidlo", 70, 120)
+            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._vozidlo, "Vozidlo", 70, 120),
+            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._dvereKtorymiNastupuje == null ? "-" : String.valueOf(vozidloInfo._dvereKtorymiNastupuje), "Nástupné dvere"),
+            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._dvereKtorymiVystupuje == null ? "-" : String.valueOf(vozidloInfo._dvereKtorymiVystupuje), "Výstupné  dvere"),
+            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._stavCestujuci, "Stav cestujúceho")
     );
 
-    public CestujuciInfo(long id, String zastavkaNaKtoruPrisiel, double casPrichoduNaZastavku, double casZaciatkuNastupovania, double casKoncaNastupovania, double casZaciatkuVystupovania, double casKoncaVystupovania, String vozidlo) {
+    public CestujuciInfo(long id,
+                         String zastavkaNaKtoruPrisiel,
+                         double casPrichoduNaZastavku,
+                         double casZaciatkuNastupovania,
+                         double casKoncaNastupovania,
+                         double casZaciatkuVystupovania,
+                         double casKoncaVystupovania,
+                         String vozidlo,
+                         Integer dvereKtorymiNastupuje,
+                         Integer dvereKtorymiVystupuje,
+                         String stavCestujuci
+    ) {
         this._id = id;
         this._zastavkaNaKtoruPrisiel = zastavkaNaKtoruPrisiel;
         this._casPrichoduNaZastavku = casPrichoduNaZastavku;
@@ -40,5 +57,8 @@ public class CestujuciInfo {
         this._casZaciatkuVystupovania = casZaciatkuVystupovania;
         this._casKoncaVystupovania = casKoncaVystupovania;
         this._vozidlo = vozidlo;
+        this._dvereKtorymiNastupuje = dvereKtorymiNastupuje;
+        this._dvereKtorymiVystupuje = dvereKtorymiVystupuje;
+        this._stavCestujuci = stavCestujuci;
     }
 }
