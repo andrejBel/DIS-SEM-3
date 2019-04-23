@@ -54,7 +54,7 @@ public abstract class CWindowBase extends ControllerBase {
 
     public void setOnOpen(Runnable runnable) {
         stageWindow_.setOnShown(event -> {
-            active_ = false;
+            active_ = true;
             runnable.run();
         });
     }

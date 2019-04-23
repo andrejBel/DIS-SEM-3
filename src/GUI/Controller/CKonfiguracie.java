@@ -25,11 +25,18 @@ import simulation.SimulaciaWrapper;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class CKonfiguracie extends CWindowBase {
 
     @FXML
-    private JFXTextField textFieldPrichod;
+    private JFXComboBox<Integer> comboBoxHodiny;
+
+    @FXML
+    private JFXComboBox<Integer> comboBoxMinuty;
+
+    @FXML
+    private JFXComboBox<Integer> comboBoxSekundy;
 
     @FXML
     private JFXTextField textFieldNazovSuboru;
@@ -58,7 +65,6 @@ public class CKonfiguracie extends CWindowBase {
     @FXML
     private TableView<VozidloKonfiguracia> tableViewKonfiguracie;
 
-    private SimpleBooleanProperty isCasPrichoduOk = new SimpleBooleanProperty(false);
     private SimpleBooleanProperty isTypVozidlaOk = new SimpleBooleanProperty(false);
     private SimpleBooleanProperty isTypLinkyOk = new SimpleBooleanProperty(false);
     private SimpleBooleanProperty isPrevadzkaLinkyOk = new SimpleBooleanProperty(false);
@@ -91,6 +97,16 @@ public class CKonfiguracie extends CWindowBase {
 
         fileChooser_.setInitialDirectory(new File(System.getProperty("user.dir")));
         directoryChooser_.setInitialDirectory(new File(System.getProperty("user.dir")));
+
+        for (int i = 0; i < 24; i++) {
+            comboBoxHodiny.getItems().add(i);
+        }
+        for (int i = 0; i < 60; i++) {
+            comboBoxMinuty.getItems().add(i);
+            comboBoxSekundy.getItems().add(i);
+        }
+        resetComboBoxesTime();
+
 
         comboBoxTypVozidla.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             TYP_VOZIDLA typVozidla = newValue;
@@ -165,7 +181,7 @@ public class CKonfiguracie extends CWindowBase {
         Helper.DecorateComboBoxWithValidator(comboBoxLinky, isTypLinkyOk);
         Helper.DecorateComboBoxWithValidator(comboBoxPrevadzkaLinky, isPrevadzkaLinkyOk);
 
-        Helper.DecorateNumberTextFieldWithValidator(textFieldPrichod, isCasPrichoduOk);
+
         Helper.DecorateTextFieldWithValidator(textFieldNazovSuboru, isNazovSuboruOkOK);
 
         Helper.PridajTabulkeStlpce(tableViewKonfiguracie, VozidloKonfiguracia.ATRIBUTY);
@@ -173,23 +189,24 @@ public class CKonfiguracie extends CWindowBase {
 
 
         buttonPridajKonfiguraciu.setOnAction(event -> {
-            if (Helper.DisableButton(buttonPridajKonfiguraciu, Arrays.asList(isCasPrichoduOk, isTypLinkyOk, isTypVozidlaOk), () -> {
-                textFieldPrichod.validate();
+            if (Helper.DisableButton(buttonPridajKonfiguraciu, Arrays.asList(isTypLinkyOk, isTypVozidlaOk), () -> {
+
                 comboBoxLinky.validate();
                 comboBoxTypVozidla.validate();
             })) {
                 return;
             }
-
-            double casPrijazduKPrvejZastavke = Double.parseDouble(textFieldPrichod.getText());
+            int hodiny = comboBoxHodiny.getSelectionModel().getSelectedItem();
+            int minuty = comboBoxMinuty.getSelectionModel().getSelectedItem();
+            int sekundy = comboBoxSekundy.getSelectionModel().getSelectedItem();
+            double casPrijazduKPrvejZastavke = hodiny * Helper.CASOVE_JEDNOTKY.HODINA.getPocetSekund() + minuty * Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() + sekundy; // TODO
 
             this.tableViewKonfiguracie.getItems().add(new VozidloKonfiguracia(typVozidla_, typLinky_, casPrijazduKPrvejZastavke));
-
+            this.tableViewKonfiguracie.getItems().sort(Comparator.comparingDouble(VozidloKonfiguracia::getCasPrijazduNaPrvuZastavku));
 
             buttonPridajKonfiguraciu.disableProperty().unbind();
             buttonPridajKonfiguraciu.setDisable(false);
-            textFieldPrichod.setText("");
-            textFieldPrichod.resetValidation();
+
 
         });
 
@@ -236,10 +253,7 @@ public class CKonfiguracie extends CWindowBase {
                 System.out.println(filePath);
                 KonfiguraciaVozidiel konfiguracia = new KonfiguraciaVozidiel();
                 if (_simulacia.nacitajKonfiguraciuVozidiel(filePath, konfiguracia)) {
-                    tableViewKonfiguracie.getItems().clear();
-                    tableViewKonfiguracie.getItems().addAll(konfiguracia.getKonfiguraciaVozidiel());
-                    comboBoxPrevadzkaLinky.getSelectionModel().select(konfiguracia.getPrevadzkaLiniek());
-
+                    konfiguraciaToGUI(konfiguracia);
                     showSuccessDialog("Konfigurácia úspešne načítaná");
                 } else {
                     showWarningDialog("Konfigurácia nebola uložená");
@@ -252,6 +266,12 @@ public class CKonfiguracie extends CWindowBase {
             clearAllItems();
         });
 
+    }
+
+    private void resetComboBoxesTime() {
+        comboBoxHodiny.getSelectionModel().select(0);
+        comboBoxSekundy.getSelectionModel().select(0);
+        comboBoxMinuty.getSelectionModel().select(0);
     }
 
     private void clearAllItems() {
@@ -270,18 +290,18 @@ public class CKonfiguracie extends CWindowBase {
         comboBoxPrevadzkaLinky.disableProperty().unbind();
         comboBoxPrevadzkaLinky.setDisable(false);
 
-        textFieldPrichod.setText("");
+
         textFieldNazovSuboru.setText("");
 
         comboBoxTypVozidla.getSelectionModel().select(-1);
         comboBoxLinky.getSelectionModel().select(-1);
 
-        textFieldPrichod.resetValidation();
+
         textFieldNazovSuboru.resetValidation();
 
         comboBoxLinky.resetValidation();
         comboBoxTypVozidla.resetValidation();
-
+        resetComboBoxesTime();
 
         //tableViewKonfiguracie.getItems().clear();
 
@@ -304,6 +324,11 @@ public class CKonfiguracie extends CWindowBase {
         return new KonfiguraciaVozidiel(prevadzkaLiniek_, konfiguracie);
     }
 
+    public void konfiguraciaToGUI(KonfiguraciaVozidiel konfiguracia) {
+        tableViewKonfiguracie.getItems().clear();
+        tableViewKonfiguracie.getItems().addAll(konfiguracia.getKonfiguraciaVozidiel());
+        comboBoxPrevadzkaLinky.getSelectionModel().select(konfiguracia.getPrevadzkaLiniek());
 
+    }
 
 }

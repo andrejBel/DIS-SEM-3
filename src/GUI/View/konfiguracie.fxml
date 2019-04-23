@@ -6,9 +6,11 @@
 <?import com.jfoenix.controls.JFXDialogLayout?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -26,8 +28,19 @@
                   <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                      <JFXTextField fx:id="textFieldPrichod" labelFloat="true" promptText="Čas pristavenia k 1. zastávke" />
                   <JFXTextField fx:id="textFieldNazovSuboru" labelFloat="true" promptText="Názov súboru" GridPane.columnIndex="1" />
+                  <HBox spacing="8.0">
+                     <children>
+                        <Label text="Čas príchodu na zastávku">
+                           <HBox.margin>
+                              <Insets top="4.0" />
+                           </HBox.margin>
+                        </Label>
+                        <JFXComboBox fx:id="comboBoxHodiny" promptText="Hodiny" />
+                        <JFXComboBox fx:id="comboBoxMinuty" promptText="Minúty" />
+                        <JFXComboBox fx:id="comboBoxSekundy" promptText="Sekundy" />
+                     </children>
+                  </HBox>
                </children>
                <padding>
                   <Insets bottom="16.0" />

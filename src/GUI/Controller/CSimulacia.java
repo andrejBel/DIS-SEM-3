@@ -1,16 +1,15 @@
 package GUI.Controller;
 
-import Model.Info.BehReplikacieInfo;
-import Model.Info.BehSimulacieInfo;
-import Model.Info.CestujuciInfo;
-import Model.Info.VozidloInfo;
+import Model.Info.*;
 import Model.Vozidlo;
+import Model.VozidloKonfiguracia;
 import Model.ZastavkaKonfiguracia;
 import OSPABA.ISimDelegate;
 import OSPABA.SimState;
 import OSPABA.Simulation;
 import Statistiky.StatistikaInfo;
 import Utils.Helper;
+import agents.AgentPohybu;
 import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -27,13 +26,11 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import simulation.KONSTANTY;
 import simulation.SimulaciaDopravy;
 import simulation.SimulaciaWrapper;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CSimulacia extends ControllerBase implements ISimDelegate {
 
@@ -97,6 +94,8 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
     private JFXTabPane tabPaneZastavky;
 
     HashMap<String, CTableHolder<CestujuciInfo>> zastavkyInfo_ = new HashMap<>();
+    HashMap<Long, CCestujuciVozidlo> cestujuciInfo_ = new HashMap<>();
+
 
     private SimpleBooleanProperty isReplicationOK = new SimpleBooleanProperty(false);
 
@@ -117,6 +116,9 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         _simulacia = simulaciaWrapper.getSimulaciaDopravy();
         _simulacia.registerDelegate(this);
         _oknoKonfiguracie = new CKonfiguracie(simulaciaWrapper, stage);
+        KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, null);
+        _simulacia.nacitajKonfiguraciuVozidiel(KONSTANTY.DEFAULT_KONFIGURACIA, konfiguraciaVozidiel);
+        _oknoKonfiguracie.konfiguraciaToGUI(konfiguraciaVozidiel);
 
         // TABULKY
         Helper.PridajTabulkeStlpce(tableViewStatistiky, StatistikaInfo.ATRIBUTY);
@@ -141,6 +143,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                                 hbox.setAlignment(Pos.CENTER);
                                 hbox.getChildren().add(buttonZakaznici);
                             }
+
                             @Override
                             public void updateItem(String item, boolean empty) {
 
@@ -151,14 +154,9 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                                 } else {
                                     buttonZakaznici.setOnAction(event -> {
                                         VozidloInfo vozidloInfo = getTableView().getItems().get(getIndex());
-                                        CTableHolder<VozidloInfo> holder = new CTableHolder<>(simulaciaWrapper_, stage, "Vozidlá", VozidloInfo.ATRIBUTY);
-                                        holder.setModality(Modality.WINDOW_MODAL);
-                                        ObservableList<VozidloInfo> data = FXCollections.observableArrayList();
+                                        CCestujuciVozidlo cestujuciVozidlo = cestujuciInfo_.get(vozidloInfo.getIdVozidla());
+                                        cestujuciVozidlo.openWindow();
 
-                                        data.add(vozidloInfo);
-
-                                        holder.setTableViewData(data);
-                                        holder.openWindow();
                                         System.out.println("Id vozidla: " + vozidloInfo.getIdVozidla());
                                     });
                                     setGraphic(hbox);
@@ -176,7 +174,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         tableViewVozidla.getColumns().add(zakazniciCol);
 
         // CHECKBOXY
-        checkBoxNormalny.selectedProperty().addListener( (observable, oldValue, newValue) -> {
+        checkBoxNormalny.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 checkBoxKrokovanie.setDisable(false);
             }
@@ -184,7 +182,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                 checkBoxZrychleny.setSelected(true);
             }
         });
-        checkBoxZrychleny.selectedProperty().addListener( (observable, oldValue, newValue) -> {
+        checkBoxZrychleny.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 checkBoxKrokovanie.setDisable(true);
                 checkBoxKrokovanie.setSelected(false);
@@ -213,12 +211,12 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         });
 
         Helper.nastavVypnutieOstatnych(checkBoxStatistikyReplikacie, checkBoxStatistikySimulacie);
-        Helper.nastavVypnutieOstatnych(checkBoxStatistikySimulacie ,checkBoxStatistikyReplikacie);
+        Helper.nastavVypnutieOstatnych(checkBoxStatistikySimulacie, checkBoxStatistikyReplikacie);
         checkBoxStatistikyReplikacie.setSelected(true);
 
         checkBoxesToDisable = Arrays.asList(checkBoxNormalny, checkBoxZrychleny);
 
-        checkBoxKrokovanie.selectedProperty().addListener( (observable, oldValue, newValue) -> {
+        checkBoxKrokovanie.selectedProperty().addListener((observable, oldValue, newValue) -> {
             _simulacia.setKrokovanie(newValue);
         });
 
@@ -239,13 +237,22 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             //simulaciaWrapper_.zastavSimulaciu();
             //computation.cancel();
             int pocetReplikacii = Integer.parseInt(textFieldReplications.getText());
-            double koncovyCasReplikacie = Helper.CASOVE_JEDNOTKY.DEN.getPocetSekund();
+            double koncovyCasReplikacie = Helper.CASOVE_JEDNOTKY.DEN.getPocetSekund() * 20;
 
             _simulacia.setKrokovanie(checkBoxKrokovanie.isSelected());
+
+            _simulacia.setKonfiguracia(_oknoKonfiguracie.getKonfiguracie());
+
+            if (_simulacia.getKonfiguraciaVozidiel().getPrevadzkaLiniek() == null) {
+                showWarningDialog("Nesprávna konfigurácia");
+                return;
+            }
 
             _simulacia.simulateAsync(pocetReplikacii, koncovyCasReplikacie);
 
             buttonStart.disableProperty().unbind();
+
+
         });
 
 
@@ -268,7 +275,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
         List<ZastavkaKonfiguracia> zastavky = _simulacia.getZoznamZastavok();
 
-        for (ZastavkaKonfiguracia zastavka: zastavky) {
+        for (ZastavkaKonfiguracia zastavka : zastavky) {
             CTableHolder<CestujuciInfo> statistikaInfoCTableHolder = new CTableHolder<>(simulaciaWrapper_, stage, zastavka.getNazovZastavky(), CestujuciInfo.ATRIBUTY);
             zastavkyInfo_.put(zastavka.getNazovZastavky(), statistikaInfoCTableHolder);
 
@@ -276,6 +283,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         }
 
         _simulacia.onSimulationWillStart(s -> {
+
             checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(true));
             buttonStart.setDisable(true);
             buttonKonfiguraciaVozidiel.setDisable(true);
@@ -283,13 +291,29 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             statistikyReplikacieData_.clear();
             statistikySimulacieData_.clear();
 
+            cestujuciInfo_.clear();
+
+            ArrayList<VozidloKonfiguracia> vozidla = _simulacia.getKonfiguraciaVozidiel().getKonfiguraciaVozidiel();
+
+
+            Platform.runLater(() -> {
+                long indexVozidla = 1;
+                for (VozidloKonfiguracia vozidlo : vozidla) {
+                    cestujuciInfo_.put(indexVozidla, new CCestujuciVozidlo(simulaciaWrapper, stage, "Cestujúci vozidlo: " + indexVozidla, CestujuciInfo.ATRIBUTY));
+                    indexVozidla++;
+                }
+            });
+
+
         });
 
         _simulacia.onReplicationWillStart(s -> {
             setSimulationSpeed();
 
             Platform.runLater(() -> {
-                zastavkyInfo_.forEach( (n, holder) -> { holder.clearTableViewData();});
+                zastavkyInfo_.forEach((n, holder) -> {
+                    holder.clearTableViewData();
+                });
             });
 
             try {
@@ -364,7 +388,17 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             statistikyReplikacieData_.addAll(behReplikacieInfo.statistiky_);
             tableViewVozidla.setItems(behReplikacieInfo.vozidlaInfo_);
 
-            for (Map.Entry<String, CTableHolder<CestujuciInfo>> zastavkaEntry: zastavkyInfo_.entrySet()) {
+            for (VozidloInfo vozidloInfo : behReplikacieInfo.vozidlaInfo_) {
+                CCestujuciVozidlo cestujuciVozidlo = cestujuciInfo_.get(vozidloInfo.getIdVozidla());
+
+                cestujuciVozidlo.setTableViewDatasLazy(
+                        vozidloInfo.getNastupujuci(),
+                        vozidloInfo.getCestujuci(),
+                        vozidloInfo.getVystupujuci()
+                );
+            }
+
+            for (Map.Entry<String, CTableHolder<CestujuciInfo>> zastavkaEntry : zastavkyInfo_.entrySet()) {
 
                 String nazovZastavky = zastavkaEntry.getKey();
                 CTableHolder<CestujuciInfo> tableHolder = zastavkaEntry.getValue();
@@ -388,7 +422,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
     private void setSimulationSpeed() {
         if (!checkBoxZrychleny.isSelected()) {
             double spomalenieCasu = sliderSpomalenie.getValue() * 0.001;
-            double interval =  sliderInterval.getValue() * 0.01;
+            double interval = sliderInterval.getValue() * 0.01;
             _simulacia.setSimSpeed(interval, spomalenieCasu);
         } else {
             _simulacia.setMaxSimSpeed();
