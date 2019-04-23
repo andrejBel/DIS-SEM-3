@@ -86,5 +86,9 @@ public class AgentOkolia extends Agent {
 		return _planovacovePrichodov;
 	}
 
+	public ArrayList<ZastavkaOkolie> getZastavkyOkolia() {
+		return _zastavkyOkolia;
+	}
+
 	//meta! tag="end"
 }

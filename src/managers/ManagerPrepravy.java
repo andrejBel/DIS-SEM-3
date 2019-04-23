@@ -2,10 +2,11 @@ package managers;
 
 import Model.Cestujuci;
 import Model.Enumeracie.PREVADZKA_LINIEK;
+import Model.Enumeracie.STAV_CESTUJUCI;
 import Model.Vozidlo;
 import Model.ZastavkaKonfiguracia;
 import OSPABA.*;
-import OSPDataStruct.SimQueue;
+import Utils.Helper;
 import simulation.*;
 import agents.*;
 
@@ -101,7 +102,15 @@ public class ManagerPrepravy extends Manager {
 
         if (cestuciNaZastavke == null) { // na zastavke nikto nie je
             if (vozidlo.getPocetNastupujucichCestujucich() == 0) { // ak vsetci nastupili
-                if (mySim().getKonfiguraciaVozidiel().getPrevadzkaLiniek() == PREVADZKA_LINIEK.PO_NASTUPENI_ODCHADZA) { // hned po nastupeni odchadza
+                if (mySim().isKoniecReplikacie()) {
+                    if (mySim().isKrokovanie()) {
+                        mySim().pauseSimulation();
+                        mySim().pridajUdalostCoPozastavilaSimulaciu("Koniec simulácie");
+                    }
+                    mySim().finishReplication();
+                }
+
+                if (mySim().getKonfiguraciaVozidiel().getPrevadzkaLiniek() == PREVADZKA_LINIEK.PO_NASTUPENI_ODCHADZA || !vozidlo.getTypVozidla().isAutobus()) { // hned po nastupeni odchadza
                     myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
                 } else { // 1,5 minuty caka, 90s // inak
                     if (!vozidlo.isVozidloVoFronteVozidielCakajucichNaZastavke()) {
@@ -111,7 +120,10 @@ public class ManagerPrepravy extends Manager {
                     } else {
                         double timeDifference = mySim().currentTime() - vozidlo.getCasVstupuDoFrontuVozidielNaZastavke();
                         if (timeDifference >= KONSTANTY.KOLKO_CAKA_PO_NASTUPE_VSETKYCH_CESTUJUCICH) { // todo > ? >=
-                            myAgent().odstranVozidloZFrontuVozidielCakajucichNaZastavke(sprava);
+                            boolean odstranene = myAgent().odstranVozidloZFrontuVozidielCakajucichNaZastavkeAkTamJe(sprava);
+                            if (odstranene == false) {
+                                throw new RuntimeException("Vozidlo musibyt odstranene z frontu!!!");
+                            }
                             myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
                         }
                     }
@@ -144,6 +156,12 @@ public class ManagerPrepravy extends Manager {
         Cestujuci cestujuci = sprava.getCestujuci();
         vozidlo.odstranCestujucehoNaNastup(cestujuci.getIdCestujuceho());
         vozidlo.pridajCestujucehoDoVozidla((Sprava) sprava.createCopy());
+        cestujuci.setStavCestujuci(STAV_CESTUJUCI.VEZIE_SA_VO_VOZIDLE);
+        if (mySim().isKrokovanie()) {
+            mySim().pauseSimulation();
+            mySim().pridajUdalostCoPozastavilaSimulaciu("Cestujúci " + cestujuci.getIdCestujuceho() + " nastúpil do vozidla " + vozidlo.getIdVozidla());
+        }
+
         // dotialto je to OK
 
 
@@ -154,19 +172,18 @@ public class ManagerPrepravy extends Manager {
             request(sprava);
         } else {
             if (vozidlo.getPocetNastupujucichCestujucich() == 0) {
-                if (mySim().getKonfiguraciaVozidiel().getPrevadzkaLiniek() == PREVADZKA_LINIEK.PO_NASTUPENI_CAKA) {
+                if (mySim().getKonfiguraciaVozidiel().getPrevadzkaLiniek() == PREVADZKA_LINIEK.PO_NASTUPENI_ODCHADZA || !vozidlo.getTypVozidla().isAutobus()) {
+                    myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+                } else if (mySim().getKonfiguraciaVozidiel().getPrevadzkaLiniek() == PREVADZKA_LINIEK.PO_NASTUPENI_CAKA) {
                     if (vozidlo.isVozidloVoFronteVozidielCakajucichNaZastavke()) {
-                        if (vozidlo.getIdVozidla() == 2) {
-                            System.out.println("stoj");
+                        boolean odstranene = myAgent().odstranVozidloZFrontuVozidielCakajucichNaZastavkeAkTamJe(sprava);
+                        if (odstranene == false) {
+                            throw new RuntimeException("Vozidlo musibyt odstranene z frontu!!!");
                         }
-
-                        myAgent().odstranVozidloZFrontuVozidielCakajucichNaZastavke(sprava);
                         myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
                     } else {
                         myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
                     }
-                } else if (mySim().getKonfiguraciaVozidiel().getPrevadzkaLiniek() == PREVADZKA_LINIEK.PO_NASTUPENI_ODCHADZA) {
-                    myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
                 }
             }
         }
@@ -189,6 +206,7 @@ public class ManagerPrepravy extends Manager {
             myAgent().getAkciaVystupCestujuceho().execute(sprava);
         } else if (vozidlo.getCelkovyPocetCestujucichVoVozidle() == 0) {
             // vsetci vystupili
+            // musim skontrolovat koniec simulacie!!!
             myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
         }
 
@@ -197,19 +215,15 @@ public class ManagerPrepravy extends Manager {
     public void processFinishNaplanujPresunVozidlaNaZastavku(MessageForm message) {
         Sprava sprava = (Sprava) message;
         Vozidlo vozidlo = sprava.getVozidlo();
-        if (vozidlo.getIdVozidla() == 2) {
-            System.out.println("stoj");
+
+        if (vozidlo.getPocetNastupujucichCestujucich() == 0) {
+            if (myAgent().odstranVozidloZFrontuVozidielCakajucichNaZastavkeAkTamJe(sprava)) {
+                myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
+            }
         }
-
-        //if (vozidlo.isVozidloVoFronteVozidielCakajucichNaZastavke() && vozidlo.getPocetNastupujucichCestujucich() == 0) { // nikto nenastupuje, cas uplynul, TODO osetrenie vyberania!!!!, funguje iba ak je vzdialenost medzi zastavkami > ako 1,5 minuty!!!!
-        if (vozidlo.getPocetNastupujucichCestujucich() == 0)
-            // !!! TODO PREROBIT
-            myAgent().odstranVozidloZFrontuVozidielCakajucichNaZastavke(sprava);
-
-            myAgent().getAkciaPresunVozidloNaDalsiuZastavku().execute(sprava);
-        }
-
     }
+
+
 
     //meta! userInfo="Process messages defined in code", id="0"
     public void processDefault(MessageForm message) {
