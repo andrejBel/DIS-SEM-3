@@ -2,20 +2,22 @@ package Model.Enumeracie;
 
 public enum TYP_VOZIDLA {
 
-    AUTOBUS_TYP_1("autobus typ 1" ,186, 4, 545000),
-    AUTOBUS_TYP_2("autobus typ 2", 107, 3, 320000),
-    MINIBUS("minibus", 8, 1, 0);
+    AUTOBUS_TYP_1("Autobus typ 1" ,186, 4, 545000, true),
+    AUTOBUS_TYP_2("Autobus typ 2", 107, 3, 320000, true),
+    MINIBUS("Minibus", 8, 1, 0, false);
 
     private String _nazov;
     private int _kapacita;
     private int _pocetDveri;
     private int _obstaraciaCena;
+    private boolean _autobus;
 
-    TYP_VOZIDLA(String nazov, int kapacita, int pocetDveri, int obstaraciaCena) {
+    TYP_VOZIDLA(String nazov, int kapacita, int pocetDveri, int obstaraciaCena, boolean autobus) {
         this._nazov = nazov;
         this._kapacita = kapacita;
         this._pocetDveri = pocetDveri;
         this._obstaraciaCena = obstaraciaCena;
+        this._autobus = autobus;
     }
 
     public String getNazov() {
@@ -32,6 +34,10 @@ public enum TYP_VOZIDLA {
 
     public int getObstaraciaCena() {
         return _obstaraciaCena;
+    }
+
+    public boolean isAutobus() {
+        return _autobus;
     }
 
     public static TYP_VOZIDLA GetTypVozidlaNaZakladeNazvu(String nazov) {

@@ -19,24 +19,24 @@ public class VozidloInfo {
     private double _kolkoSekundJazdi;
     private String _stavVozidla;
     private String _infoOStave;
+    private ObservableList<CestujuciInfo> _nastupujuci;
+    private ObservableList<CestujuciInfo> _cestujuci;
+    private ObservableList<CestujuciInfo> _vystupujuci;
     private int _pocetNastupujucich;
     private int _pocetCestujucich;
     private int _pocetVystupujucich;
     private int _celkovyPocet;
-    private ObservableList<CestujuciInfo> _nastupujuci;
-    private ObservableList<CestujuciInfo> _cestujuci;
-    private ObservableList<CestujuciInfo> _vystupujuci;
 
     public static List<TableColumnItem<VozidloInfo>> ATRIBUTY = Arrays.asList(
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._idVozidla), "ID", 40, 60),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._typVozidla, "Typ vozidla", 100, 160),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._kolkoSekundJazdi), "Doba jazdy", 80, 120),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._stavVozidla, "Stav vozidla", 100, 120),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._idVozidla), "ID", 30, 40),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._typVozidla, "Typ vozidla", 95, 100),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._kolkoSekundJazdi), "Doba jazdy", 80, 80),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._stavVozidla, "Stav vozidla", 100, 100),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._infoOStave, "Porobnosti o stave", 300, IGNORE_MAX_WIDTH),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetNastupujucich), "Počet nastupujúcich", 100, 120),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetCestujucich), "Počet cestujúcich", 100, 120),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetVystupujucich), "Počet vystupujúcich", 100, 120),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._celkovyPocet), "Celkový počet", 100, 120)
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetNastupujucich), "P. N", 30, 40),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetCestujucich), "P. C", 30, 40),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetVystupujucich), "P. V", 30, 40),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._celkovyPocet), "C. P.", 30, 40)
     );
 
     public VozidloInfo(long idVozidla,
@@ -44,27 +44,39 @@ public class VozidloInfo {
                        double kolkoSekundJazdi,
                        String stavVozidla,
                        String infoOStave,
-                       int pocetNastupujucich,
-                       int pocetCestujucich,
-                       int pocetVystupujucich,
-                       ArrayList<CestujuciInfo> nastupujuci,
-                       ArrayList<CestujuciInfo> cestujuci,
-                       ArrayList<CestujuciInfo> vystupujuci) {
+                       ObservableList<CestujuciInfo> nastupujuci,
+                       ObservableList<CestujuciInfo> cestujuci,
+                       ObservableList<CestujuciInfo> vystupujuci) {
         this._idVozidla = idVozidla;
         this._typVozidla = typVozidla;
         this._kolkoSekundJazdi = kolkoSekundJazdi;
         this._stavVozidla = stavVozidla;
         this._infoOStave = infoOStave;
-        this._pocetNastupujucich = pocetNastupujucich;
-        this._pocetCestujucich = pocetCestujucich;
-        this._pocetVystupujucich = pocetVystupujucich;
-        this._celkovyPocet = pocetNastupujucich + pocetCestujucich + pocetVystupujucich;
-        this._nastupujuci = FXCollections.observableArrayList(nastupujuci);
-        this._cestujuci = FXCollections.observableArrayList(cestujuci);
-        this._vystupujuci = FXCollections.observableArrayList(vystupujuci);
+        this._nastupujuci = nastupujuci;
+        this._cestujuci = cestujuci;
+        this._vystupujuci = vystupujuci;
+        this._pocetNastupujucich = nastupujuci.size();
+        this._pocetCestujucich = cestujuci.size();
+        this._pocetVystupujucich = vystupujuci.size();
+        this._celkovyPocet = _pocetNastupujucich + _pocetCestujucich + _pocetVystupujucich;
+    }
+
+    public ObservableList<CestujuciInfo> getNastupujuci() {
+        return _nastupujuci;
+    }
+
+    public ObservableList<CestujuciInfo> getCestujuci() {
+        return _cestujuci;
+    }
+
+    public ObservableList<CestujuciInfo> getVystupujuci() {
+        return _vystupujuci;
     }
 
     public long getIdVozidla() {
         return _idVozidla;
     }
+
+
+
 }

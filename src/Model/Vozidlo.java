@@ -2,11 +2,14 @@ package Model;
 
 import Model.Enumeracie.STAV_VOZIDLA;
 import Model.Enumeracie.TYP_VOZIDLA;
+import Model.Info.CestujuciInfo;
 import Model.Info.VozidloInfo;
 import OSPABA.Simulation;
 import OSPDataStruct.SimQueue;
 import Statistiky.WStatNamed;
 import Utils.Helper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import simulation.SimulaciaDopravy;
 import simulation.Sprava;
 
@@ -201,7 +204,27 @@ public class Vozidlo extends SimulationEntity {
     }
 
     public VozidloInfo getVozidloInfo() {
-        return new VozidloInfo(_idVozidla, _typVozidla.getNazov(), kolkoSekundSaJazdilo(), _stavVozidla.getStav(), infoOStave(), _cestujuciVoVozidle.size());
+        ObservableList<CestujuciInfo> nastupujuciCestujuci = FXCollections.observableArrayList();
+        ObservableList<CestujuciInfo> cestujuciVoVozidle = FXCollections.observableArrayList();
+        ObservableList<CestujuciInfo> vystupujuciCestujuci = FXCollections.observableArrayList();
+
+        _nastupujuciCestujuci.forEach( (s, cestujuci) -> { nastupujuciCestujuci.add(cestujuci.getCestujuci().getCestujuciInfo()); });
+
+        _cestujuciVoVozidle.forEach(cestujuci-> { cestujuciVoVozidle.add(cestujuci.getCestujuci().getCestujuciInfo());});
+
+        _vystupujuciCestujuci.forEach( (s, cestujuci) -> { vystupujuciCestujuci.add(cestujuci.getCestujuci().getCestujuciInfo()); });
+
+
+        return new VozidloInfo(
+                _idVozidla,
+                _typVozidla.getNazov(),
+                kolkoSekundSaJazdilo(),
+                _stavVozidla.getStav(),
+                infoOStave(),
+                nastupujuciCestujuci,
+                cestujuciVoVozidle,
+                vystupujuciCestujuci
+                );
     }
 
     public long getIdVozidla() {
@@ -359,5 +382,7 @@ public class Vozidlo extends SimulationEntity {
         this._vozidloVoFronteVozidielCakajucichNaZastavke = vozidloVoFronteVozidielCakajucichNaZastavke;
     }
 
-
+    public SimQueue<Sprava> getCestujuciVoVozidle() {
+        return _cestujuciVoVozidle;
+    }
 }

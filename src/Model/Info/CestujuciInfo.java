@@ -24,18 +24,21 @@ public class CestujuciInfo {
     private String _stavCestujuci;
 
     public static List<TableColumnItem<CestujuciInfo>> ATRIBUTY = Arrays.asList(
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> String.valueOf(vozidloInfo._id), "ID", 50, 100),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._zastavkaNaKtoruPrisiel, "Zastávka", 50, 100),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._casPrichoduNaZastavku), "Čas príchodu", 70, 120),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._casZaciatkuNastupovania), "Čas začiatku nastupovania", 70, 120),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._casKoncaNastupovania), "Čas konca nastupovania", 70, 120),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._casZaciatkuVystupovania), "Čas začiatku vystupovania", 70, 120),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._casKoncaVystupovania), "Čas konca vystupovania", 70, 120),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._vozidlo, "Vozidlo", 70, 120),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._dvereKtorymiNastupuje == null ? "-" : String.valueOf(vozidloInfo._dvereKtorymiNastupuje), "Nástupné dvere"),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._dvereKtorymiVystupuje == null ? "-" : String.valueOf(vozidloInfo._dvereKtorymiVystupuje), "Výstupné  dvere"),
-            new TableColumnItem<CestujuciInfo>(vozidloInfo -> vozidloInfo._stavCestujuci, "Stav cestujúceho")
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> String.valueOf(cestujuciInfo._id), "ID", 45, 50),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> cestujuciInfo._zastavkaNaKtoruPrisiel, "Z", 35, 35),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casPrichoduNaZastavku), "Čas príchodu", 80, 90),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casZaciatkuNastupovania, false), "Začiatok nastupovania", 120, IGNORE_MAX_WIDTH),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casKoncaNastupovania, false), "Koniec nastupovania", 120, IGNORE_MAX_WIDTH),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casZaciatkuVystupovania, false), "Začiatok vystupovania", 120, IGNORE_MAX_WIDTH),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casKoncaVystupovania, false), "Koniec vystupovania", 120, IGNORE_MAX_WIDTH),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> cestujuciInfo._vozidlo, "Vozidlo", 70, 70),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> cestujuciInfo._dvereKtorymiNastupuje == null ? "-" : String.valueOf(cestujuciInfo._dvereKtorymiNastupuje), "Nástupné dvere"),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> cestujuciInfo._dvereKtorymiVystupuje == null ? "-" : String.valueOf(cestujuciInfo._dvereKtorymiVystupuje), "Výstupné  dvere"),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> cestujuciInfo._stavCestujuci, "Stav cestujúceho")
     );
+
+
+
 
     public CestujuciInfo(long id,
                          String zastavkaNaKtoruPrisiel,
