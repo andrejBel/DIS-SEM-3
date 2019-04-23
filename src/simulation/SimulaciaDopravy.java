@@ -7,8 +7,10 @@ import Model.Enumeracie.TYP_VOZIDLA;
 import Model.Info.*;
 import OSPABA.*;
 import OSPStat.Stat;
+import OSPStat.WStat;
 import Statistiky.StatNamed;
 import Statistiky.StatistikaInfo;
+import Statistiky.WStatNamed;
 import Utils.Helper;
 import agents.*;
 import javafx.collections.FXCollections;
@@ -23,7 +25,7 @@ public class SimulaciaDopravy extends Simulation {
 
     private List<ZastavkaKonfiguracia> _zoznamZastavok = new ArrayList<>();
     private HashMap<String, ZastavkaKonfiguracia> _zastavkyKonfiguracia = new HashMap<>();
-    private KonfiguraciaVozidiel _konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, null);
+    private KonfiguraciaVozidiel _konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, new ArrayList<>());
 	private HashMap<TYP_LINKY, Linka> _linky = new HashMap<>();
 
     private boolean _krokovanie = false;
@@ -246,19 +248,10 @@ public AgentNastupuVystupu agentNastupuVystupu()
     @Override
     public void prepareSimulation() {
         super.prepareSimulation();
-
-        if (_konfiguraciaVozidiel.getKonfiguraciaVozidiel() == null) {
-			setKonfiguracia(
-					new KonfiguraciaVozidiel(PREVADZKA_LINIEK.PO_NASTUPENI_CAKA, new ArrayList<>(Arrays.asList(
-							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 10),
-							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_2, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 15),
-							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_2, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 20),
-							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 25),
-							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 28),
-							new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_2, TYP_LINKY.LINKA_C, Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 30)
-					)))
-			);
+		if (_konfiguraciaVozidiel.getPrevadzkaLiniek() == null) {
+			throw new RuntimeException("Nesprávna konfigurácia");
 		}
+
 
         agentPohybu().inizializujVozidla(_konfiguraciaVozidiel.getKonfiguraciaVozidiel());
 
@@ -315,9 +308,13 @@ public AgentNastupuVystupu agentNastupuVystupu()
 		if (_krokovanie && !_zoznamUdalostiCoPozastaviliSimulaciu.isEmpty()) {
 			statistiky.add(new StatistikaInfo("Čo pozastavilo simuláciu", ""));
 			while (!_zoznamUdalostiCoPozastaviliSimulaciu.isEmpty()) {
-				statistiky.add(new StatistikaInfo("", _zoznamUdalostiCoPozastaviliSimulaciu.removeFirst()));
+								statistiky.add(new StatistikaInfo("", _zoznamUdalostiCoPozastaviliSimulaciu.removeFirst()));
 			}
 
+		}
+		for (Vozidlo vozidlo: agentPohybu().getVozidla()) {
+			WStatNamed statNamed = (WStatNamed) vozidlo.getCestujuciVoVozidle().lengthStatistic();
+			statistiky.add( statNamed.getStatistikaInfo());
 		}
 
 		ObservableList<VozidloInfo> vozidlaStatistiky = info.vozidlaInfo_;
@@ -398,6 +395,34 @@ public AgentNastupuVystupu agentNastupuVystupu()
 
 	public double getCasZaciatkuZapasu() {
 		return _casZaciatkuZapasu;
+	}
+
+
+	public boolean isKoniecReplikacie() {
+		for (Vozidlo vozidlo: _agentPohybu.getVozidla()) {
+			if (vozidlo.getCelkovyPocetCestujucichVoVozidle() > 0) {
+				return false;
+			}
+		}
+		for (ZastavkaOkolie zastavkaOkolie: _agentOkolia.getZastavkyOkolia()) {
+			if (zastavkaOkolie.getCasKoncaGenerovaniaPrichodovCestujucich() >= this.currentTime()) {
+				return false;
+			}
+		}
+		HashMap<String, Zastavka> zastavky = _agentZastavok.getZastavky();
+		for (Map.Entry<String, Zastavka> zastavkaEntry: zastavky.entrySet()) {
+			Zastavka zastavka = zastavkaEntry.getValue();
+			if (zastavka.getCestujuciNaZastavke().size() > 0 && !zastavka.getZastavkaKonfiguracia().getNazovZastavky().equals(KONSTANTY.STADION)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public void finishReplication() {
+		// TODO pozbieraj statistiky!!!
+
+		this.stopReplication(this.currentTime());
 	}
 
 	//meta! tag="end"
