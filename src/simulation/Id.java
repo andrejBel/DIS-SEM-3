@@ -19,15 +19,11 @@ public class Id extends IdList {
 	public static final int asistentVyjazdu = 1004;
 	public static final int asistentPresunu = 1005;
 	public static final int processVystupuCestujuceho = 1011;
-	public static final int vyberVozidloZFrontuVozidielCakajucichNaZastavke = 1018;
 	public static final int akciaPrichodZakaznika = 1012;
-	public static final int planovacPrichodovZakaznikovNaZastavku = 1006;
 	public static final int akciaPresunVozidloNaDalsiuZastavku = 1013;
-	public static final int akciePrichodVozidlaNaZastavku = 1014;
 	public static final int akciaVystupCestujuceho = 1015;
 	public static final int akciaNastupCestujuceho = 1016;
 	public static final int processNastupuCestujuceho = 1010;
-	public static final int vlozVozidloDoFrontuVozidielCakajucichNaZastavke = 1017;
 	public static final int naplanujPresunVozidlaNaZastavku = 1020;
 
 	public static final int pociatocneIdPrePlanovacPrichodovZakaznikov_ = 10000;

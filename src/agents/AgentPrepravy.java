@@ -18,10 +18,7 @@ public class AgentPrepravy extends Agent {
 
 	private AkciaVystupCestujuceho _akciaVystupCestujuceho;
 	private AkciaPresunVozidloNaDalsiuZastavku _akciaPresunVozidloNaDalsiuZastavku;
-	private VlozVozidloDoFrontuVozidielCakajucichNaZastavke _vlozVozidloDoFrontuVozidielCakajucichNaZastavke;
 	private AkciaNastupCestujuceho _akciaNastupCestujuceho;
-	private AkciePrichodVozidlaNaZastavku _akciePrichodVozidlaNaZastavku;
-	private VyberVozidloZFrontuVozidielCakajucichNaZastavke _vyberVozidloZFrontuVozidielCakajucichNaZastavke;
 	private AkciaPrichodZakaznika _akciaPrichodZakaznika;
 	private NaplanujPresunVozidlaNaZastavku _naplanujPresunVozidlaNaZastavku;
 
@@ -52,10 +49,7 @@ public class AgentPrepravy extends Agent {
 		new ManagerPrepravy(Id.managerPrepravy, mySim(), this);
 		_akciaVystupCestujuceho = new AkciaVystupCestujuceho(Id.akciaVystupCestujuceho, mySim(), this);
 		_akciaPresunVozidloNaDalsiuZastavku =new AkciaPresunVozidloNaDalsiuZastavku(Id.akciaPresunVozidloNaDalsiuZastavku, mySim(), this);
-		_vlozVozidloDoFrontuVozidielCakajucichNaZastavke = new VlozVozidloDoFrontuVozidielCakajucichNaZastavke(Id.vlozVozidloDoFrontuVozidielCakajucichNaZastavke, mySim(), this);
 		_akciaNastupCestujuceho = new AkciaNastupCestujuceho(Id.akciaNastupCestujuceho, mySim(), this);
-		_akciePrichodVozidlaNaZastavku = new AkciePrichodVozidlaNaZastavku(Id.akciePrichodVozidlaNaZastavku, mySim(), this);
-		_vyberVozidloZFrontuVozidielCakajucichNaZastavke = new VyberVozidloZFrontuVozidielCakajucichNaZastavke(Id.vyberVozidloZFrontuVozidielCakajucichNaZastavke, mySim(), this);
 		_akciaPrichodZakaznika = new AkciaPrichodZakaznika(Id.akciaPrichodZakaznika, mySim(), this);
 		_naplanujPresunVozidlaNaZastavku = new NaplanujPresunVozidlaNaZastavku(Id.naplanujPresunVozidlaNaZastavku, mySim(), this);
 		addOwnMessage(Mc.init);
@@ -77,20 +71,8 @@ public class AgentPrepravy extends Agent {
 		return _akciaPresunVozidloNaDalsiuZastavku;
 	}
 
-	public VlozVozidloDoFrontuVozidielCakajucichNaZastavke getVlozVozidloDoFrontuVozidielCakajucichNaZastavke() {
-		return _vlozVozidloDoFrontuVozidielCakajucichNaZastavke;
-	}
-
 	public AkciaNastupCestujuceho getAkciaNastupCestujuceho() {
 		return _akciaNastupCestujuceho;
-	}
-
-	public AkciePrichodVozidlaNaZastavku getAkciePrichodVozidlaNaZastavku() {
-		return _akciePrichodVozidlaNaZastavku;
-	}
-
-	public VyberVozidloZFrontuVozidielCakajucichNaZastavke getVyberVozidloZFrontuVozidielCakajucichNaZastavke() {
-		return _vyberVozidloZFrontuVozidielCakajucichNaZastavke;
 	}
 
 	public AkciaPrichodZakaznika getAkciaPrichodZakaznika() {
@@ -119,7 +101,7 @@ public class AgentPrepravy extends Agent {
 		spravaSVozidlom.getVozidlo().setCasVstupuDoFrontuVozidielNaZastavke(mySim().currentTime());
 	}
 
-	public void odstranVozidloZFrontuVozidielCakajucichNaZastavke(Sprava spravaSVozidlom) {
+	public boolean odstranVozidloZFrontuVozidielCakajucichNaZastavkeAkTamJe(Sprava spravaSVozidlom) {
 		ZastavkaKonfiguracia zastavkaKonfiguracia = spravaSVozidlom.getZastavkaKonfiguracie();
 
 		SimQueue<Sprava> frontVozidiel = this._frontyVozidielCakajucichNaZastavkach.get(zastavkaKonfiguracia.getNazovZastavky());
@@ -132,11 +114,12 @@ public class AgentPrepravy extends Agent {
 			}
 			index++;
 		}
-		if (indexVozidlaVoFronte == -1) {
-			throw new RuntimeException("Vozidlo sa nenachadza vo fronte");
+		if (indexVozidlaVoFronte != -1) {
+			frontVozidiel.remove(indexVozidlaVoFronte);
+			spravaSVozidlom.getVozidlo().setVozidloVoFronteVozidielCakajucichNaZastavke(false);
+			return true;
 		}
-		frontVozidiel.remove(indexVozidlaVoFronte);
-		spravaSVozidlom.getVozidlo().setVozidloVoFronteVozidielCakajucichNaZastavke(false);
+		return false;
 	}
 
 	public Sprava getPrveVolneVozidloZFrontuVozidielCakajucichNaZastavke(Sprava spravaSoZastavkou) {
