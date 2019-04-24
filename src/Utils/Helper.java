@@ -29,6 +29,7 @@ import static simulation.KONSTANTY.NULL_TIME;
 public class Helper {
 
     public static final char DEFAULT_SEPARATOR = ';';
+    public static final String UTF8_RECOGNIZER = "\uFEFF";
 
     public static enum CASOVE_JEDNOTKY {
         ROK(86400 * 365),
