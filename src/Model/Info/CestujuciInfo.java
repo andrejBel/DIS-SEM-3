@@ -14,6 +14,7 @@ public class CestujuciInfo {
     private long _id;
     private String _zastavkaNaKtoruPrisiel;
     private double _casPrichoduNaZastavku;
+    private double _casCakaniaNaZastavke;
     private double _casZaciatkuNastupovania;
     private double _casKoncaNastupovania;
     private double _casZaciatkuVystupovania;
@@ -27,6 +28,7 @@ public class CestujuciInfo {
             new TableColumnItem<CestujuciInfo>(cestujuciInfo -> String.valueOf(cestujuciInfo._id), "ID", 45, 50),
             new TableColumnItem<CestujuciInfo>(cestujuciInfo -> cestujuciInfo._zastavkaNaKtoruPrisiel, "Z", 35, 35),
             new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casPrichoduNaZastavku), "Čas príchodu", 80, 90),
+            new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casCakaniaNaZastavke), "Čas čakania na zastávke", 80, 90),
             new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casZaciatkuNastupovania, false), "Začiatok nastupovania", 120, IGNORE_MAX_WIDTH),
             new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casKoncaNastupovania, false), "Koniec nastupovania", 120, IGNORE_MAX_WIDTH),
             new TableColumnItem<CestujuciInfo>(cestujuciInfo -> Helper.FormatujSimulacnyCas(cestujuciInfo._casZaciatkuVystupovania, false), "Začiatok vystupovania", 120, IGNORE_MAX_WIDTH),
@@ -38,11 +40,10 @@ public class CestujuciInfo {
     );
 
 
-
-
     public CestujuciInfo(long id,
                          String zastavkaNaKtoruPrisiel,
                          double casPrichoduNaZastavku,
+                         double casCakaniaNaZastavke,
                          double casZaciatkuNastupovania,
                          double casKoncaNastupovania,
                          double casZaciatkuVystupovania,
@@ -55,6 +56,7 @@ public class CestujuciInfo {
         this._id = id;
         this._zastavkaNaKtoruPrisiel = zastavkaNaKtoruPrisiel;
         this._casPrichoduNaZastavku = casPrichoduNaZastavku;
+        this._casCakaniaNaZastavke = casCakaniaNaZastavke;
         this._casZaciatkuNastupovania = casZaciatkuNastupovania;
         this._casKoncaNastupovania = casKoncaNastupovania;
         this._casZaciatkuVystupovania = casZaciatkuVystupovania;
@@ -63,5 +65,13 @@ public class CestujuciInfo {
         this._dvereKtorymiNastupuje = dvereKtorymiNastupuje;
         this._dvereKtorymiVystupuje = dvereKtorymiVystupuje;
         this._stavCestujuci = stavCestujuci;
+    }
+
+    public long getId() {
+        return _id;
+    }
+
+    public String getZastavkaNaKtoruPrisiel() {
+        return _zastavkaNaKtoruPrisiel;
     }
 }

@@ -1,5 +1,7 @@
 package Model.Enumeracie;
 
+import java.util.Comparator;
+
 public enum TYP_LINKY {
 
     LINKA_A("Linka A"),
@@ -24,6 +26,10 @@ public enum TYP_LINKY {
             }
         }
         return null;
+    }
+
+    public static Comparator<TYP_LINKY> GetComparator() {
+        return Comparator.naturalOrder();
     }
 
 }

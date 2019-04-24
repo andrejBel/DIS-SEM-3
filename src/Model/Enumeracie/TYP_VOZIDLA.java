@@ -1,5 +1,7 @@
 package Model.Enumeracie;
 
+import java.util.Comparator;
+
 public enum TYP_VOZIDLA {
 
     AUTOBUS_TYP_1("Autobus typ 1" ,186, 4, 545000, true),
@@ -47,6 +49,10 @@ public enum TYP_VOZIDLA {
             }
         }
         return null;
+    }
+
+    public static Comparator<TYP_VOZIDLA> GetComparator() {
+        return Comparator.naturalOrder();
     }
 
 }
