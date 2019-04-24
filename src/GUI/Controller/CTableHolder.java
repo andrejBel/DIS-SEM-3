@@ -2,7 +2,9 @@ package GUI.Controller;
 
 import GUI.TableColumnItem;
 import Utils.Helper;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
@@ -10,6 +12,7 @@ import javafx.stage.Stage;
 import simulation.SimulaciaWrapper;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public class CTableHolder<T> extends CWindowBase {
 
@@ -21,19 +24,22 @@ public class CTableHolder<T> extends CWindowBase {
 
     private ObservableList<T> tableViewDataLazy_;
 
-    public CTableHolder(SimulaciaWrapper simulaciaWrapper, Stage stage, String viewName, List<TableColumnItem<T>> tableColumnItems) {
+    private Predicate<? super T> _predicateForFiltering;
+
+    public CTableHolder(SimulaciaWrapper simulaciaWrapper, Stage stage, String viewName, List<TableColumnItem<T>> tableColumnItems, Predicate<? super T> predicateForFiltering) {
         super(simulaciaWrapper, stage);
         getStage().setTitle(viewName);
         this.viewName_ = viewName;
         Helper.PridajTabulkeStlpce(tableView, tableColumnItems);
         tableViewDataLazy_ = tableView.getItems();
+        _predicateForFiltering = predicateForFiltering;
         //Helper.InstallCopyPasteHandler(tableView);
     }
 
     @Override
     public Runnable getRunnableOnSelection() {
         return () -> {
-            tableView.setItems(tableViewDataLazy_);
+            setTableData();
             selected_ = true;
         };
     }
@@ -81,16 +87,17 @@ public class CTableHolder<T> extends CWindowBase {
         return selected_;
     }
 
-
-    public void setTableViewData(ObservableList<T> list) {
-        tableViewDataLazy_ = list;
-        tableView.setItems(list);
+    public void setPredicateForFiltering(Predicate<? super T> predicateForFiltering) {
+        this._predicateForFiltering = predicateForFiltering;
+        if (selected_) {
+            setTableData();
+        }
     }
 
     public void setTableViewDataLazy(ObservableList<T> list) {
         tableViewDataLazy_ = list;
         if (selected_) {
-            tableView.setItems(list);
+            setTableData();
         }
     }
 
@@ -99,8 +106,13 @@ public class CTableHolder<T> extends CWindowBase {
     }
 
     public void clearTableViewData() {
-        this.tableView.getItems().clear();
+        this.tableView.setItems(new FilteredList<>(FXCollections.observableArrayList()));
     }
 
+    private void setTableData() {
+        FilteredList<T> filtered = new FilteredList<>(tableViewDataLazy_);
+        filtered.setPredicate(_predicateForFiltering);
+        tableView.setItems(filtered);
+    }
 
 }
