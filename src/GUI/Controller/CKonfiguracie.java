@@ -202,7 +202,11 @@ public class CKonfiguracie extends CWindowBase {
             double casPrijazduKPrvejZastavke = hodiny * Helper.CASOVE_JEDNOTKY.HODINA.getPocetSekund() + minuty * Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() + sekundy; // TODO
 
             this.tableViewKonfiguracie.getItems().add(new VozidloKonfiguracia(typVozidla_, typLinky_, casPrijazduKPrvejZastavke));
-            this.tableViewKonfiguracie.getItems().sort(Comparator.comparingDouble(VozidloKonfiguracia::getCasPrijazduNaPrvuZastavku));
+            this.tableViewKonfiguracie.getItems().sort(
+                    Comparator.comparingDouble(VozidloKonfiguracia::getCasPrijazduNaPrvuZastavku)
+                    .thenComparing((v1, v2) -> TYP_LINKY.GetComparator().compare(v1.getTypLinky(), v2.getTypLinky()))
+                    .thenComparing((v1, v2) -> TYP_VOZIDLA.GetComparator().compare(v1.getTypVozidla(), v2.getTypVozidla()))
+            );
 
             buttonPridajKonfiguraciu.disableProperty().unbind();
             buttonPridajKonfiguraciu.setDisable(false);
