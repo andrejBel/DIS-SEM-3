@@ -2,6 +2,10 @@ package Model;
 
 import Model.Enumeracie.STAV_CESTUJUCI;
 import Model.Info.CestujuciInfo;
+import OSPABA.Simulation;
+import Utils.Helper;
+import simulation.KONSTANTY;
+import simulation.SimulaciaDopravy;
 
 import static simulation.KONSTANTY.NULL_TIME;
 
@@ -11,6 +15,7 @@ public class Cestujuci {
     private final ZastavkaKonfiguracia _zastavka; // _zastavka na ktorej nastupil
     private STAV_CESTUJUCI _stavCestujuci;
 
+    private SimulaciaDopravy _simulacia;
     private final double _casPrichoduNaZastavku;
     private double _casZaciatkuNastupovania = NULL_TIME;
     private double _casKoncaNastupovania = NULL_TIME;
@@ -20,7 +25,8 @@ public class Cestujuci {
     private Integer _indexNastupnychDveri = null;
     private Integer _indexVystupnychDveri = null;
 
-    public Cestujuci(long idCestujuceho, ZastavkaKonfiguracia zastavka, double casPrichoduNaZastavku, STAV_CESTUJUCI stavCestujuci) {
+    public Cestujuci(SimulaciaDopravy simulacia, long idCestujuceho, ZastavkaKonfiguracia zastavka, double casPrichoduNaZastavku, STAV_CESTUJUCI stavCestujuci) {
+        this._simulacia = simulacia;
         this._idCestujuceho = idCestujuceho;
         this._zastavka = zastavka;
         this._casPrichoduNaZastavku = casPrichoduNaZastavku;
@@ -107,6 +113,7 @@ public class Cestujuci {
         return new CestujuciInfo(_idCestujuceho,
                 _zastavka.getNazovZastavky(),
                 _casPrichoduNaZastavku,
+                this.getCasCakaniaNaZastavke(),
                 _casZaciatkuNastupovania,
                 _casKoncaNastupovania,
                 _casZaciatkuVystupovania,
@@ -116,6 +123,25 @@ public class Cestujuci {
                 _indexVystupnychDveri,
                 _stavCestujuci.getNazov()
         );
+    }
+    public double getCasCakaniaNaZastavke() {
+        if (_casZaciatkuNastupovania == NULL_TIME) {
+            double casCakania = _simulacia.currentTime() - this._casPrichoduNaZastavku;
+            if (casCakania < 0) {
+                throw new RuntimeException("Porusenie kauzality");
+            }
+            return casCakania;
+        } else {
+            return this._casZaciatkuNastupovania - this._casPrichoduNaZastavku;
+        }
+    }
+
+    public boolean jeOchotnyNastupit(Vozidlo vozidlo, double currentTime) {
+        if (vozidlo.getTypVozidla().isAutobus()) {
+            return true;
+        }
+        double casCakania = getCasCakaniaNaZastavke();
+        return casCakania >= KONSTANTY.KEDY_JE_OCHOTNY_NASTUPIT_DO_MINIBUSU;
     }
 
 }

@@ -15,7 +15,12 @@ public class AgentZastavok extends Agent {
 
 	private HashMap<String, Zastavka> _zastavky = new HashMap<>();
 
+
 	private int _pocetCestujucichRep;
+	private int _pocetCestujucichNaStadione;
+	private int _pocetCestujucichNaStadioneNaCas;
+	private StatNamed _priemernyCasCakaniaCestujucehoNaZastavkeRep = new StatNamed("Priemerný čas čakania cestujúceho na zastávke");
+
 
 	public AgentZastavok(int id, Simulation mySim, Agent parent, HashMap<String, ZastavkaKonfiguracia> konfiguraciaZastavok) {
 		super(id, mySim, parent);
@@ -33,6 +38,9 @@ public class AgentZastavok extends Agent {
 
 		_zastavky.forEach((s, zastavka) -> {zastavka.beforeReplication();});
 		_pocetCestujucichRep = 0;
+		_pocetCestujucichNaStadione = 0;
+		_pocetCestujucichNaStadioneNaCas = 0;
+		_priemernyCasCakaniaCestujucehoNaZastavkeRep.clear();
 		// Setup component for the next replication
 	}
 
@@ -59,12 +67,45 @@ public class AgentZastavok extends Agent {
 	}
 
 	public void zvysPocetCestujucich() {
-		_pocetCestujucichRep++;;
+		_pocetCestujucichRep++;
 	}
 
 	public int getPocetCestujucichRep() {
 		return _pocetCestujucichRep;
 	}
+
+	public void zvysPocetCestujucichNaStadione(boolean nacas) {
+		_pocetCestujucichNaStadione++;
+		if (nacas) {
+			_pocetCestujucichNaStadioneNaCas++;
+		}
+	}
+
+	public int getPocetCestujucichNaStadione() {
+		return _pocetCestujucichNaStadione;
+	}
+
+	public int getPocetCestujucichNaStadioneNaCas() {
+		return _pocetCestujucichNaStadioneNaCas;
+	}
+
+	public int getPocetCestujucichNaStadionePoZaciatkuZapasu() {
+		return this._pocetCestujucichNaStadione - _pocetCestujucichNaStadioneNaCas;
+	}
+
+	public double getPercentoLudiPrichadzajucichPoZapase() {
+		int pocetCestujucichPoZaciatkuZapasu = getPocetCestujucichNaStadionePoZaciatkuZapasu();
+		return _pocetCestujucichNaStadione > 0 ? (((double) pocetCestujucichPoZaciatkuZapasu) / ((double) _pocetCestujucichNaStadione )) * 100.0 : 0.0;
+	}
+
+	public void pridajCasCakaniaCestujucehoNaZastavke(double casCakania) {
+		this._priemernyCasCakaniaCestujucehoNaZastavkeRep.addSample(casCakania);
+	}
+
+	public StatNamed getPriemernyCasCakaniaCestujucehoNaZastavkeRep() {
+		return _priemernyCasCakaniaCestujucehoNaZastavkeRep;
+	}
+
 
 
 }
