@@ -2,6 +2,7 @@ package managers;
 
 import Model.Cestujuci;
 import Model.Enumeracie.STAV_CESTUJUCI;
+import Model.Vozidlo;
 import Model.Zastavka;
 import Model.ZastavkaKonfiguracia;
 import OSPABA.*;
@@ -40,7 +41,7 @@ public class ManagerZastavok extends Manager {
 
 		//System.out.println("Cestujuci prisiel na zastavku: " + sprava.getZastavkaKonfiguracie().getNazovZastavky() + ", cas: " + Helper.FormatujSimulacnyCas(mySim().currentTime())); // TODO delete
 
-		Cestujuci cestujuci = new Cestujuci(_indexerCestujucich++, sprava.getZastavkaKonfiguracie(), mySim().currentTime(), STAV_CESTUJUCI.CAKA_NA_ZASTAVKE);
+		Cestujuci cestujuci = new Cestujuci(mySim(), _indexerCestujucich++, sprava.getZastavkaKonfiguracie(), mySim().currentTime(), STAV_CESTUJUCI.CAKA_NA_ZASTAVKE);
 		sprava.setCestujuci(cestujuci);
 
 		myAgent().getZastavka(sprava.getZastavkaKonfiguracie().getNazovZastavky()).pridajCestujucehoNaZastavku(sprava);
@@ -57,14 +58,19 @@ public class ManagerZastavok extends Manager {
 		Sprava sprava = (Sprava) message;
 		ZastavkaKonfiguracia ktoraZastavka = sprava.getZastavkaKonfiguracie();
 		Zastavka zastavka = myAgent().getZastavka(ktoraZastavka.getNazovZastavky());
+		Vozidlo vozidlo = sprava.getVozidlo();
 		SimQueue<Sprava> cestujuci = zastavka.getCestujuciNaZastavke();
-		if (sprava.getVozidlo() == null) {
-			System.out.println("stop");
-		}
 		if (cestujuci.size() == 0) {
 			sprava.setCestujuci(null);
 		} else {
-			sprava.setCestujuci(cestujuci.poll().getCestujuci());
+			Cestujuci prvyCakajuciCestujuci = cestujuci.peek().getCestujuci();
+			if (prvyCakajuciCestujuci.jeOchotnyNastupit(vozidlo, mySim().currentTime())) {
+				myAgent().pridajCasCakaniaCestujucehoNaZastavke(prvyCakajuciCestujuci.getCasCakaniaNaZastavke());
+				zastavka.getPriemernyCasCakaniaCestujecehoNaZastavke().addSample(prvyCakajuciCestujuci.getCasCakaniaNaZastavke());
+				sprava.setCestujuci(cestujuci.poll().getCestujuci());
+			} else {
+				sprava.setCestujuci(null);
+			}
 		}
 
 		response(sprava);
@@ -76,6 +82,8 @@ public class ManagerZastavok extends Manager {
 		myAgent().getZastavka(KONSTANTY.STADION).pridajCestujucehoNaZastavku(sprava);
 		Cestujuci cestujuci = sprava.getCestujuci();
 		cestujuci.setStavCestujuci(STAV_CESTUJUCI.NA_STADIONE);
+		myAgent().zvysPocetCestujucichNaStadione(cestujuci.getCasKoncaVystupovania() <= mySim().getCasZaciatkuZapasu());
+
 		if (mySim().isKrokovanie()) {
 			mySim().pauseSimulation();
 			mySim().pridajUdalostCoPozastavilaSimulaciu("Príchod cestjúceho " + cestujuci.getIdCestujuceho() + " na štadión");

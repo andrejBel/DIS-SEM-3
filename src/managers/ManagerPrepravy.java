@@ -41,7 +41,7 @@ public class ManagerPrepravy extends Manager {
         Sprava sprava = (Sprava) message;
         Vozidlo vozidlo = sprava.getVozidlo();
         ZastavkaKonfiguracia zastavkaNaKtoruPrisloVozidlo = vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka();
-        System.out.println("Vozidlo prislo na zastavku: " +  zastavkaNaKtoruPrisloVozidlo.getNazovZastavky());
+
 
         sprava.getVozidlo().setVozidloVoFronteVozidielCakajucichNaZastavke(false);
 

@@ -7,6 +7,7 @@ import Model.Info.VozidloInfo;
 import OSPABA.Simulation;
 import OSPDataStruct.SimQueue;
 import Statistiky.WStatNamed;
+import Statistiky.WeightStat;
 import Utils.Helper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -49,7 +50,7 @@ public class Vozidlo extends SimulationEntity {
         this._casPrijazduNaPrvuZastavku = casPrijazduNaPrvuZastavku;
         this._linkaNaKtorejJazdi = linkaNaKtorejJazdi;
         this._typVozidla = typVozidla;
-        this._cestujuciVoVozidle = new SimQueue<>(new WStatNamed(mySim(), "Priemerný počet cestujúcich"));
+        this._cestujuciVoVozidle = new SimQueue<>(new WStatNamed(mySim(), "Priemerný počet cestujúcich vozidlo " + idVozidla));
         this._nastupujuciCestujuci = new HashMap<>();
         this._vystupujuciCestujuci = new HashMap<>();
         this._obsadenostDveri = new Boolean[typVozidla.getPocetDveri()];
@@ -139,6 +140,8 @@ public class Vozidlo extends SimulationEntity {
         ++_indexZastavkyLinky;
         if (_indexZastavkyLinky >= _linkaNaKtorejJazdi.getZastavky().size()) {
             _indexZastavkyLinky = 0;
+            WeightStat stat = (WeightStat) this._cestujuciVoVozidle.lengthStatistic();
+            stat.setPrevTimeToCurrent(); // aby sme zaratavali vytazenie iba v ramci prepravy zakaznikov, neratame okruznu jazdu
         }
         _zastavkaNaKtorejJeNaposledyBol = _linkaNaKtorejJazdi.getZastavky().get(_indexZastavkyLinky);
 

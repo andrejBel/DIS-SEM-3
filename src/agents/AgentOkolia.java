@@ -6,6 +6,7 @@ import Model.ZastavkaKonfiguracia;
 import Model.ZastavkaLinky;
 import Model.ZastavkaOkolie;
 import OSPABA.*;
+import Utils.Helper;
 import simulation.*;
 import managers.*;
 import continualAssistants.*;
@@ -43,11 +44,11 @@ public class AgentOkolia extends Agent {
 
 			}
 			_zastavkyOkolia.add(new ZastavkaOkolie(zastavka, casPrichoduPrvehoZakaznika, casPrichoduPoslednehoZakaznika));
-			System.out.println("Zastavka: " + zastavka.getNazovZastavky());
-			System.out.println("casPrichoduPrvehoZakaznika: " + casPrichoduPrvehoZakaznika);
-			System.out.println("casPrichoduPoslednehoZakaznika: " + casPrichoduPoslednehoZakaznika);
-			System.out.println("Rozdiel: " + (casPrichoduPoslednehoZakaznika - casPrichoduPrvehoZakaznika));
-			System.out.println("Parameter: " + _zastavkyOkolia.get(_zastavkyOkolia.size() - 1).getParameterExponencialnehoRozdelenia());
+			System.out.print("Zastavka; "+ zastavka.getNazovZastavky() + Helper.DEFAULT_SEPARATOR + " ");
+			System.out.print("casPrichoduPrvehoZakaznika; " + casPrichoduPrvehoZakaznika + Helper.DEFAULT_SEPARATOR + " ");
+			System.out.print("casPrichoduPoslednehoZakaznika; " + casPrichoduPoslednehoZakaznika + Helper.DEFAULT_SEPARATOR + " ");
+			System.out.print("Rozdiel; " + (casPrichoduPoslednehoZakaznika - casPrichoduPrvehoZakaznika) + Helper.DEFAULT_SEPARATOR + " ");
+			System.out.println("Parameter; " + _zastavkyOkolia.get(_zastavkyOkolia.size() - 1).getParameterExponencialnehoRozdelenia() + Helper.DEFAULT_SEPARATOR + " ");
 		}
 
 		init();
