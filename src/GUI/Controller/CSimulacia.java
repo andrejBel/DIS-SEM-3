@@ -1,7 +1,7 @@
 package GUI.Controller;
 
+import Model.Cestujuci;
 import Model.Info.*;
-import Model.Vozidlo;
 import Model.VozidloKonfiguracia;
 import Model.ZastavkaKonfiguracia;
 import OSPABA.ISimDelegate;
@@ -9,7 +9,6 @@ import OSPABA.SimState;
 import OSPABA.Simulation;
 import Statistiky.StatistikaInfo;
 import Utils.Helper;
-import agents.AgentPohybu;
 import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -19,11 +18,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import simulation.KONSTANTY;
@@ -74,7 +73,13 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
     private JFXSlider sliderSkip;
 
     @FXML
-    private LineChart<Number, Number> lineChart;
+    private JFXCheckBox checkBoxGrafReplikacie;
+
+    @FXML
+    private JFXCheckBox checkBoxGrafSimulacie;
+
+    @FXML
+    private LineChart<Number, Number> lineChartCakanieNaZastavke;
 
     @FXML
     private JFXCheckBox checkBoxStatistikyReplikacie;
@@ -91,11 +96,16 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
     private TableView<VozidloInfo> tableViewVozidla;
 
     @FXML
+    private JFXTextField textFieldFilter;
+
+    @FXML
     private JFXTabPane tabPaneZastavky;
 
-    HashMap<String, CTableHolder<CestujuciInfo>> zastavkyInfo_ = new HashMap<>();
-    HashMap<Long, CCestujuciVozidlo> cestujuciInfo_ = new HashMap<>();
+    private HashMap<String, CTableHolder<CestujuciInfo>> zastavkyInfo_ = new HashMap<>();
+    private HashMap<Long, CCestujuciVozidlo> cestujuciInfo_ = new HashMap<>();
 
+    private XYChart.Series<Number, Number> chartValuesCasCakaniaCestujucehoRep_ = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> chartValuesCasCakaniaCestujucehoSim_ = new XYChart.Series<>();
 
     private SimpleBooleanProperty isReplicationOK = new SimpleBooleanProperty(false);
 
@@ -201,18 +211,47 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
         checkBoxStatistikyReplikacie.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                tableViewStatistiky.setItems(statistikyReplikacieData_);
+                Platform.runLater(() -> {
+                    tableViewStatistiky.setItems(statistikyReplikacieData_);
+                });
             }
         });
         checkBoxStatistikySimulacie.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                tableViewStatistiky.setItems(statistikySimulacieData_);
+                Platform.runLater(() -> {
+                    tableViewStatistiky.setItems(statistikySimulacieData_);
+                });
+
             }
         });
 
         Helper.nastavVypnutieOstatnych(checkBoxStatistikyReplikacie, checkBoxStatistikySimulacie);
         Helper.nastavVypnutieOstatnych(checkBoxStatistikySimulacie, checkBoxStatistikyReplikacie);
         checkBoxStatistikyReplikacie.setSelected(true);
+
+        checkBoxGrafReplikacie.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                Platform.runLater(() -> {
+                    lineChartCakanieNaZastavke.getData().clear();
+                    lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaCestujucehoRep_);
+                    lineChartCakanieNaZastavke.getXAxis().setLabel("Čas replikácie");
+                });
+            }
+        });
+
+        checkBoxGrafSimulacie.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                Platform.runLater(() -> {
+                    lineChartCakanieNaZastavke.getData().clear();
+                    lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaCestujucehoSim_);
+                    lineChartCakanieNaZastavke.getXAxis().setLabel("Číslo replikácie");
+                });
+            }
+        });
+
+        Helper.nastavVypnutieOstatnych(checkBoxGrafReplikacie, checkBoxGrafSimulacie);
+        Helper.nastavVypnutieOstatnych(checkBoxGrafSimulacie, checkBoxGrafReplikacie);
+        checkBoxGrafReplikacie.setSelected(true);
 
         checkBoxesToDisable = Arrays.asList(checkBoxNormalny, checkBoxZrychleny);
 
@@ -276,25 +315,47 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         List<ZastavkaKonfiguracia> zastavky = _simulacia.getZoznamZastavok();
 
         for (ZastavkaKonfiguracia zastavka : zastavky) {
-            CTableHolder<CestujuciInfo> statistikaInfoCTableHolder = new CTableHolder<>(simulaciaWrapper_, stage, zastavka.getNazovZastavky(), CestujuciInfo.ATRIBUTY);
+            CTableHolder<CestujuciInfo> statistikaInfoCTableHolder = new CTableHolder<>(simulaciaWrapper_, stage, zastavka.getNazovZastavky(), CestujuciInfo.ATRIBUTY, cestujuciInfo -> true);
             zastavkyInfo_.put(zastavka.getNazovZastavky(), statistikaInfoCTableHolder);
 
             tabPaneZastavky.getTabs().add(statistikaInfoCTableHolder.getTab());
         }
 
+        textFieldFilter.textProperty().addListener((observable, oldValue, newValue) -> {
+            for (Map.Entry<String, CTableHolder<CestujuciInfo>> holderEntry : zastavkyInfo_.entrySet()) {
+                CTableHolder<CestujuciInfo> holder = holderEntry.getValue();
+                holder.setPredicateForFiltering(cestujuciInfo -> {
+                    if (newValue == null || newValue.isEmpty()) {
+                        return true;
+                    }
+                    String filterText = textFieldFilter.getText().toLowerCase();
+                    String idCestujuceho = String.valueOf(cestujuciInfo.getId());
+                    String zastavakCestujuceho = cestujuciInfo.getZastavkaNaKtoruPrisiel().toLowerCase();
+                    return idCestujuceho.startsWith(filterText) || zastavakCestujuceho.startsWith(filterText);
+                });
+            }
+        });
+
         _simulacia.onSimulationWillStart(s -> {
 
-            checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(true));
-            buttonStart.setDisable(true);
-            buttonKonfiguraciaVozidiel.setDisable(true);
 
-            statistikyReplikacieData_.clear();
-            statistikySimulacieData_.clear();
 
-            cestujuciInfo_.clear();
+            Platform.runLater(() -> {
+                checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(true));
+                buttonStart.setDisable(true);
+                buttonKonfiguraciaVozidiel.setDisable(true);
+
+                statistikyReplikacieData_.clear();
+                statistikySimulacieData_.clear();
+
+
+                cestujuciInfo_.clear();
+                chartValuesCasCakaniaCestujucehoSim_.getData().clear();
+
+                tableViewVozidla.getItems().clear();
+            }); // TODO
 
             ArrayList<VozidloKonfiguracia> vozidla = _simulacia.getKonfiguraciaVozidiel().getKonfiguraciaVozidiel();
-
 
             Platform.runLater(() -> {
                 long indexVozidla = 1;
@@ -309,17 +370,34 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
         _simulacia.onReplicationWillStart(s -> {
             setSimulationSpeed();
-
             Platform.runLater(() -> {
-                zastavkyInfo_.forEach((n, holder) -> {
-                    holder.clearTableViewData();
-                });
+                textFieldFilter.setText("");
             });
 
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (!checkBoxZrychleny.isSelected()) {
+                Platform.runLater(() -> {
+                    zastavkyInfo_.forEach((n, holder) -> {
+                        holder.clearTableViewData();
+                    });
+                    chartValuesCasCakaniaCestujucehoRep_.getData().clear();
+                });
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else if (_simulacia.currentReplication() == 0) {
+                Platform.runLater(() -> {
+                    zastavkyInfo_.forEach((n, holder) -> {
+                        holder.clearTableViewData();
+                    });
+                    chartValuesCasCakaniaCestujucehoRep_.getData().clear();
+                });
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
         });
@@ -328,27 +406,36 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         _simulacia.onReplicationDidFinish(s -> {
 
             BehSimulacieInfo behSimulacieInfo = _simulacia.getStatistikySimulacie();
-
-
+            //System.out.println("Replikacia: " + behSimulacieInfo._cisloReplikacie);
             Platform.runLater(() -> {
                 statistikySimulacieData_.clear();
-                statistikySimulacieData_.addAll(behSimulacieInfo.statistiky_);
-            });
-            if (checkBoxStatistikySimulacie.isSelected()) {
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                for (StatistikaInfo statistika: behSimulacieInfo.statistiky_) {
+                    statistikySimulacieData_.add(statistika);
                 }
+
+                chartValuesCasCakaniaCestujucehoSim_.getData().add(new XYChart.Data<>(behSimulacieInfo._cisloReplikacie, behSimulacieInfo._priemernyCasCakaniaNaZastavke));
+            });
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 
             // TODO vypis globalnych statistik
         });
 
         _simulacia.onSimulationDidFinish(s -> {
-            checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(false));
-            buttonStart.setDisable(false);
-            buttonKonfiguraciaVozidiel.setDisable(false);
+            Platform.runLater(() -> {
+                checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(false));
+                buttonStart.setDisable(false);
+                buttonKonfiguraciaVozidiel.setDisable(false);
+                cestujuciInfo_.forEach((id, info) -> {
+                    if (info.isActive()) {
+                        info.closeWindow();
+                    }
+                });
+            });
+
         });
 
         sliderInterval.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -381,12 +468,15 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         //System.out.println(_simulacia.currentTime());
         double simTime = _simulacia.currentTime();
 
-        BehReplikacieInfo behReplikacieInfo = _simulacia.getStatistikyVRamciPreplikacie();
+        BehReplikacieInfo behReplikacieInfo = _simulacia.getStatistikyVRamciReplikacie();
 
         Platform.runLater(() -> {
             statistikyReplikacieData_.clear();
             statistikyReplikacieData_.addAll(behReplikacieInfo.statistiky_);
             tableViewVozidla.setItems(behReplikacieInfo.vozidlaInfo_);
+
+
+            chartValuesCasCakaniaCestujucehoRep_.getData().add(new XYChart.Data<>(simTime ,behReplikacieInfo._priemernyCasCakaniaCestujucehoNaZastavke));
 
             for (VozidloInfo vozidloInfo : behReplikacieInfo.vozidlaInfo_) {
                 CCestujuciVozidlo cestujuciVozidlo = cestujuciInfo_.get(vozidloInfo.getIdVozidla());
@@ -402,18 +492,13 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
                 String nazovZastavky = zastavkaEntry.getKey();
                 CTableHolder<CestujuciInfo> tableHolder = zastavkaEntry.getValue();
-                if (_simulacia.isKrokovanie()) {
-                    tableHolder.setTableViewData(behReplikacieInfo.cestujuciInfo_.get(nazovZastavky));
-                } else {
-                    tableHolder.setTableViewDataLazy(behReplikacieInfo.cestujuciInfo_.get(nazovZastavky));
-                }
-
+                tableHolder.setTableViewDataLazy(behReplikacieInfo.cestujuciInfo_.get(nazovZastavky));
             }
 
 
         });
         try {
-            Thread.sleep(10);
+            Thread.sleep(1);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
