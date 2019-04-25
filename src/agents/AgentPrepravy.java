@@ -12,6 +12,8 @@ import instantAssistants.*;
 import javax.management.relation.RoleUnresolved;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 //meta! id="5"
 public class AgentPrepravy extends Agent {
@@ -22,12 +24,13 @@ public class AgentPrepravy extends Agent {
 	private AkciaPrichodZakaznika _akciaPrichodZakaznika;
 	private NaplanujPresunVozidlaNaZastavku _naplanujPresunVozidlaNaZastavku;
 
-	private HashMap<String, SimQueue<Sprava>> _frontyVozidielCakajucichNaZastavkach = new HashMap<>();
+	private TreeMap<String, SimQueue<Sprava>> _frontyVozidielCakajucichNaZastavkach = new TreeMap<>();
 
-	public AgentPrepravy(int id, Simulation mySim, Agent parent, List<ZastavkaKonfiguracia> zoznamZastavok) {
+	public AgentPrepravy(int id, Simulation mySim, Agent parent, TreeMap<String, ZastavkaKonfiguracia> zastavky) {
 		super(id, mySim, parent);
 
-		for (ZastavkaKonfiguracia zastavka: zoznamZastavok) {
+		for (Map.Entry<String, ZastavkaKonfiguracia> zastavkaEntry: zastavky.entrySet()) {
+			ZastavkaKonfiguracia zastavka = zastavkaEntry.getValue();
 			_frontyVozidielCakajucichNaZastavkach.put(zastavka.getNazovZastavky(), new SimQueue<>());
 		}
 		init();

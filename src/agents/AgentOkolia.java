@@ -14,6 +14,7 @@ import continualAssistants.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 //meta! id="3"
 public class AgentOkolia extends Agent {
@@ -22,7 +23,7 @@ public class AgentOkolia extends Agent {
 	private ArrayList<PlanovacPrichodovZakaznikovNaZastavku> _planovacovePrichodov = new ArrayList<>();
 
 
-	public AgentOkolia(int id, Simulation mySim, Agent parent, HashMap<String, ZastavkaKonfiguracia> zastavky, HashMap<TYP_LINKY, Linka> linky) {
+	public AgentOkolia(int id, Simulation mySim, Agent parent, TreeMap<String, ZastavkaKonfiguracia> zastavky, TreeMap<TYP_LINKY, Linka> linky) {
 		super(id, mySim, parent);
 
 		double casZaciatkuZapasu = mySim().getCasZaciatkuZapasu();

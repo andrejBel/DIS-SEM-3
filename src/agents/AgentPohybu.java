@@ -9,15 +9,16 @@ import continualAssistants.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 //meta! id="86"
 public class AgentPohybu extends Agent {
 
-    private HashMap<TYP_LINKY, Linka> _linky;
+    private TreeMap<TYP_LINKY, Linka> _linky;
     private ArrayList<Vozidlo> _vozidla;
 
 
-    public AgentPohybu(int id, Simulation mySim, Agent parent, HashMap<TYP_LINKY, Linka> linky) {
+    public AgentPohybu(int id, Simulation mySim, Agent parent, TreeMap<TYP_LINKY, Linka> linky) {
 		super(id, mySim, parent);
         this._linky = linky;
         this._vozidla = new ArrayList<>();

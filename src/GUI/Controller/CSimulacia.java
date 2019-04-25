@@ -312,9 +312,10 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             _oknoKonfiguracie.openWindow();
         });
 
-        List<ZastavkaKonfiguracia> zastavky = _simulacia.getZoznamZastavok();
+        TreeMap<String, ZastavkaKonfiguracia> zastavky = _simulacia.getZastavkyKonfiguracia();
 
-        for (ZastavkaKonfiguracia zastavka : zastavky) {
+        for (Map.Entry<String, ZastavkaKonfiguracia> zastavkaEntry : zastavky.entrySet()) {
+            ZastavkaKonfiguracia zastavka = zastavkaEntry.getValue();
             CTableHolder<CestujuciInfo> statistikaInfoCTableHolder = new CTableHolder<>(simulaciaWrapper_, stage, zastavka.getNazovZastavky(), CestujuciInfo.ATRIBUTY, cestujuciInfo -> true);
             zastavkyInfo_.put(zastavka.getNazovZastavky(), statistikaInfoCTableHolder);
 

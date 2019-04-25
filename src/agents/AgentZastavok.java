@@ -9,11 +9,12 @@ import managers.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 //meta! id="87"
 public class AgentZastavok extends Agent {
 
-	private HashMap<String, Zastavka> _zastavky = new HashMap<>();
+	private TreeMap<String, Zastavka> _zastavky = new TreeMap<>();
 
 
 	private int _pocetCestujucichRep;
@@ -22,7 +23,7 @@ public class AgentZastavok extends Agent {
 	private StatNamed _priemernyCasCakaniaCestujucehoNaZastavkeRep = new StatNamed("Priemerný čas čakania cestujúceho na zastávke");
 
 
-	public AgentZastavok(int id, Simulation mySim, Agent parent, HashMap<String, ZastavkaKonfiguracia> konfiguraciaZastavok) {
+	public AgentZastavok(int id, Simulation mySim, Agent parent, TreeMap<String, ZastavkaKonfiguracia> konfiguraciaZastavok) {
 		super(id, mySim, parent);
 
 		for (Map.Entry<String, ZastavkaKonfiguracia> konfiguracia: konfiguraciaZastavok.entrySet()) {
@@ -62,7 +63,7 @@ public class AgentZastavok extends Agent {
 		return _zastavky.get(nazovZastavky);
 	}
 
-	public HashMap<String, Zastavka> getZastavky() {
+	public TreeMap<String, Zastavka> getZastavky() {
 		return _zastavky;
 	}
 
