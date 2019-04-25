@@ -36,4 +36,14 @@ public class ZastavkaLinky {
     public void setVzdialenostKStadionu(double vzdialenostKStadionu) {
         this._vzdialenostKStadionu = vzdialenostKStadionu;
     }
+
+    @Override
+    public String toString() {
+        return "ZastavkaLinky{" +
+                "_zastavka=" + _zastavka +
+                ", _casPresunuNaDalsiuZastavku=" + _casPresunuNaDalsiuZastavku +
+                ", _dalsiaZastavka=" + _dalsiaZastavka +
+                ", _vzdialenostKStadionu=" + _vzdialenostKStadionu +
+                '}';
+    }
 }

@@ -36,4 +36,12 @@ public class Linka {
     public int hashCode() {
         return Objects.hash(_typLinky);
     }
+
+    @Override
+    public String toString() {
+        return "Linka{" +
+                "_zastavky=" + _zastavky +
+                ", _typLinky=" + _typLinky +
+                '}';
+    }
 }

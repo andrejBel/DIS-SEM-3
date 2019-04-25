@@ -42,4 +42,12 @@ public class ZastavkaKonfiguracia {
     public double getMaximalnyPocetCestujucich() {
         return _maximalnyPocetCestujucich;
     }
+
+    @Override
+    public String toString() {
+        return "ZastavkaKonfiguracia{" +
+                "_nazovZastavky='" + _nazovZastavky + '\'' +
+                ", _maximalnyPocetCestujucich=" + _maximalnyPocetCestujucich +
+                '}';
+    }
 }
