@@ -4,6 +4,7 @@ import Utils.Helper;
 
 public class KONSTANTY {
 
+    public static final String VSTUPNY_SUBOR = "src/vstup.csv";
     public static final double NAJSKORSI_PRICHOD_NA_ZASTAVKU = 75.0 * 60.0;
     public static final double NAJNESKORSI_PRICHOD_NA_ZASTAVKU = 10.0 * 60.0;
     public static final String STADION = "ST";
