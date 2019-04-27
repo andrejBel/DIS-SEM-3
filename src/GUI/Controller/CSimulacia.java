@@ -266,7 +266,9 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
         Helper.DecorateNumberTextFieldWithValidator(textFieldReplications, isReplicationOK);
         textFieldReplications.setText("1");
-
+        Helper.SetActionOnEnter(Arrays.asList(textFieldReplications), () -> {
+            buttonStart.fire();
+        });
 
         // BUTTONS
         buttonStart.setOnAction(event -> {
@@ -413,6 +415,12 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                 for (StatistikaInfo statistika: behSimulacieInfo.statistiky_) {
                     statistikySimulacieData_.add(statistika);
                 }
+                for (StatistikaInfo statistika: behSimulacieInfo.statistikyZastavky_) {
+                    statistikySimulacieData_.add(statistika);
+                }
+                for (StatistikaInfo statistika: behSimulacieInfo.statistikyVozidla_) {
+                    statistikySimulacieData_.add(statistika);
+                }
 
                 chartValuesCasCakaniaCestujucehoSim_.getData().add(new XYChart.Data<>(behSimulacieInfo._cisloReplikacie, behSimulacieInfo._priemernyCasCakaniaNaZastavke));
             });
@@ -468,6 +476,10 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
     public void refresh(Simulation simulation) {
         //System.out.println(_simulacia.currentTime());
         double simTime = _simulacia.currentTime();
+        if (simTime < _simulacia.getCasZaciatkuZapasu()) {
+            //return;
+        }
+
 
         BehReplikacieInfo behReplikacieInfo = _simulacia.getStatistikyVRamciReplikacie();
 

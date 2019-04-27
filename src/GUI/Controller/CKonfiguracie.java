@@ -203,8 +203,8 @@ public class CKonfiguracie extends CWindowBase {
 
             this.tableViewKonfiguracie.getItems().add(new VozidloKonfiguracia(typVozidla_, typLinky_, casPrijazduKPrvejZastavke));
             this.tableViewKonfiguracie.getItems().sort(
-                    Comparator.comparingDouble(VozidloKonfiguracia::getCasPrijazduNaPrvuZastavku)
-                    .thenComparing((v1, v2) -> TYP_LINKY.GetComparator().compare(v1.getTypLinky(), v2.getTypLinky()))
+                    Comparator.comparing((VozidloKonfiguracia v) -> v.getTypLinky())
+                    .thenComparing((VozidloKonfiguracia::getCasPrijazduNaPrvuZastavku))
                     .thenComparing((v1, v2) -> TYP_VOZIDLA.GetComparator().compare(v1.getTypVozidla(), v2.getTypVozidla()))
             );
 

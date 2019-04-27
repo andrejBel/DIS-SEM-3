@@ -17,7 +17,7 @@ public class Zastavka extends SimulationEntity {
         super(mySim);
         this._zastavkaKonfiguracia = zastavkaKonfiguracia;
         //this._cestujuciNaZastavke = new SimQueue<>(new WStatNamed(mySim, "Priemerný počet cestujúcich na zastávke " + zastavkaKonfiguracia.getNazovZastavky())); // TODO uncoment
-        this._cestujuciNaZastavke = new SimQueue<>(new WStat(mySim));
+        this._cestujuciNaZastavke = new SimQueue<>(new WStatNamed(mySim, "Priemerná dĺžka frontu Z. " + _zastavkaKonfiguracia.getNazovZastavky()));
         this._priemernyCasCakaniaCestujecehoNaZastavke = new StatNamed("Priemerný čas čakania cestujúceho Z. " + _zastavkaKonfiguracia.getNazovZastavky());
     }
 

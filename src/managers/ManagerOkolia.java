@@ -1,12 +1,9 @@
 package managers;
 
-import Model.ZastavkaOkolie;
 import OSPABA.*;
-import Utils.Helper;
 import simulation.*;
 import agents.*;
 import continualAssistants.*;
-import instantAssistants.*;
 
 //meta! id="3"
 public class ManagerOkolia extends Manager {
@@ -27,7 +24,7 @@ public class ManagerOkolia extends Manager {
 
 	//meta! sender="AgentModelu", id="15", type="Notice"
 	public void processInit(MessageForm message) {
-		for (PlanovacPrichodovZakaznikovNaZastavku planovac: myAgent().getIdPlanovacovePrichodov()) {
+		for (PlanovacPrichodovZakaznikovNaZastavku planovac: myAgent().getPlanovacovePrichodov()) {
 			Sprava copy = (Sprava) message.createCopy();
 			copy.setAddressee(planovac);
 			startContinualAssistant(copy);

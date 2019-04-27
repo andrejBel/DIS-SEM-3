@@ -1,10 +1,7 @@
 package agents;
 
+import Model.*;
 import Model.Enumeracie.TYP_LINKY;
-import Model.Linka;
-import Model.ZastavkaKonfiguracia;
-import Model.ZastavkaLinky;
-import Model.ZastavkaOkolie;
 import OSPABA.*;
 import Utils.Helper;
 import simulation.*;
@@ -12,14 +9,13 @@ import managers.*;
 import continualAssistants.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 //meta! id="3"
 public class AgentOkolia extends Agent {
 
-	private ArrayList<ZastavkaOkolie> _zastavkyOkolia = new ArrayList<>();
+	private TreeMap<String, ZastavkaOkolie> _zastavkyOkolia = new TreeMap<>();
 	private ArrayList<PlanovacPrichodovZakaznikovNaZastavku> _planovacovePrichodov = new ArrayList<>();
 
 
@@ -44,12 +40,13 @@ public class AgentOkolia extends Agent {
 				}
 
 			}
-			_zastavkyOkolia.add(new ZastavkaOkolie(zastavka, casPrichoduPrvehoZakaznika, casPrichoduPoslednehoZakaznika));
+			_zastavkyOkolia.put(zastavka.getNazovZastavky(), new ZastavkaOkolie(zastavka, casPrichoduPrvehoZakaznika, casPrichoduPoslednehoZakaznika));
+
 			System.out.print("Zastavka; "+ zastavka.getNazovZastavky() + Helper.DEFAULT_SEPARATOR + " ");
 			System.out.print("casPrichoduPrvehoZakaznika; " + casPrichoduPrvehoZakaznika + Helper.DEFAULT_SEPARATOR + " ");
 			System.out.print("casPrichoduPoslednehoZakaznika; " + casPrichoduPoslednehoZakaznika + Helper.DEFAULT_SEPARATOR + " ");
 			System.out.print("Rozdiel; " + (casPrichoduPoslednehoZakaznika - casPrichoduPrvehoZakaznika) + Helper.DEFAULT_SEPARATOR + " ");
-			System.out.println("Parameter; " + _zastavkyOkolia.get(_zastavkyOkolia.size() - 1).getParameterExponencialnehoRozdelenia() + Helper.DEFAULT_SEPARATOR + " ");
+			System.out.println("Parameter; " + _zastavkyOkolia.get(zastavka.getNazovZastavky()).getParameterExponencialnehoRozdelenia() + Helper.DEFAULT_SEPARATOR + " ");
 		}
 
 		init();
@@ -66,12 +63,10 @@ public class AgentOkolia extends Agent {
 		new ManagerOkolia(Id.managerOkolia, mySim(), this);
 
 		int pociatocneId = Id.pociatocneIdPrePlanovacPrichodovZakaznikov_;
-		for (ZastavkaOkolie zastavkaOkolie: _zastavkyOkolia) {
-			//if (zastavkaOkolie.getZastavkaKonfiguracia().getNazovZastavky() == "CA" ) {
-				_planovacovePrichodov.add(new PlanovacPrichodovZakaznikovNaZastavku(pociatocneId, mySim(), this, zastavkaOkolie));
-				pociatocneId++;
-			//}
-			//break; // TODO remove, iba na test
+		for (Map.Entry<String, ZastavkaOkolie> zastavkaOkolieEntry: _zastavkyOkolia.entrySet()) {
+			ZastavkaOkolie zastavkaOkolie = zastavkaOkolieEntry.getValue();
+			_planovacovePrichodov.add(new PlanovacPrichodovZakaznikovNaZastavku(pociatocneId, mySim(), this, zastavkaOkolie));
+			pociatocneId++;
 		}
 		//new PlanovacPrichodovZakaznikovNaZastavku(Id.planovacPrichodovZakaznikovNaZastavku, mySim(), this);
 		addOwnMessage(Mc.init);
@@ -84,11 +79,11 @@ public class AgentOkolia extends Agent {
 		return (SimulaciaDopravy) super.mySim();
 	}
 
-	public ArrayList<PlanovacPrichodovZakaznikovNaZastavku> getIdPlanovacovePrichodov() {
+	public ArrayList<PlanovacPrichodovZakaznikovNaZastavku> getPlanovacovePrichodov() {
 		return _planovacovePrichodov;
 	}
 
-	public ArrayList<ZastavkaOkolie> getZastavkyOkolia() {
+	public TreeMap<String, ZastavkaOkolie> getZastavkyOkolia() {
 		return _zastavkyOkolia;
 	}
 

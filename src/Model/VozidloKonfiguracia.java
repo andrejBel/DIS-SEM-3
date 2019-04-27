@@ -13,7 +13,7 @@ public class VozidloKonfiguracia {
 
     private final TYP_VOZIDLA _typVozidla;
     private final TYP_LINKY _typLinky;
-    private final double _casPrijazduNaPrvuZastavku;
+    private double _casPrijazduNaPrvuZastavku;
 
     public VozidloKonfiguracia(TYP_VOZIDLA typVozidla, TYP_LINKY typLinky, double casPrijazduNaPrvuZastavku) {
         this._typVozidla = typVozidla;
@@ -40,4 +40,7 @@ public class VozidloKonfiguracia {
         return _casPrijazduNaPrvuZastavku;
     }
 
+    public void setCasPrijazduNaPrvuZastavku(double casPrijazduNaPrvuZastavku) {
+        this._casPrijazduNaPrvuZastavku = casPrijazduNaPrvuZastavku;
+    }
 }

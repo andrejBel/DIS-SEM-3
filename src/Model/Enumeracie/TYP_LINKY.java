@@ -28,6 +28,10 @@ public enum TYP_LINKY {
         return null;
     }
 
+    public String getSkratka() {
+        return String.valueOf(_nazovLinky.charAt(_nazovLinky.length() - 1));
+    }
+
     public static Comparator<TYP_LINKY> GetComparator() {
         return Comparator.naturalOrder();
     }

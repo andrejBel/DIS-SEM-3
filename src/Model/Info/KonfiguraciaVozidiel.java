@@ -1,6 +1,7 @@
 package Model.Info;
 
 import Model.Enumeracie.PREVADZKA_LINIEK;
+import Model.Vozidlo;
 import Model.VozidloKonfiguracia;
 import Utils.Helper;
 
@@ -50,6 +51,14 @@ public class KonfiguraciaVozidiel {
                     (indexKonfiguracie == _konfiguraciaVozidiel.size() - 1 ? "" : "\n") );
         }
         return stringBuilder.toString();
+    }
+
+    public double getNakladyKonfiguracie() {
+        double naklady = 0.0;
+        for (VozidloKonfiguracia konfiguracia: _konfiguraciaVozidiel) {
+            naklady +=konfiguracia.getTypVozidla().getObstaraciaCena();
+        }
+        return naklady;
     }
 
 }

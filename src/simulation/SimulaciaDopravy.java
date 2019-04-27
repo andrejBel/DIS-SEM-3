@@ -37,7 +37,10 @@ public class SimulaciaDopravy extends Simulation {
     private StatNamed _pocetCestujucichSim = new StatNamed("Počet cestujúcich");
     private StatNamed _priemernyCasCakaniaNaZastavkeSim = new StatNamed("Priemerný čas čakania na zastávke");
     private StatNamed _percentoCestujucichPrichadzajucichPoZaciatkuZapasuSim = new StatNamed("Percento ľudí prichádzajúcich po začiatku zapasu");
-
+    private TreeMap<String, StatNamed> _priemernyCasCakaniaCestujucichNaZastavkeSim = new TreeMap<>();
+    private TreeMap<String, StatNamed> _priemernaDlzkaFrontuNaZastavkeSim = new TreeMap<>();
+    private ArrayList<StatNamed> _priemernyPocetCestujucichVozidloSim = new ArrayList<>();
+    private ArrayList<StatNamed> _priemerneVytazenieVozidiel = new ArrayList<>();
 
     private List<StatNamed> _simStats = Arrays.asList(
             _pocetCestujucichSim,
@@ -127,6 +130,10 @@ public class SimulaciaDopravy extends Simulation {
         }
         this._casZaciatkuZapasu = najdlhsiCasPresunuZoZastavkyNaStadiona + KONSTANTY.NAJSKORSI_PRICHOD_NA_ZASTAVKU;
         System.out.println("Cas zaciatku zapasu: " + this._casZaciatkuZapasu);
+        _zastavkyKonfiguracia.forEach((s, zastavkaKonfiguracia) -> {
+            _priemernyCasCakaniaCestujucichNaZastavkeSim.put(zastavkaKonfiguracia.getNazovZastavky(), new StatNamed("Priemerný čas čakania C. na Z. " + zastavkaKonfiguracia.getNazovZastavky()));
+            _priemernaDlzkaFrontuNaZastavkeSim.put(zastavkaKonfiguracia.getNazovZastavky(), new StatNamed("Priemerná dĺžka frontu na Z. " + zastavkaKonfiguracia.getNazovZastavky()));
+        });
 
 
         setAgentModelu(new AgentModelu(Id.agentModelu, this, null));
@@ -240,7 +247,22 @@ public class SimulaciaDopravy extends Simulation {
 
         agentPohybu().inizializujVozidla(_konfiguraciaVozidiel.getKonfiguraciaVozidiel());
 
+
         _simStats.forEach(Stat::clear);
+        _priemernyCasCakaniaCestujucichNaZastavkeSim.forEach((s, stat) -> {
+            stat.clear();
+        });
+        _priemernaDlzkaFrontuNaZastavkeSim.forEach((s, stat) -> {
+            stat.clear();
+        });
+        _priemernyPocetCestujucichVozidloSim.clear();
+        _priemerneVytazenieVozidiel.clear();
+        agentPohybu().getVozidla().forEach(vozidlo -> {
+            _priemernyPocetCestujucichVozidloSim.add(new StatNamed("Priemerný počet cestujúcich: " + vozidlo.getIdVozidla() + ", linka: " + vozidlo.getLinkaNaKtorejJazdi().getTypLinky().getSkratka()));
+            _priemerneVytazenieVozidiel.add(new StatNamed("Vyťaženie V " + vozidlo.getIdVozidla() + ", linka: " + vozidlo.getLinkaNaKtorejJazdi().getTypLinky().getSkratka()));
+        });
+
+
     }
 
     @Override
@@ -259,6 +281,18 @@ public class SimulaciaDopravy extends Simulation {
         _pocetCestujucichSim.addSample(_agentZastavok.getPocetCestujucichRep());
         _priemernyCasCakaniaNaZastavkeSim.addSample(_agentZastavok.getPriemernyCasCakaniaCestujucehoNaZastavkeRep().mean());
         _percentoCestujucichPrichadzajucichPoZaciatkuZapasuSim.addSample(_agentZastavok.getPercentoLudiPrichadzajucichPoZapase());
+
+
+        _agentZastavok.getZastavky().forEach((s, z) -> {
+            _priemernyCasCakaniaCestujucichNaZastavkeSim.get(s).addSample(z.getPriemernyCasCakaniaCestujecehoNaZastavke().mean());
+            _priemernaDlzkaFrontuNaZastavkeSim.get(s).addSample(z.getCestujuciNaZastavke().lengthStatistic().mean());
+        });
+
+        for (int indexVozidla = 0; indexVozidla < agentPohybu().getVozidla().size(); indexVozidla++) {
+            Vozidlo vozidlo = agentPohybu().getVozidla().get(indexVozidla);
+            _priemernyPocetCestujucichVozidloSim.get(indexVozidla).addSample(vozidlo.getCestujuciVoVozidle().lengthStatistic().mean());
+            _priemerneVytazenieVozidiel.get(indexVozidla).addSample(vozidlo.getCestujuciVoVozidle().lengthStatistic().mean() / vozidlo.getMaximalnaKapacita() * 100.0);
+        }
 
     }
 
@@ -303,6 +337,7 @@ public class SimulaciaDopravy extends Simulation {
         statistiky.add(_agentZastavok.getPriemernyCasCakaniaCestujucehoNaZastavkeRep().getStatistikaInfo());
         _agentZastavok.getZastavky().forEach((s, z) -> {
             statistiky.add(z.getPriemernyCasCakaniaCestujecehoNaZastavke().getStatistikaInfo());
+            statistiky.add(((WStatNamed) z.getCestujuciNaZastavke().lengthStatistic()).getStatistikaInfo());
         });
 
         int pocetLudiNaStadione = _agentZastavok.getPocetCestujucichNaStadione();
@@ -319,7 +354,9 @@ public class SimulaciaDopravy extends Simulation {
 
         for (Vozidlo vozidlo : agentPohybu().getVozidla()) {
             WStatNamed statNamed = (WStatNamed) vozidlo.getCestujuciVoVozidle().lengthStatistic();
+
             statistiky.add(statNamed.getStatistikaInfo());
+            statistiky.add(vozidlo.getStatistikaInfoVytazenieVozidlaRep());
         }
 
         ObservableList<VozidloInfo> vozidlaStatistiky = info.vozidlaInfo_;
@@ -347,6 +384,7 @@ public class SimulaciaDopravy extends Simulation {
         BehSimulacieInfo info = new BehSimulacieInfo();
         info._cisloReplikacie = this.currentReplication();
         info._priemernyCasCakaniaNaZastavke = _priemernyCasCakaniaNaZastavkeSim.mean();
+        info._percentoCestujuciochPrichadzajucichPoZaciatku = _percentoCestujucichPrichadzajucichPoZaciatkuZapasuSim.mean();
 
         ObservableList<StatistikaInfo> statistiky = info.statistiky_;
         statistiky.add(new StatistikaInfo("Číslo replikácie", (this.currentReplication() + 1) + ""));
@@ -357,7 +395,72 @@ public class SimulaciaDopravy extends Simulation {
         });
         statistiky.add(_pocetCestujucichSim.getStatistikaInfo());
 
+        _agentZastavok.getZastavky().forEach((s, zastavka) -> {
+            info.statistikyZastavky_.add(_priemernyCasCakaniaCestujucichNaZastavkeSim.get(s).getStatistikaInfo());
+            info.statistikyZastavky_.add(_priemernaDlzkaFrontuNaZastavkeSim.get(s).getStatistikaInfo());
+        });
+
+        for (int indexVozidla = 0; indexVozidla < agentPohybu().getVozidla().size(); indexVozidla++) {
+            info.statistikyVozidla_.add(_priemernyPocetCestujucichVozidloSim.get(indexVozidla).getStatistikaInfo());
+            info.statistikyVozidla_.add(_priemerneVytazenieVozidiel.get(indexVozidla).getStatistikaInfo());
+        }
+
         return info;
+    }
+
+    public String getCsvFormatBehSimulacie() {
+        StringBuilder header = new StringBuilder();
+        StringBuilder headerData = new StringBuilder();
+        int sirkaHlavicky = 0;
+
+        header.append("Číslo replikácie" + Helper.DEFAULT_SEPARATOR);
+        headerData.append(String.valueOf(this.currentReplication()) + Helper.DEFAULT_SEPARATOR);
+        sirkaHlavicky++;
+
+        header.append("Náklady konfigurácie" + Helper.DEFAULT_SEPARATOR);
+        headerData.append(String.valueOf(this._konfiguraciaVozidiel.getNakladyKonfiguracie()).replace('.', ',') + Helper.DEFAULT_SEPARATOR);
+        sirkaHlavicky++;
+
+        _simStats.forEach(stat -> {
+            header.append(stat.getName() + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR);
+            headerData.append(stat.getCsvFormat());
+        });
+        sirkaHlavicky += _simStats.size() * 3;
+
+        _agentZastavok.getZastavky().forEach((s, zastavka) -> {
+            header.append("Priem. cas cakania Z. " + s + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR);
+            header.append("Priem. dlzka frontu Z " + s + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR);
+            headerData.append(_priemernyCasCakaniaCestujucichNaZastavkeSim.get(s).getCsvFormat());
+            headerData.append(_priemernaDlzkaFrontuNaZastavkeSim.get(s).getCsvFormat());
+        });
+
+        sirkaHlavicky += _agentZastavok.getZastavky().size() * 6;
+
+        String filler = String.format("%" + String.valueOf(sirkaHlavicky) + "s", "").replace(' ', Helper.DEFAULT_SEPARATOR);
+        header.append(
+                "Id vozidla" + Helper.DEFAULT_SEPARATOR +
+                "Typ vozidla" + Helper.DEFAULT_SEPARATOR +
+                "Linka" + Helper.DEFAULT_SEPARATOR +
+                "Čas odchodu zo zastávky" + Helper.DEFAULT_SEPARATOR +
+                "Priemerný počet C." + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR +
+                "Vyťaženie" + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR
+                );
+
+        for (Vozidlo vozidlo: _agentPohybu.getVozidla()) {
+            long idVozidla = vozidlo.getIdVozidla();
+            StringBuilder vozidloData = new StringBuilder();
+            vozidloData.append(filler);
+
+            vozidloData.append(String.valueOf(idVozidla) + Helper.DEFAULT_SEPARATOR);
+            vozidloData.append(vozidlo.getTypVozidla().getNazov() + Helper.DEFAULT_SEPARATOR);
+            vozidloData.append(vozidlo.getLinkaNaKtorejJazdi().getTypLinky().getNazovLinky() + Helper.DEFAULT_SEPARATOR);
+            vozidloData.append(String.valueOf(vozidlo.getCasPrijazduNaPrvuZastavku()).replace('.', ',') + Helper.DEFAULT_SEPARATOR);
+            vozidloData.append(String.valueOf(_priemernyPocetCestujucichVozidloSim.get((int) (idVozidla - 1) ).getCsvFormat() ));
+            vozidloData.append(String.valueOf(_priemerneVytazenieVozidiel.get((int) (idVozidla - 1) ).getCsvFormat() ));
+            headerData.append("\n" + vozidloData.toString());
+        }
+
+        return header.toString() + "\n" + headerData.toString();
     }
 
     public boolean ulozKonfiguraciuVozidiel(String cesta, KonfiguraciaVozidiel konfiguraciaVozidiel) {
@@ -408,7 +511,8 @@ public class SimulaciaDopravy extends Simulation {
                 return false;
             }
         }
-        for (ZastavkaOkolie zastavkaOkolie : _agentOkolia.getZastavkyOkolia()) {
+        for (Map.Entry<String, ZastavkaOkolie> zastavkaOkolieEntry: _agentOkolia.getZastavkyOkolia().entrySet()) {
+            ZastavkaOkolie zastavkaOkolie = zastavkaOkolieEntry.getValue();
             if (zastavkaOkolie.getCasKoncaGenerovaniaPrichodovCestujucich() >= this.currentTime()) {
                 return false;
             }
@@ -446,17 +550,7 @@ public class SimulaciaDopravy extends Simulation {
             if (appendUtf8Recognizer) {
                 printWriter.write(Helper.UTF8_RECOGNIZER);
             }
-            printWriter.println("Konfigurácia");
-            printWriter.println(_konfiguraciaVozidiel.getCsvFormat());
-            BehSimulacieInfo behSimulacieInfo = getStatistikySimulacie();
-
-
-            printWriter.println("Počet replikácii" + Helper.DEFAULT_SEPARATOR + (behSimulacieInfo._cisloReplikacie + 1) + Helper.DEFAULT_SEPARATOR);
-            _simStats.forEach(stat -> {
-                System.out.println(stat.getCsvFormat());
-                printWriter.println(stat.getCsvFormat());
-            });
-
+            printWriter.println(getCsvFormatBehSimulacie());
 
         } catch (IOException e) {
             e.printStackTrace();

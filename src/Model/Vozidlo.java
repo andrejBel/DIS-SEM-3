@@ -6,6 +6,8 @@ import Model.Info.CestujuciInfo;
 import Model.Info.VozidloInfo;
 import OSPABA.Simulation;
 import OSPDataStruct.SimQueue;
+import Statistiky.StatNamed;
+import Statistiky.StatistikaInfo;
 import Statistiky.WStatNamed;
 import Statistiky.WeightStat;
 import Utils.Helper;
@@ -14,7 +16,9 @@ import javafx.collections.ObservableList;
 import simulation.SimulaciaDopravy;
 import simulation.Sprava;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.function.Function;
 
 public class Vozidlo extends SimulationEntity {
 
@@ -50,7 +54,7 @@ public class Vozidlo extends SimulationEntity {
         this._casPrijazduNaPrvuZastavku = casPrijazduNaPrvuZastavku;
         this._linkaNaKtorejJazdi = linkaNaKtorejJazdi;
         this._typVozidla = typVozidla;
-        this._cestujuciVoVozidle = new SimQueue<>(new WStatNamed(mySim(), "Priemerný počet cestujúcich vozidlo " + idVozidla));
+        this._cestujuciVoVozidle = new SimQueue<>(new WStatNamed(mySim(), "Priemerný počet cestujúcich V. " + idVozidla + ", linka: " + linkaNaKtorejJazdi.getTypLinky().getSkratka()));
         this._nastupujuciCestujuci = new HashMap<>();
         this._vystupujuciCestujuci = new HashMap<>();
         this._obsadenostDveri = new Boolean[typVozidla.getPocetDveri()];
@@ -387,5 +391,33 @@ public class Vozidlo extends SimulationEntity {
 
     public SimQueue<Sprava> getCestujuciVoVozidle() {
         return _cestujuciVoVozidle;
+    }
+
+    public Linka getLinkaNaKtorejJazdi() {
+        return _linkaNaKtorejJazdi;
+    }
+
+    public StatistikaInfo getStatistikaInfoVytazenieVozidlaRep() {
+        DecimalFormat decimalFormat = new DecimalFormat(".0000");
+        Function<Double, Double> getVytazenie = (pocet -> (pocet / _maximalnaKapacita) * 100.0);
+
+        WStatNamed cestujiciStat = (WStatNamed) this._cestujuciVoVozidle.lengthStatistic();
+        if (cestujiciStat.sampleSize() < 2.0) {
+            return new StatistikaInfo("Priemerné vyťaženie V. " + _idVozidla, decimalFormat.format(getVytazenie.apply(cestujiciStat.mean())));
+        } else {
+            double[] confidenceInteval = cestujiciStat.confidenceInterval_90();
+            double mean = cestujiciStat.mean();
+            double difference = confidenceInteval[1] - mean;
+            return new StatistikaInfo("Priemerné vyťaženie V. " + _idVozidla,
+                    decimalFormat.format(getVytazenie.apply(confidenceInteval[0])) + "; " +
+                            decimalFormat.format(getVytazenie.apply(mean)) + " ±" +
+                            decimalFormat.format(getVytazenie.apply(difference)) + " ; " +
+                            decimalFormat.format(getVytazenie.apply(confidenceInteval[1]))
+            );
+        }
+    }
+
+    public int getMaximalnaKapacita() {
+        return _maximalnaKapacita;
     }
 }
