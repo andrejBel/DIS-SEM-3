@@ -216,9 +216,93 @@ public class TestSimulaciaDopravy {
 
     @Test
     public void generatorPociatocnychRieseni() {
+        int pocetIteracii = 0;
+        final int A = 0;
+        final int B = 1;
+        final int C = 2;
+        int[] casPrichoduPrvehoZakaznika = {6, 324, 0};
+        int[] casKedyZoberiePoslednehoCestujucehoZ1Zastavky = {3852, 4146, 3468};
+        KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel();
+        for (int pocetVozidielLinkaA = 10; pocetVozidielLinkaA <= 12; pocetVozidielLinkaA++) {
+            for (int pocetVozidielZaciatokLinkaA = 1; pocetVozidielZaciatokLinkaA <= 3; pocetVozidielZaciatokLinkaA++) {
+
+                for (int pocetVozidielLinkaB = 3; pocetVozidielLinkaB <= 5; pocetVozidielLinkaB++) {
+                    for (int pocetVozidielZaciatokLinkaB = 0; pocetVozidielZaciatokLinkaB <= 2; pocetVozidielZaciatokLinkaB++) {
+
+                        for (int pocetVozidielLinkaC = 3; pocetVozidielLinkaC <= 5; pocetVozidielLinkaC++) {
+                            for (int pocetVozidielZaciatokLinkaC = 6; pocetVozidielZaciatokLinkaC <= 8; pocetVozidielZaciatokLinkaC++) {
+
+
+                                ArrayList<VozidloKonfiguracia> konfiguracie = new ArrayList<>();
+
+                                int indexVozidielA = 0;
+                                int indexVozidielB = pocetVozidielLinkaA;
+                                int indexVozidielC = indexVozidielB + pocetVozidielLinkaB;
+
+
+                                for (int i = 0; i < pocetVozidielLinkaA; i++) {
+                                    konfiguracie.add(new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_A, 0));
+                                }
+                                for (int i = 0; i < pocetVozidielLinkaB; i++) {
+                                    konfiguracie.add(new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_B, 0));
+
+                                }
+                                for (int i = 0; i < pocetVozidielLinkaC; i++) {
+                                    konfiguracie.add(new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, TYP_LINKY.LINKA_C, 0));
+
+                                }
+
+                                for (int posunPociatocnehoCasu = 0; posunPociatocnehoCasu <= 200; posunPociatocnehoCasu+= 50) {
+
+
+                                    konfiguracie.get(indexVozidielA).setCasPrijazduNaPrvuZastavku(casPrichoduPrvehoZakaznika[A] + posunPociatocnehoCasu);
+                                    konfiguracie.get(indexVozidielB).setCasPrijazduNaPrvuZastavku(casPrichoduPrvehoZakaznika[B] + posunPociatocnehoCasu);
+                                    konfiguracie.get(indexVozidielC).setCasPrijazduNaPrvuZastavku(casPrichoduPrvehoZakaznika[C] + posunPociatocnehoCasu);
 
 
 
+
+                                    for (int indexVozidlaLinkaA = indexVozidielA; indexVozidlaLinkaA < pocetVozidielLinkaA; indexVozidlaLinkaA++) {
+                                        VozidloKonfiguracia konfiguraciaA = konfiguracie.get(indexVozidlaLinkaA);
+
+                                        if (konfiguraciaA.getTypLinky() != TYP_LINKY.LINKA_A) {
+                                            throw new RuntimeException("Chyba C");
+                                        }
+                                    }
+
+                                    for (int indexVozidlaLinkaB = indexVozidielB; indexVozidlaLinkaB < indexVozidielB + pocetVozidielLinkaB; indexVozidlaLinkaB++) {
+                                        VozidloKonfiguracia konfiguraciaB = konfiguracie.get(indexVozidlaLinkaB);
+
+                                        if (konfiguraciaB.getTypLinky() != TYP_LINKY.LINKA_B) {
+                                            throw new RuntimeException("Chyba B");
+                                        }
+                                    }
+
+                                    for (int indexVozidlaLinkaC = indexVozidielC; indexVozidlaLinkaC < indexVozidielC + pocetVozidielLinkaC; indexVozidlaLinkaC++) {
+                                        VozidloKonfiguracia konfiguraciaC = konfiguracie.get(indexVozidlaLinkaC);
+                                        if (konfiguraciaC.getTypLinky() != TYP_LINKY.LINKA_C) {
+                                            throw new RuntimeException("Chyba B");
+                                        }
+
+                                    }
+                                    for (PREVADZKA_LINIEK prevadzka: PREVADZKA_LINIEK.values()) {
+                                        konfiguraciaVozidiel.setKonfiguraciaVozidiel(konfiguracie);
+                                        konfiguraciaVozidiel.setPrevadzkaLiniek(prevadzka);
+                                        _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
+                                       // _simulaciaDopravy.simulate(100, Double.MAX_VALUE);
+                                        pocetIteracii++;
+                                    }
+
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        System.out.println("Pocet iteracii: " + pocetIteracii);
     }
 
 

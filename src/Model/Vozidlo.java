@@ -13,6 +13,7 @@ import Statistiky.WeightStat;
 import Utils.Helper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import simulation.KONSTANTY;
 import simulation.SimulaciaDopravy;
 import simulation.Sprava;
 
@@ -163,9 +164,9 @@ public class Vozidlo extends SimulationEntity {
             case POHYB:
                 double kolkoPercentPrejdenych = ((mySim().currentTime() - _casOdchoduZPoslednejZastavky) / (_casPrichoduNaDalsiuZastavu - _casOdchoduZPoslednejZastavky) ) * 100;
 
-                info = "Presun medzi zastávkami: " + getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() + "->" + getNasledujucaZastavka().getNazovZastavky();
+                info = "Presun : " + getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() + "->" + getNasledujucaZastavka().getNazovZastavky() + "[" + Helper.FormatujDouble(kolkoPercentPrejdenych) + " %" + "]";
                 info += ", začiatok presunu: " + Helper.FormatujSimulacnyCas(_casOdchoduZPoslednejZastavky) + ", koniec presunu: " + Helper.FormatujSimulacnyCas(_casPrichoduNaDalsiuZastavu);
-                info += ", prejdených " + Helper.FormatujDouble(kolkoPercentPrejdenych) + " %";
+                info += ", prejdených ";
                 break;
             case CAKANIE_NA_ZASTAVKE:
                 info = "Čakanie na zastávke: " + getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() +
@@ -278,16 +279,19 @@ public class Vozidlo extends SimulationEntity {
 
     public void pridajCestujucehoNaNastup(Sprava spravaSCestujucim) {
         long idCestujuceho = spravaSCestujucim.getCestujuci().getIdCestujuceho();
-        if (this._nastupujuciCestujuci.containsKey(idCestujuceho)) {
-            throw new RuntimeException("Cestujuci uz nastupuje");
-        }
-        this._cestujuciVoVozidle.forEach(c-> {
-            if (c.getCestujuci().getIdCestujuceho() == idCestujuceho) {
-                throw new RuntimeException("Cestujuci uz nastupil");
+
+        if (KONSTANTY.DEBUG) {
+            if (this._nastupujuciCestujuci.containsKey(idCestujuceho)) {
+                throw new RuntimeException("Cestujuci uz nastupuje");
             }
-        });
-        if (this._vystupujuciCestujuci.containsKey(idCestujuceho)) {
-            throw new RuntimeException("Cestujuci vystupuje");
+            this._cestujuciVoVozidle.forEach(c-> {
+                if (c.getCestujuci().getIdCestujuceho() == idCestujuceho) {
+                    throw new RuntimeException("Cestujuci uz nastupil");
+                }
+            });
+            if (this._vystupujuciCestujuci.containsKey(idCestujuceho)) {
+                throw new RuntimeException("Cestujuci vystupuje");
+            }
         }
         this._nastupujuciCestujuci.put(idCestujuceho, spravaSCestujucim);
     }
@@ -302,22 +306,25 @@ public class Vozidlo extends SimulationEntity {
 
     public void pridajCestujucehoNaVystup(Sprava spravaSCestujucim) {
         long idCestujuceho = spravaSCestujucim.getCestujuci().getIdCestujuceho();
-        if (this._nastupujuciCestujuci.containsKey(idCestujuceho)) {
-            throw new RuntimeException("Cestujuci nastupuje");
-        }
-        if (this._vystupujuciCestujuci.containsKey(idCestujuceho)) {
-            throw new RuntimeException("Cestujuci uz vystupuje");
-        }
-        boolean cestujuciNajdeny = false;
-        for (Sprava sprava:_cestujuciVoVozidle) {
-            Cestujuci cestujuci = sprava.getCestujuci();
-            if (idCestujuceho == cestujuci.getIdCestujuceho()) {
-                cestujuciNajdeny = true;
-                break;
+
+        if (KONSTANTY.DEBUG) {
+            if (this._nastupujuciCestujuci.containsKey(idCestujuceho)) {
+                throw new RuntimeException("Cestujuci nastupuje");
             }
-        }
-        if (cestujuciNajdeny == true) {
-            throw new RuntimeException("Cestujuci nemoze vo vozidle aby mohol vystupit");
+            if (this._vystupujuciCestujuci.containsKey(idCestujuceho)) {
+                throw new RuntimeException("Cestujuci uz vystupuje");
+            }
+            boolean cestujuciNajdeny = false;
+            for (Sprava sprava:_cestujuciVoVozidle) {
+                Cestujuci cestujuci = sprava.getCestujuci();
+                if (idCestujuceho == cestujuci.getIdCestujuceho()) {
+                    cestujuciNajdeny = true;
+                    break;
+                }
+            }
+            if (cestujuciNajdeny == true) {
+                throw new RuntimeException("Cestujuci nemoze vo vozidle aby mohol vystupit");
+            }
         }
         this._vystupujuciCestujuci.put(idCestujuceho, spravaSCestujucim);
     }
@@ -332,19 +339,20 @@ public class Vozidlo extends SimulationEntity {
 
     public void pridajCestujucehoDoVozidla(Sprava spravaSCestujucim) {
         long idCestujuceho = spravaSCestujucim.getCestujuci().getIdCestujuceho();
+        if (KONSTANTY.DEBUG) {
+            if (_nastupujuciCestujuci.containsKey(idCestujuceho)) {
+                throw new RuntimeException("Cestujuci nastupuje");
+            }
 
-        if (_nastupujuciCestujuci.containsKey(idCestujuceho)) {
-            throw new RuntimeException("Cestujuci nastupuje");
-        }
+            if (_vystupujuciCestujuci.containsKey(idCestujuceho)) {
+                throw new RuntimeException("Cestujuci nastupuje");
+            }
 
-        if (_vystupujuciCestujuci.containsKey(idCestujuceho)) {
-            throw new RuntimeException("Cestujuci nastupuje");
-        }
-
-        for (Sprava sprava:_cestujuciVoVozidle) {
-            Cestujuci cestujuci = sprava.getCestujuci();
-            if (idCestujuceho == cestujuci.getIdCestujuceho()) {
-                throw new RuntimeException("Cestujuci je uz vo vozidle");
+            for (Sprava sprava:_cestujuciVoVozidle) {
+                Cestujuci cestujuci = sprava.getCestujuci();
+                if (idCestujuceho == cestujuci.getIdCestujuceho()) {
+                    throw new RuntimeException("Cestujuci je uz vo vozidle");
+                }
             }
         }
         _cestujuciVoVozidle.add(spravaSCestujucim);

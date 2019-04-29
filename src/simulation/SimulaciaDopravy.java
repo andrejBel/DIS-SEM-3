@@ -446,6 +446,8 @@ public class SimulaciaDopravy extends Simulation {
                 "Vyťaženie" + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR + Helper.DEFAULT_SEPARATOR
                 );
 
+        String typVozidla = filler + _konfiguraciaVozidiel.getPrevadzkaLiniek().getNazov();
+        headerData.append(typVozidla);
         for (Vozidlo vozidlo: _agentPohybu.getVozidla()) {
             long idVozidla = vozidlo.getIdVozidla();
             StringBuilder vozidloData = new StringBuilder();
