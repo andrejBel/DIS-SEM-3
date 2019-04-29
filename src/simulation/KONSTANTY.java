@@ -12,6 +12,6 @@ public class KONSTANTY {
     public static final double KOLKO_CAKA_PO_NASTUPE_VSETKYCH_CESTUJUCICH = 90.0;
     public static final String DEFAULT_KONFIGURACIA = "vychodzie.csv";
     public static final double KEDY_JE_OCHOTNY_NASTUPIT_DO_MINIBUSU = Helper.CASOVE_JEDNOTKY.MINUTA.getPocetSekund() * 6;
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
 }
