@@ -144,7 +144,7 @@ public class Cestujuci {
             return true;
         }
         double casCakania = getCasCakaniaNaZastavke();
-        return casCakania >= KONSTANTY.KEDY_JE_OCHOTNY_NASTUPIT_DO_MINIBUSU;
+        return casCakania > KONSTANTY.KEDY_JE_OCHOTNY_NASTUPIT_DO_MINIBUSU;
     }
 
 }
