@@ -33,6 +33,9 @@ public class CTableHolder<T> extends CWindowBase {
         Helper.PridajTabulkeStlpce(tableView, tableColumnItems);
         tableViewDataLazy_ = tableView.getItems();
         _predicateForFiltering = predicateForFiltering;
+        setOnOpen(() -> {
+            setTableData();
+        });
         //Helper.InstallCopyPasteHandler(tableView);
     }
 
@@ -96,7 +99,7 @@ public class CTableHolder<T> extends CWindowBase {
 
     public void setTableViewDataLazy(ObservableList<T> list) {
         tableViewDataLazy_ = list;
-        if (selected_) {
+        if (selected_ || super.isActive()) {
             setTableData();
         }
     }

@@ -1,6 +1,5 @@
 package GUI.Controller;
 
-import Model.Cestujuci;
 import Model.Info.*;
 import Model.VozidloKonfiguracia;
 import Model.ZastavkaKonfiguracia;
@@ -25,13 +24,28 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import simulation.KONSTANTY;
 import simulation.SimulaciaDopravy;
 import simulation.SimulaciaWrapper;
 
 import java.util.*;
 
 public class CSimulacia extends ControllerBase implements ISimDelegate {
+
+    private static class ZastavkaInfo {
+        public CTableHolder<CestujuciInfo> cestujuciInfoHolder;
+        public CTableHolder<VozidloInfo> vozidlaInfoHolder;
+
+        public ZastavkaInfo(CTableHolder<CestujuciInfo> cestujuciInfoHolder, CTableHolder<VozidloInfo> vozidlaInfoHolder) {
+            this.cestujuciInfoHolder = cestujuciInfoHolder;
+            this.vozidlaInfoHolder = vozidlaInfoHolder;
+        }
+
+        public void clearTableViewData() {
+            cestujuciInfoHolder.clearTableViewData();
+            vozidlaInfoHolder.clearTableViewData();
+        }
+
+    }
 
     @FXML
     private JFXTextField textFieldReplications;
@@ -73,19 +87,13 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
     private JFXSlider sliderSkip;
 
     @FXML
-    private JFXCheckBox checkBoxGrafReplikacie;
-
-    @FXML
-    private JFXCheckBox checkBoxGrafSimulacie;
-
-    @FXML
-    private LineChart<Number, Number> lineChartCakanieNaZastavke;
-
-    @FXML
     private JFXCheckBox checkBoxStatistikyReplikacie;
 
     @FXML
     private JFXCheckBox checkBoxStatistikySimulacie;
+
+    @FXML
+    private LineChart<Number, Number> lineChartCakanieNaZastavke;
 
     @FXML
     private TableView<StatistikaInfo> tableViewStatistiky;
@@ -99,9 +107,12 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
     private JFXTextField textFieldFilter;
 
     @FXML
+    private JFXButton buttonVozidlaNaZastavke;
+
+    @FXML
     private JFXTabPane tabPaneZastavky;
 
-    private HashMap<String, CTableHolder<CestujuciInfo>> zastavkyInfo_ = new HashMap<>();
+    private HashMap<String, ZastavkaInfo> zastavkyInfo_ = new HashMap<>();
     private HashMap<Long, CCestujuciVozidlo> cestujuciInfo_ = new HashMap<>();
 
     private XYChart.Series<Number, Number> chartValuesCasCakaniaCestujucehoRep_ = new XYChart.Series<>();
@@ -127,7 +138,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         _simulacia.registerDelegate(this);
         _oknoKonfiguracie = new CKonfiguracie(simulaciaWrapper, stage);
         KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, null);
-        _simulacia.nacitajKonfiguraciuVozidiel(KONSTANTY.DEFAULT_KONFIGURACIA, konfiguraciaVozidiel);
+        _simulacia.nacitajKonfiguraciuVozidiel("easy.csv", konfiguraciaVozidiel);
         _oknoKonfiguracie.konfiguraciaToGUI(konfiguraciaVozidiel);
 
         // TABULKY
@@ -213,6 +224,9 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             if (newValue) {
                 Platform.runLater(() -> {
                     tableViewStatistiky.setItems(statistikyReplikacieData_);
+                    lineChartCakanieNaZastavke.getData().clear();
+                    lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaCestujucehoRep_);
+                    lineChartCakanieNaZastavke.getXAxis().setLabel("Čas replikácie");
                 });
             }
         });
@@ -220,6 +234,11 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             if (newValue) {
                 Platform.runLater(() -> {
                     tableViewStatistiky.setItems(statistikySimulacieData_);
+                    Platform.runLater(() -> {
+                        lineChartCakanieNaZastavke.getData().clear();
+                        lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaCestujucehoSim_);
+                        lineChartCakanieNaZastavke.getXAxis().setLabel("Číslo replikácie");
+                    });
                 });
 
             }
@@ -228,31 +247,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         Helper.nastavVypnutieOstatnych(checkBoxStatistikyReplikacie, checkBoxStatistikySimulacie);
         Helper.nastavVypnutieOstatnych(checkBoxStatistikySimulacie, checkBoxStatistikyReplikacie);
         checkBoxStatistikyReplikacie.setSelected(true);
-
-        checkBoxGrafReplikacie.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                Platform.runLater(() -> {
-                    lineChartCakanieNaZastavke.getData().clear();
-                    lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaCestujucehoRep_);
-                    lineChartCakanieNaZastavke.getXAxis().setLabel("Čas replikácie");
-                });
-            }
-        });
-
-        checkBoxGrafSimulacie.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                Platform.runLater(() -> {
-                    lineChartCakanieNaZastavke.getData().clear();
-                    lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaCestujucehoSim_);
-                    lineChartCakanieNaZastavke.getXAxis().setLabel("Číslo replikácie");
-                });
-            }
-        });
-
-        Helper.nastavVypnutieOstatnych(checkBoxGrafReplikacie, checkBoxGrafSimulacie);
-        Helper.nastavVypnutieOstatnych(checkBoxGrafSimulacie, checkBoxGrafReplikacie);
-        checkBoxGrafReplikacie.setSelected(true);
-
+        
         checkBoxesToDisable = Arrays.asList(checkBoxNormalny, checkBoxZrychleny);
 
         checkBoxKrokovanie.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -318,15 +313,19 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
         for (Map.Entry<String, ZastavkaKonfiguracia> zastavkaEntry : zastavky.entrySet()) {
             ZastavkaKonfiguracia zastavka = zastavkaEntry.getValue();
-            CTableHolder<CestujuciInfo> statistikaInfoCTableHolder = new CTableHolder<>(simulaciaWrapper_, stage, zastavka.getNazovZastavky(), CestujuciInfo.ATRIBUTY, cestujuciInfo -> true);
-            zastavkyInfo_.put(zastavka.getNazovZastavky(), statistikaInfoCTableHolder);
+            CTableHolder<CestujuciInfo> cestujuciInfoHolder = new CTableHolder<>(simulaciaWrapper_, stage, zastavka.getNazovZastavky(), CestujuciInfo.ATRIBUTY, cestujuciInfo -> true);
+            CTableHolder<VozidloInfo> vozidloInfoHolder = new CTableHolder<>(simulaciaWrapper, stage, "Vozidlá na zastávke " + zastavka.getNazovZastavky(), VozidloInfo.ATRIBUTY_FRONT_VOZIDIEL, vozidloInfo -> true);
 
-            tabPaneZastavky.getTabs().add(statistikaInfoCTableHolder.getTab());
+            ZastavkaInfo zastavkaInfo = new ZastavkaInfo(cestujuciInfoHolder, vozidloInfoHolder);
+
+            zastavkyInfo_.put(zastavka.getNazovZastavky(), zastavkaInfo);
+
+            tabPaneZastavky.getTabs().add(cestujuciInfoHolder.getTab());
         }
 
         textFieldFilter.textProperty().addListener((observable, oldValue, newValue) -> {
-            for (Map.Entry<String, CTableHolder<CestujuciInfo>> holderEntry : zastavkyInfo_.entrySet()) {
-                CTableHolder<CestujuciInfo> holder = holderEntry.getValue();
+            for (Map.Entry<String, ZastavkaInfo> holderEntry : zastavkyInfo_.entrySet()) {
+                CTableHolder<CestujuciInfo> holder = holderEntry.getValue().cestujuciInfoHolder;
                 holder.setPredicateForFiltering(cestujuciInfo -> {
                     if (newValue == null || newValue.isEmpty()) {
                         return true;
@@ -336,6 +335,17 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                     String zastavakCestujuceho = cestujuciInfo.getZastavkaNaKtoruPrisiel().toLowerCase();
                     return idCestujuceho.startsWith(filterText) || zastavakCestujuceho.startsWith(filterText);
                 });
+            }
+        });
+
+        buttonVozidlaNaZastavke.setOnAction(event -> {
+            for (Map.Entry<String, ZastavkaInfo> holderEntry : zastavkyInfo_.entrySet()) {
+                CTableHolder<CestujuciInfo> cestujuciHolder = holderEntry.getValue().cestujuciInfoHolder;
+                if (cestujuciHolder.isSelected()) {
+                    System.out.println("Nazov zastavky: " + holderEntry.getKey());
+                    holderEntry.getValue().vozidlaInfoHolder.openWindow();
+                    break;
+                }
             }
         });
 
@@ -443,6 +453,11 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                         info.closeWindow();
                     }
                 });
+                zastavkyInfo_.forEach((nazov, zastavkaInfo) -> {
+                    if (zastavkaInfo.vozidlaInfoHolder.isActive()) {
+                        zastavkaInfo.vozidlaInfoHolder.closeWindow();
+                    }
+                });
             });
 
         });
@@ -453,8 +468,6 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         sliderSpomalenie.valueProperty().addListener((observable, oldValue, newValue) -> {
             setSimulationSpeed();
         });
-
-
     }
 
     @Override
@@ -501,11 +514,14 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                 );
             }
 
-            for (Map.Entry<String, CTableHolder<CestujuciInfo>> zastavkaEntry : zastavkyInfo_.entrySet()) {
+            for (Map.Entry<String, ZastavkaInfo> zastavkaEntry : zastavkyInfo_.entrySet()) {
 
                 String nazovZastavky = zastavkaEntry.getKey();
-                CTableHolder<CestujuciInfo> tableHolder = zastavkaEntry.getValue();
-                tableHolder.setTableViewDataLazy(behReplikacieInfo.cestujuciInfo_.get(nazovZastavky));
+                CTableHolder<CestujuciInfo> cestujuciInfoHolder = zastavkaEntry.getValue().cestujuciInfoHolder;
+                CTableHolder<VozidloInfo> vozidloInfoHolder = zastavkaEntry.getValue().vozidlaInfoHolder;
+                Model.Info.ZastavkaInfo zastavkaInfo = behReplikacieInfo.zastavkyInfo_.get(nazovZastavky);
+                cestujuciInfoHolder.setTableViewDataLazy(zastavkaInfo.getCestujuciInfo());
+                vozidloInfoHolder.setTableViewDataLazy(zastavkaInfo.getVozidloInfo()); // TODO
             }
 
 

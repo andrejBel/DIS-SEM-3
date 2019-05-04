@@ -12,7 +12,7 @@ public class BehReplikacieInfo {
 
     public ObservableList<StatistikaInfo> statistiky_ = FXCollections.observableArrayList();
     public ObservableList<VozidloInfo> vozidlaInfo_ = FXCollections.observableArrayList();
-    public HashMap<String, ObservableList<CestujuciInfo>> cestujuciInfo_ = new HashMap<>();
+    public HashMap<String, ZastavkaInfo> zastavkyInfo_ = new HashMap<>();
 
 }
 
