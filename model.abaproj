@@ -5,60 +5,42 @@
       <SimId>8</SimId>
       <InternalId>87</InternalId>
       <Name>AgentZastavok</Name>
-      <Bounds>1167,1592,180,180</Bounds>
+      <Bounds>1651,1501,200,200</Bounds>
       <Reasoner>ManagerZastavok</Reasoner>
       <ReasonerBounds>74,25,32,25</ReasonerBounds>
       <UsePetriNet>false</UsePetriNet>
-    </Agent>
-    <Agent>
-      <SimId>1</SimId>
-      <InternalId>1</InternalId>
-      <Name>AgentModelu</Name>
-      <Bounds>739,364,180,180</Bounds>
-      <Reasoner>ManagerModelu</Reasoner>
-      <ReasonerBounds>74,25,32,25</ReasonerBounds>
-      <UsePetriNet>false</UsePetriNet>
-    </Agent>
-    <Agent>
-      <SimId>5</SimId>
-      <InternalId>5</InternalId>
-      <Name>AgentPrepravy</Name>
-      <Bounds>1179,919,180,180</Bounds>
-      <Reasoner>ManagerPrepravy</Reasoner>
-      <ReasonerBounds>74,25,32,25</ReasonerBounds>
-      <UsePetriNet>false</UsePetriNet>
       <Components>
-        <Action>
-          <SimId>1016</SimId>
-          <InternalId>280</InternalId>
-          <Name>AkciaNastupCestujuceho</Name>
-          <Bounds>62,136,35,18</Bounds>
-        </Action>
+        <Scheduler>
+          <SimId>1022</SimId>
+          <InternalId>336</InternalId>
+          <Name>ProcesVystupuCestujucich</Name>
+          <Bounds>36,132,38,13</Bounds>
+        </Scheduler>
+        <Scheduler>
+          <SimId>1021</SimId>
+          <InternalId>325</InternalId>
+          <Name>ProcesNastupuCestujucich</Name>
+          <Bounds>7,90,40,13</Bounds>
+        </Scheduler>
         <Process>
-          <SimId>1020</SimId>
-          <InternalId>309</InternalId>
-          <Name>NaplanujPresunVozidlaNaZastavku</Name>
-          <Bounds>103,121,60,18</Bounds>
+          <SimId>1024</SimId>
+          <InternalId>368</InternalId>
+          <Name>ProcesNastupCestujuceho</Name>
+          <Bounds>155,96,38,18</Bounds>
         </Process>
-        <Action>
-          <SimId>1015</SimId>
-          <InternalId>277</InternalId>
-          <Name>AkciaVystupCestujuceho</Name>
-          <Bounds>24,119,35,18</Bounds>
-        </Action>
-        <Action>
-          <SimId>1013</SimId>
-          <InternalId>267</InternalId>
-          <Name>AkciaPresunVozidloNaDalsiuZastavku</Name>
-          <Bounds>4,84,35,18</Bounds>
-        </Action>
+        <Process>
+          <SimId>1023</SimId>
+          <InternalId>348</InternalId>
+          <Name>PlanovacPresunuVozidlaNaDalsiuZastavku</Name>
+          <Bounds>93,133,70,18</Bounds>
+        </Process>
       </Components>
     </Agent>
     <Agent>
       <SimId>7</SimId>
       <InternalId>86</InternalId>
       <Name>AgentPohybu</Name>
-      <Bounds>472,1549,180,180</Bounds>
+      <Bounds>568,1492,180,180</Bounds>
       <Reasoner>ManagerPohybu</Reasoner>
       <ReasonerBounds>74,25,32,25</ReasonerBounds>
       <UsePetriNet>false</UsePetriNet>
@@ -78,55 +60,42 @@
       </Components>
     </Agent>
     <Agent>
+      <SimId>1</SimId>
+      <InternalId>1</InternalId>
+      <Name>AgentModelu</Name>
+      <Bounds>739,364,180,180</Bounds>
+      <Reasoner>ManagerModelu</Reasoner>
+      <ReasonerBounds>74,25,32,25</ReasonerBounds>
+      <UsePetriNet>false</UsePetriNet>
+    </Agent>
+    <Agent>
+      <SimId>5</SimId>
+      <InternalId>5</InternalId>
+      <Name>AgentPrepravy</Name>
+      <Bounds>1183,919,180,180</Bounds>
+      <Reasoner>ManagerPrepravy</Reasoner>
+      <ReasonerBounds>74,25,32,25</ReasonerBounds>
+      <UsePetriNet>false</UsePetriNet>
+    </Agent>
+    <Agent>
       <SimId>3</SimId>
       <InternalId>3</InternalId>
       <Name>AgentOkolia</Name>
-      <Bounds>255,885,180,180</Bounds>
+      <Bounds>285,894,180,180</Bounds>
       <Reasoner>ManagerOkolia</Reasoner>
-      <ReasonerBounds>78,20,32,25</ReasonerBounds>
+      <ReasonerBounds>71,25,32,25</ReasonerBounds>
       <UsePetriNet>false</UsePetriNet>
       <Components>
         <Scheduler>
           <SimId>1006</SimId>
           <InternalId>136</InternalId>
-          <Name>PlanovacPrichodovZakaznikovNaZastavku</Name>
-          <Bounds>21,133,65,13</Bounds>
+          <Name>PlanovacPrichodovCestujucichNaZastavku</Name>
+          <Bounds>44,151,70,13</Bounds>
         </Scheduler>
-      </Components>
-    </Agent>
-    <Agent>
-      <SimId>9</SimId>
-      <InternalId>106</InternalId>
-      <Name>AgentNastupuVystupu</Name>
-      <Bounds>1753,1546,190,190</Bounds>
-      <Reasoner>ManagerNastupuVystupu</Reasoner>
-      <ReasonerBounds>79,27,32,25</ReasonerBounds>
-      <UsePetriNet>false</UsePetriNet>
-      <Components>
-        <Process>
-          <SimId>1011</SimId>
-          <InternalId>224</InternalId>
-          <Name>ProcessVystupuCestujuceho</Name>
-          <Bounds>130,115,35,18</Bounds>
-        </Process>
-        <Process>
-          <SimId>1010</SimId>
-          <InternalId>221</InternalId>
-          <Name>ProcessNastupuCestujuceho</Name>
-          <Bounds>22,117,35,18</Bounds>
-        </Process>
       </Components>
     </Agent>
   </Agents>
   <Messages>
-    <Message>
-      <SimId>1072</SimId>
-      <InternalId>258</InternalId>
-      <Name>cestujuciNaZastavke</Name>
-      <Type>RequestResponse</Type>
-      <Source>5</Source>
-      <Destination>87</Destination>
-    </Message>
     <Message>
       <InternalId>70</InternalId>
       <Type>Parent</Type>
@@ -140,18 +109,36 @@
       <Destination>1</Destination>
     </Message>
     <Message>
+      <SimId>1079</SimId>
+      <InternalId>328</InternalId>
+      <Name>start</Name>
+      <Type>Notice</Type>
+      <Source>87</Source>
+      <Destination>325</Destination>
+    </Message>
+    <Message>
+      <SimId>1080</SimId>
+      <InternalId>329</InternalId>
+      <Name>finish</Name>
+      <Type>Notice</Type>
+      <Source>325</Source>
+      <Destination>87</Destination>
+    </Message>
+    <Message>
       <SimId>1051</SimId>
       <InternalId>139</InternalId>
-      <Name>prichodZakaznikaNaZastavku</Name>
+      <Name>prichodCestujucehoNaZastavku</Name>
       <Type>Notice</Type>
       <Source>3</Source>
       <Destination>136</Destination>
     </Message>
     <Message>
-      <InternalId>268</InternalId>
-      <Type>Execute</Type>
-      <Source>5</Source>
-      <Destination>267</Destination>
+      <SimId>1081</SimId>
+      <InternalId>332</InternalId>
+      <Name>cestujuciNastupil</Name>
+      <Type>Notice</Type>
+      <Source>87</Source>
+      <Destination>325</Destination>
     </Message>
     <Message>
       <SimId>1004</SimId>
@@ -164,7 +151,7 @@
     <Message>
       <SimId>1005</SimId>
       <InternalId>18</InternalId>
-      <Name>prichodZakaznikaNaZastavku</Name>
+      <Name>prichodCestujucehoNaZastavku</Name>
       <Type>Notice</Type>
       <Source>3</Source>
       <Destination>1</Destination>
@@ -178,6 +165,14 @@
       <Destination>136</Destination>
     </Message>
     <Message>
+      <SimId>1082</SimId>
+      <InternalId>339</InternalId>
+      <Name>start</Name>
+      <Type>Notice</Type>
+      <Source>87</Source>
+      <Destination>336</Destination>
+    </Message>
+    <Message>
       <SimId>1052</SimId>
       <InternalId>148</InternalId>
       <Name>start</Name>
@@ -186,18 +181,20 @@
       <Destination>136</Destination>
     </Message>
     <Message>
-      <SimId>1063</SimId>
-      <InternalId>213</InternalId>
-      <Name>nastupCestujuceho</Name>
-      <Type>RequestResponse</Type>
-      <Source>5</Source>
-      <Destination>106</Destination>
+      <SimId>1083</SimId>
+      <InternalId>340</InternalId>
+      <Name>finish</Name>
+      <Type>Notice</Type>
+      <Source>336</Source>
+      <Destination>87</Destination>
     </Message>
     <Message>
-      <InternalId>278</InternalId>
-      <Type>Execute</Type>
-      <Source>5</Source>
-      <Destination>277</Destination>
+      <SimId>1084</SimId>
+      <InternalId>343</InternalId>
+      <Name>cestujuciVystupil</Name>
+      <Type>Notice</Type>
+      <Source>87</Source>
+      <Destination>336</Destination>
     </Message>
     <Message>
       <InternalId>88</InternalId>
@@ -210,20 +207,6 @@
       <Type>Parent</Type>
       <Source>87</Source>
       <Destination>5</Destination>
-    </Message>
-    <Message>
-      <SimId>1064</SimId>
-      <InternalId>217</InternalId>
-      <Name>vystupCestujuceho</Name>
-      <Type>RequestResponse</Type>
-      <Source>5</Source>
-      <Destination>106</Destination>
-    </Message>
-    <Message>
-      <InternalId>281</InternalId>
-      <Type>Execute</Type>
-      <Source>5</Source>
-      <Destination>280</Destination>
     </Message>
     <Message>
       <SimId>1053</SimId>
@@ -276,7 +259,7 @@
     <Message>
       <SimId>1042</SimId>
       <InternalId>97</InternalId>
-      <Name>prichodZakaznikaNaZastavku</Name>
+      <Name>prichodCestujucehoNaZastavku</Name>
       <Type>Notice</Type>
       <Source>1</Source>
       <Destination>5</Destination>
@@ -292,8 +275,8 @@
     <Message>
       <SimId>1043</SimId>
       <InternalId>98</InternalId>
-      <Name>prichodZakaznikaNaZastavku</Name>
-      <Type>RequestResponse</Type>
+      <Name>prichodCestujucehoNaZastavku</Name>
+      <Type>Notice</Type>
       <Source>5</Source>
       <Destination>87</Destination>
     </Message>
@@ -306,6 +289,14 @@
       <Destination>3</Destination>
     </Message>
     <Message>
+      <SimId>1085</SimId>
+      <InternalId>356</InternalId>
+      <Name>prichodVozidlaNaZastavku</Name>
+      <Type>RequestResponse</Type>
+      <Source>5</Source>
+      <Destination>87</Destination>
+    </Message>
+    <Message>
       <SimId>1044</SimId>
       <InternalId>101</InternalId>
       <Name>presunVozidlaNaDalsiuZastavku</Name>
@@ -314,66 +305,44 @@
       <Destination>86</Destination>
     </Message>
     <Message>
-      <SimId>1065</SimId>
-      <InternalId>229</InternalId>
+      <SimId>1086</SimId>
+      <InternalId>363</InternalId>
       <Name>start</Name>
       <Type>Notice</Type>
-      <Source>106</Source>
-      <Destination>221</Destination>
+      <Source>87</Source>
+      <Destination>348</Destination>
     </Message>
     <Message>
-      <SimId>1066</SimId>
-      <InternalId>230</InternalId>
-      <Name>start</Name>
-      <Type>Notice</Type>
-      <Source>106</Source>
-      <Destination>224</Destination>
-    </Message>
-    <Message>
-      <SimId>1067</SimId>
-      <InternalId>233</InternalId>
+      <SimId>1088</SimId>
+      <InternalId>365</InternalId>
       <Name>finish</Name>
       <Type>Notice</Type>
-      <Source>221</Source>
-      <Destination>106</Destination>
+      <Source>348</Source>
+      <Destination>87</Destination>
     </Message>
     <Message>
-      <InternalId>107</InternalId>
-      <Type>Parent</Type>
-      <Source>106</Source>
-      <Destination>5</Destination>
-    </Message>
-    <Message>
-      <SimId>1068</SimId>
-      <InternalId>235</InternalId>
-      <Name>koniecVystupu</Name>
-      <Type>Notice</Type>
-      <Source>106</Source>
-      <Destination>224</Destination>
-    </Message>
-    <Message>
-      <SimId>1070</SimId>
-      <InternalId>239</InternalId>
-      <Name>koniecNastupu</Name>
-      <Type>Notice</Type>
-      <Source>106</Source>
-      <Destination>221</Destination>
-    </Message>
-    <Message>
-      <SimId>1071</SimId>
-      <InternalId>241</InternalId>
-      <Name>finish</Name>
-      <Type>Notice</Type>
-      <Source>224</Source>
-      <Destination>106</Destination>
-    </Message>
-    <Message>
-      <SimId>1074</SimId>
-      <InternalId>312</InternalId>
+      <SimId>1089</SimId>
+      <InternalId>370</InternalId>
       <Name>start</Name>
       <Type>Notice</Type>
-      <Source>5</Source>
-      <Destination>309</Destination>
+      <Source>87</Source>
+      <Destination>368</Destination>
+    </Message>
+    <Message>
+      <SimId>1090</SimId>
+      <InternalId>372</InternalId>
+      <Name>finish</Name>
+      <Type>Notice</Type>
+      <Source>368</Source>
+      <Destination>87</Destination>
+    </Message>
+    <Message>
+      <SimId>1091</SimId>
+      <InternalId>376</InternalId>
+      <Name>presunVozidlo</Name>
+      <Type>Notice</Type>
+      <Source>87</Source>
+      <Destination>348</Destination>
     </Message>
     <Message>
       <SimId>1049</SimId>
@@ -384,20 +353,12 @@
       <Destination>118</Destination>
     </Message>
     <Message>
-      <SimId>1075</SimId>
-      <InternalId>314</InternalId>
-      <Name>finish</Name>
+      <SimId>1092</SimId>
+      <InternalId>379</InternalId>
+      <Name>cestujuciNastupil</Name>
       <Type>Notice</Type>
-      <Source>309</Source>
-      <Destination>5</Destination>
-    </Message>
-    <Message>
-      <SimId>1076</SimId>
-      <InternalId>315</InternalId>
-      <Name>presunVozidlo</Name>
-      <Type>Notice</Type>
-      <Source>5</Source>
-      <Destination>309</Destination>
+      <Source>87</Source>
+      <Destination>368</Destination>
     </Message>
     <Message>
       <SimId>1050</SimId>
@@ -407,14 +368,6 @@
       <Source>86</Source>
       <Destination>116</Destination>
     </Message>
-    <Message>
-      <SimId>1077</SimId>
-      <InternalId>319</InternalId>
-      <Name>prichodCestujucehoNaStadion</Name>
-      <Type>Notice</Type>
-      <Source>5</Source>
-      <Destination>87</Destination>
-    </Message>
   </Messages>
-  <IID>332</IID>
+  <IID>425</IID>
 </ABAsim>
