@@ -4,19 +4,25 @@ import Model.Zastavka;
 import Model.ZastavkaKonfiguracia;
 import OSPABA.*;
 import Statistiky.StatNamed;
+import continualAssistants.PlanovacPresunuVozidlaNaDalsiuZastavku;
+import continualAssistants.ProcesNastupCestujuceho;
+import continualAssistants.ProcesNastupuCestujucich;
+import continualAssistants.ProcesVystupuCestujucich;
 import simulation.*;
 import managers.*;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 //meta! id="87"
 public class AgentZastavok extends Agent {
 
+	private PlanovacPresunuVozidlaNaDalsiuZastavku _planovacPresunuVozidlaNaDalsiuZastavku;
+	private ProcesNastupCestujuceho _procesNastupCestujuceho;
+	private ProcesNastupuCestujucich _procesNastupuCestujucich;
+	private ProcesVystupuCestujucich _procesVystupuCestujucich;
+
 	private TreeMap<String, Zastavka> _zastavky = new TreeMap<>();
-
-
 	private int _pocetCestujucichRep;
 	private int _pocetCestujucichNaStadione;
 	private int _pocetCestujucichNaStadioneNaCas;
@@ -48,9 +54,16 @@ public class AgentZastavok extends Agent {
 	//meta! userInfo="Generated code: do not modify", tag="begin"
 	private void init() {
 		new ManagerZastavok(Id.managerZastavok, mySim(), this);
-		addOwnMessage(Mc.prichodCestujucehoNaStadion);
-		addOwnMessage(Mc.cestujuciNaZastavke);
-		addOwnMessage(Mc.prichodZakaznikaNaZastavku);
+		_planovacPresunuVozidlaNaDalsiuZastavku = new PlanovacPresunuVozidlaNaDalsiuZastavku(Id.planovacPresunuVozidlaNaDalsiuZastavku, mySim(), this);
+		_procesNastupCestujuceho = new ProcesNastupCestujuceho(Id.procesNastupCestujuceho, mySim(), this);
+		_procesNastupuCestujucich = new ProcesNastupuCestujucich(Id.procesNastupuCestujucich, mySim(), this);
+		_procesVystupuCestujucich = new ProcesVystupuCestujucich(Id.procesVystupuCestujucich, mySim(), this);
+		addOwnMessage(Mc.prichodVozidlaNaZastavku);
+		addOwnMessage(Mc.cestujuciVystupil);
+		addOwnMessage(Mc.prichodCestujucehoNaZastavku);
+		addOwnMessage(Mc.presunVozidlo);
+		addOwnMessage(Mc.cestujuciNastupil);
+		addOwnMessage(Mc.prichodCestujucehoNaZastavku);
 	}
 	//meta! tag="end"
 
@@ -107,6 +120,19 @@ public class AgentZastavok extends Agent {
 		return _priemernyCasCakaniaCestujucehoNaZastavkeRep;
 	}
 
+	public PlanovacPresunuVozidlaNaDalsiuZastavku getPlanovacPresunuVozidlaNaDalsiuZastavku() {
+		return _planovacPresunuVozidlaNaDalsiuZastavku;
+	}
 
+	public ProcesNastupCestujuceho getProcesNastupCestujuceho() {
+		return _procesNastupCestujuceho;
+	}
 
+	public ProcesNastupuCestujucich getProcesNastupuCestujucich() {
+		return _procesNastupuCestujucich;
+	}
+
+	public ProcesVystupuCestujucich getProcesVystupuCestujucich() {
+		return _procesVystupuCestujucich;
+	}
 }
