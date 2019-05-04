@@ -22,7 +22,7 @@ import java.util.function.Function;
 
 public class SimulaciaDopravy extends Simulation {
 
-    public static final Random GENERATOR_NASAD = new Random(10);
+    public static final Random GENERATOR_NASAD = new Random();
 
     private TreeMap<String, ZastavkaKonfiguracia> _zastavkyKonfiguracia = new TreeMap<>();
     private KonfiguraciaVozidiel _konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, new ArrayList<>());
@@ -39,6 +39,7 @@ public class SimulaciaDopravy extends Simulation {
     private StatNamed _percentoCestujucichPrichadzajucichPoZaciatkuZapasuSim = new StatNamed("Percento ľudí prichádzajúcich po začiatku zapasu");
     private TreeMap<String, StatNamed> _priemernyCasCakaniaCestujucichNaZastavkeSim = new TreeMap<>();
     private TreeMap<String, StatNamed> _priemernaDlzkaFrontuNaZastavkeSim = new TreeMap<>();
+    private TreeMap<String, StatNamed> _priemernyPocetZakaznikovNaZastavkeSim = new TreeMap<>();
     private ArrayList<StatNamed> _priemernyPocetCestujucichVozidloSim = new ArrayList<>();
     private ArrayList<StatNamed> _priemerneVytazenieVozidiel = new ArrayList<>();
 
@@ -133,6 +134,7 @@ public class SimulaciaDopravy extends Simulation {
         _zastavkyKonfiguracia.forEach((s, zastavkaKonfiguracia) -> {
             _priemernyCasCakaniaCestujucichNaZastavkeSim.put(zastavkaKonfiguracia.getNazovZastavky(), new StatNamed("Priemerný čas čakania C. na Z. " + zastavkaKonfiguracia.getNazovZastavky()));
             _priemernaDlzkaFrontuNaZastavkeSim.put(zastavkaKonfiguracia.getNazovZastavky(), new StatNamed("Priemerná dĺžka frontu na Z. " + zastavkaKonfiguracia.getNazovZastavky()));
+            _priemernyPocetZakaznikovNaZastavkeSim.put(zastavkaKonfiguracia.getNazovZastavky(), new StatNamed("Priemerný počet cestujúcich na zastávke" + zastavkaKonfiguracia.getNazovZastavky()));
         });
 
 
@@ -141,7 +143,6 @@ public class SimulaciaDopravy extends Simulation {
         setAgentPrepravy(new AgentPrepravy(Id.agentPrepravy, this, agentModelu(), _zastavkyKonfiguracia));
         setAgentPohybu(new AgentPohybu(Id.agentPohybu, this, agentPrepravy(), _linky));
         setAgentZastavok(new AgentZastavok(Id.agentZastavok, this, agentPrepravy(), _zastavkyKonfiguracia));
-        setAgentNastupuVystupu(new AgentNastupuVystupu(Id.agentNastupuVystupu, this, agentPrepravy()));
 
     }
 
@@ -195,16 +196,6 @@ public class SimulaciaDopravy extends Simulation {
         _agentZastavok = agentZastavok;
     }
 
-    private AgentNastupuVystupu _agentNastupuVystupu;
-
-    public AgentNastupuVystupu agentNastupuVystupu() {
-        return _agentNastupuVystupu;
-    }
-
-    public void setAgentNastupuVystupu(AgentNastupuVystupu agentNastupuVystupu) {
-        _agentNastupuVystupu = agentNastupuVystupu;
-    }
-
     @Override
     public void stopSimulation() {
         super.stopSimulation();
@@ -255,6 +246,9 @@ public class SimulaciaDopravy extends Simulation {
         _priemernaDlzkaFrontuNaZastavkeSim.forEach((s, stat) -> {
             stat.clear();
         });
+        _priemernyPocetZakaznikovNaZastavkeSim.forEach((s, stat) -> {
+            stat.clear();
+        });
         _priemernyPocetCestujucichVozidloSim.clear();
         _priemerneVytazenieVozidiel.clear();
         agentPohybu().getVozidla().forEach(vozidlo -> {
@@ -286,6 +280,7 @@ public class SimulaciaDopravy extends Simulation {
         _agentZastavok.getZastavky().forEach((s, z) -> {
             _priemernyCasCakaniaCestujucichNaZastavkeSim.get(s).addSample(z.getPriemernyCasCakaniaCestujecehoNaZastavke().mean());
             _priemernaDlzkaFrontuNaZastavkeSim.get(s).addSample(z.getCestujuciNaZastavke().lengthStatistic().mean());
+            _priemernyPocetZakaznikovNaZastavkeSim.get(s).addSample(z.getPocetCestujucich());
         });
 
         for (int indexVozidla = 0; indexVozidla < agentPohybu().getVozidla().size(); indexVozidla++) {
@@ -361,10 +356,10 @@ public class SimulaciaDopravy extends Simulation {
 
         ObservableList<VozidloInfo> vozidlaStatistiky = info.vozidlaInfo_;
         for (Vozidlo vozidlo : agentPohybu().getVozidla()) {
-            vozidlaStatistiky.add(vozidlo.getVozidloInfo());
+            vozidlaStatistiky.add(vozidlo.getVozidloInfo(true));
         }
 
-        HashMap<String, ObservableList<CestujuciInfo>> cestujuciInfo = info.cestujuciInfo_;
+        HashMap<String, ZastavkaInfo> zastavkyInfo = info.zastavkyInfo_;
 
         for (Map.Entry<String, Zastavka> zastavkaEntry : _agentZastavok.getZastavky().entrySet()) {
             String nazovZastavky = zastavkaEntry.getKey();
@@ -374,7 +369,13 @@ public class SimulaciaDopravy extends Simulation {
                 Cestujuci cestujuci = sprava.getCestujuci();
                 infoOCestujucichNaZastavke.add(cestujuci.getCestujuciInfo());
             }
-            cestujuciInfo.put(nazovZastavky, infoOCestujucichNaZastavke);
+            ObservableList<VozidloInfo> infoOVozidlachNaZastavke = FXCollections.observableArrayList();
+            for (Sprava sprava: zastavka.getVozidlaNaZastavke()) {
+                Vozidlo vozidlo = sprava.getVozidlo();
+                infoOVozidlachNaZastavke.add(vozidlo.getVozidloInfo(false));
+            }
+
+            zastavkyInfo.put(nazovZastavky, new ZastavkaInfo(infoOCestujucichNaZastavke, infoOVozidlachNaZastavke));
         }
 
         return info;
@@ -396,8 +397,9 @@ public class SimulaciaDopravy extends Simulation {
         statistiky.add(_pocetCestujucichSim.getStatistikaInfo());
 
         _agentZastavok.getZastavky().forEach((s, zastavka) -> {
-            info.statistikyZastavky_.add(_priemernyCasCakaniaCestujucichNaZastavkeSim.get(s).getStatistikaInfo());
-            info.statistikyZastavky_.add(_priemernaDlzkaFrontuNaZastavkeSim.get(s).getStatistikaInfo());
+            //info.statistikyZastavky_.add(_priemernyCasCakaniaCestujucichNaZastavkeSim.get(s).getStatistikaInfo());
+            //info.statistikyZastavky_.add(_priemernaDlzkaFrontuNaZastavkeSim.get(s).getStatistikaInfo());
+            info.statistikyZastavky_.add(_priemernyPocetZakaznikovNaZastavkeSim.get(s).getStatistikaInfo());
         });
 
         for (int indexVozidla = 0; indexVozidla < agentPohybu().getVozidla().size(); indexVozidla++) {
@@ -485,6 +487,9 @@ public class SimulaciaDopravy extends Simulation {
             ArrayList<VozidloKonfiguracia> konfiguraciaVozidiel = new ArrayList<>();
             for (; (line = br.readLine()) != null; ) {
                 Helper.ParseLine(line, parsedLine);
+                if (parsedLine.size() == 0) {
+                    break;
+                }
                 String casPrijazdu = parsedLine.get(2);
                 casPrijazdu = casPrijazdu.replace(',', '.');
                 konfiguraciaVozidiel.add(new VozidloKonfiguracia(
@@ -515,7 +520,7 @@ public class SimulaciaDopravy extends Simulation {
         }
         for (Map.Entry<String, ZastavkaOkolie> zastavkaOkolieEntry: _agentOkolia.getZastavkyOkolia().entrySet()) {
             ZastavkaOkolie zastavkaOkolie = zastavkaOkolieEntry.getValue();
-            if (zastavkaOkolie.getCasKoncaGenerovaniaPrichodovCestujucich() >= this.currentTime()) {
+            if (zastavkaOkolie.getCasKoncaGenerovaniaPrichodovCestujucich() > this.currentTime()) {
                 return false;
             }
         }

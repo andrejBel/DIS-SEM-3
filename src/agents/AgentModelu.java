@@ -3,8 +3,6 @@ package agents;
 import OSPABA.*;
 import simulation.*;
 import managers.*;
-import continualAssistants.*;
-import instantAssistants.*;
 
 //meta! id="1"
 public class AgentModelu extends Agent {
@@ -21,7 +19,7 @@ public class AgentModelu extends Agent {
 
 	private void init() {
 		new ManagerModelu(Id.managerModelu, mySim(), this);
-        addOwnMessage(Mc.prichodZakaznikaNaZastavku);
+        addOwnMessage(Mc.prichodCestujucehoNaZastavku);
         addOwnMessage(Mc.init);
 	}
 

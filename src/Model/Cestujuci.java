@@ -136,7 +136,7 @@ public class Cestujuci {
         }
     }
 
-    public boolean jeOchotnyNastupit(Vozidlo vozidlo, double currentTime) {
+    public boolean jeOchotnyNastupit(Vozidlo vozidlo) {
         if (vozidlo.getTypVozidla().isAutobus()) {
             return true;
         }

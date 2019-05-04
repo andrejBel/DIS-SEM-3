@@ -16,7 +16,7 @@ import java.util.TreeMap;
 public class AgentOkolia extends Agent {
 
 	private TreeMap<String, ZastavkaOkolie> _zastavkyOkolia = new TreeMap<>();
-	private ArrayList<PlanovacPrichodovZakaznikovNaZastavku> _planovacovePrichodov = new ArrayList<>();
+	private ArrayList<PlanovacPrichodovCestujucichNaZastavku> _planovacovePrichodov = new ArrayList<>();
 
 
 	public AgentOkolia(int id, Simulation mySim, Agent parent, TreeMap<String, ZastavkaKonfiguracia> zastavky, TreeMap<TYP_LINKY, Linka> linky) {
@@ -25,6 +25,10 @@ public class AgentOkolia extends Agent {
 		double casZaciatkuZapasu = mySim().getCasZaciatkuZapasu();
 		for (Map.Entry<String, ZastavkaKonfiguracia> zastavaEntry: zastavky.entrySet()) {
 			ZastavkaKonfiguracia zastavka = zastavaEntry.getValue();
+			if (zastavka.getNazovZastavky().equals(KONSTANTY.STADION)) {
+				continue;
+			}
+
 			double casPrichoduPrvehoZakaznika = Double.MAX_VALUE;
 			double casPrichoduPoslednehoZakaznika = 0;
 
@@ -46,6 +50,7 @@ public class AgentOkolia extends Agent {
 			System.out.print("casPrichoduPrvehoZakaznika; " + casPrichoduPrvehoZakaznika + Helper.DEFAULT_SEPARATOR + " ");
 			System.out.print("casPrichoduPoslednehoZakaznika; " + casPrichoduPoslednehoZakaznika + Helper.DEFAULT_SEPARATOR + " ");
 			System.out.print("Rozdiel; " + (casPrichoduPoslednehoZakaznika - casPrichoduPrvehoZakaznika) + Helper.DEFAULT_SEPARATOR + " ");
+			System.out.print("Pocet zakaznikov; " + zastavka.getMaximalnyPocetCestujucich() + Helper.DEFAULT_SEPARATOR + " ");
 			System.out.println("Parameter; " + _zastavkyOkolia.get(zastavka.getNazovZastavky()).getParameterExponencialnehoRozdelenia() + Helper.DEFAULT_SEPARATOR + " ");
 		}
 
@@ -62,16 +67,15 @@ public class AgentOkolia extends Agent {
 	private void init() {
 		new ManagerOkolia(Id.managerOkolia, mySim(), this);
 
-		int pociatocneId = Id.pociatocneIdPrePlanovacPrichodovZakaznikov_;
+		int pociatocneId = Id.pociatocneIdPrePlanovacPrichodovCestujucich_;
 		for (Map.Entry<String, ZastavkaOkolie> zastavkaOkolieEntry: _zastavkyOkolia.entrySet()) {
 			ZastavkaOkolie zastavkaOkolie = zastavkaOkolieEntry.getValue();
-			_planovacovePrichodov.add(new PlanovacPrichodovZakaznikovNaZastavku(pociatocneId, mySim(), this, zastavkaOkolie));
+			_planovacovePrichodov.add(new PlanovacPrichodovCestujucichNaZastavku(pociatocneId, mySim(), this, zastavkaOkolie));
 			pociatocneId++;
 		}
-		//new PlanovacPrichodovZakaznikovNaZastavku(Id.planovacPrichodovZakaznikovNaZastavku, mySim(), this);
 		addOwnMessage(Mc.init);
 		addOwnMessage(Mc.zacniGenerovat);
-		addOwnMessage(Mc.prichodZakaznikaNaZastavku);
+		addOwnMessage(Mc.prichodCestujucehoNaZastavku);
 	}
 
 	@Override
@@ -79,7 +83,7 @@ public class AgentOkolia extends Agent {
 		return (SimulaciaDopravy) super.mySim();
 	}
 
-	public ArrayList<PlanovacPrichodovZakaznikovNaZastavku> getPlanovacovePrichodov() {
+	public ArrayList<PlanovacPrichodovCestujucichNaZastavku> getPlanovacovePrichodov() {
 		return _planovacovePrichodov;
 	}
 

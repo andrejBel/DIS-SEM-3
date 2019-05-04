@@ -1,12 +1,8 @@
 package managers;
 
 import OSPABA.*;
-import Utils.Helper;
 import simulation.*;
 import agents.*;
-import continualAssistants.*;
-import instantAssistants.*;
-import sun.plugin2.message.Message;
 
 //meta! id="1"
 public class ManagerModelu extends Manager {
@@ -41,7 +37,7 @@ public class ManagerModelu extends Manager {
 	@Override
 	public void processMessage(MessageForm message) {
 		switch (message.code()) {
-		case Mc.prichodZakaznikaNaZastavku:
+		case Mc.prichodCestujucehoNaZastavku:
 		{
 			Sprava sprava = (Sprava) message;
 			sprava.setAddressee(Id.agentPrepravy);

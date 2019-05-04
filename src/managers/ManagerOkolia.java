@@ -24,18 +24,18 @@ public class ManagerOkolia extends Manager {
 
 	//meta! sender="AgentModelu", id="15", type="Notice"
 	public void processInit(MessageForm message) {
-		for (PlanovacPrichodovZakaznikovNaZastavku planovac: myAgent().getPlanovacovePrichodov()) {
+		for (PlanovacPrichodovCestujucichNaZastavku planovac: myAgent().getPlanovacovePrichodov()) {
 			Sprava copy = (Sprava) message.createCopy();
 			copy.setAddressee(planovac);
 			startContinualAssistant(copy);
 		}
 	}
 
-	//meta! sender="PlanovacPrichodovZakaznikovNaZastavku", id="163", type="Notice"
+	//meta! sender="PlanovacPrichodovCestujucichNaZastavku", id="163", type="Notice"
 	public void processFinish(MessageForm message) {
 		Sprava sprava = (Sprava) message;
 		sprava.setAddressee(Id.agentModelu);
-		sprava.setCode(Mc.prichodZakaznikaNaZastavku);
+		sprava.setCode(Mc.prichodCestujucehoNaZastavku);
 		notice(sprava);
 	}
 

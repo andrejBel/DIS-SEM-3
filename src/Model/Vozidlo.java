@@ -19,6 +19,7 @@ import simulation.Sprava;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.function.Function;
 
 public class Vozidlo extends SimulationEntity {
@@ -33,8 +34,8 @@ public class Vozidlo extends SimulationEntity {
     private final TYP_VOZIDLA _typVozidla;
 
     private SimQueue<Sprava> _cestujuciVoVozidle;
-    private HashMap<Long, Sprava> _nastupujuciCestujuci;
-    private HashMap<Long, Sprava> _vystupujuciCestujuci;
+    private TreeMap<Long, Sprava> _nastupujuciCestujuci;
+    private TreeMap<Long, Sprava> _vystupujuciCestujuci;
     private Boolean[] _obsadenostDveri;
 
     private STAV_VOZIDLA _stavVozidla = STAV_VOZIDLA.CAKA_NA_VYJAZD;
@@ -56,8 +57,8 @@ public class Vozidlo extends SimulationEntity {
         this._linkaNaKtorejJazdi = linkaNaKtorejJazdi;
         this._typVozidla = typVozidla;
         this._cestujuciVoVozidle = new SimQueue<>(new WStatNamed(mySim(), "Priemerný počet cestujúcich V. " + idVozidla + ", linka: " + linkaNaKtorejJazdi.getTypLinky().getSkratka()));
-        this._nastupujuciCestujuci = new HashMap<>();
-        this._vystupujuciCestujuci = new HashMap<>();
+        this._nastupujuciCestujuci = new TreeMap<>();
+        this._vystupujuciCestujuci = new TreeMap<>();
         this._obsadenostDveri = new Boolean[typVozidla.getPocetDveri()];
         for (int indexDveri = 0; indexDveri < this._obsadenostDveri.length; indexDveri++) {
             this._obsadenostDveri[indexDveri] = false;
@@ -162,7 +163,7 @@ public class Vozidlo extends SimulationEntity {
                 info = "Čaká na výjazd na zastávku: " + _linkaNaKtorejJazdi.getZastavky().get(0).getZastavka().getNazovZastavky() + ", naplánovaný na: " + Helper.FormatujSimulacnyCas(this._casPrijazduNaPrvuZastavku);
                 break;
             case POHYB:
-                double kolkoPercentPrejdenych = ((mySim().currentTime() - _casOdchoduZPoslednejZastavky) / (_casPrichoduNaDalsiuZastavu - _casOdchoduZPoslednejZastavky) ) * 100;
+                double kolkoPercentPrejdenych = ((mySim().currentTime() - _casOdchoduZPoslednejZastavky) / (_casPrichoduNaDalsiuZastavu - _casOdchoduZPoslednejZastavky)) * 100;
 
                 info = "Presun : " + getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() + "->" + getNasledujucaZastavka().getNazovZastavky() + "[" + Helper.FormatujDouble(kolkoPercentPrejdenych) + " %" + "]";
                 info += ", začiatok presunu: " + Helper.FormatujSimulacnyCas(_casOdchoduZPoslednejZastavky) + ", koniec presunu: " + Helper.FormatujSimulacnyCas(_casPrichoduNaDalsiuZastavu);
@@ -170,7 +171,7 @@ public class Vozidlo extends SimulationEntity {
                 break;
             case CAKANIE_NA_ZASTAVKE:
                 info = "Čakanie na zastávke: " + getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() +
-                        ", nasledujúca zastávka: " + getNasledujucaZastavka().getNazovZastavky() +", čas príchodu: " + Helper.FormatujSimulacnyCas(_casPrichoduNaDalsiuZastavu);
+                        ", nasledujúca zastávka: " + getNasledujucaZastavka().getNazovZastavky() + ", čas príchodu: " + Helper.FormatujSimulacnyCas(_casPrichoduNaDalsiuZastavu);
                 break;
             default:
                 break;
@@ -211,17 +212,24 @@ public class Vozidlo extends SimulationEntity {
         return _casPrijazduNaPrvuZastavku;
     }
 
-    public VozidloInfo getVozidloInfo() {
+    public VozidloInfo getVozidloInfo(boolean ajSCestujucimi) {
         ObservableList<CestujuciInfo> nastupujuciCestujuci = FXCollections.observableArrayList();
         ObservableList<CestujuciInfo> cestujuciVoVozidle = FXCollections.observableArrayList();
         ObservableList<CestujuciInfo> vystupujuciCestujuci = FXCollections.observableArrayList();
 
-        _nastupujuciCestujuci.forEach( (s, cestujuci) -> { nastupujuciCestujuci.add(cestujuci.getCestujuci().getCestujuciInfo()); });
+        if (ajSCestujucimi) {
+            _nastupujuciCestujuci.forEach((s, cestujuci) -> {
+                nastupujuciCestujuci.add(cestujuci.getCestujuci().getCestujuciInfo());
+            });
 
-        _cestujuciVoVozidle.forEach(cestujuci-> { cestujuciVoVozidle.add(cestujuci.getCestujuci().getCestujuciInfo());});
+            _cestujuciVoVozidle.forEach(cestujuci -> {
+                cestujuciVoVozidle.add(cestujuci.getCestujuci().getCestujuciInfo());
+            });
 
-        _vystupujuciCestujuci.forEach( (s, cestujuci) -> { vystupujuciCestujuci.add(cestujuci.getCestujuci().getCestujuciInfo()); });
-
+            _vystupujuciCestujuci.forEach((s, cestujuci) -> {
+                vystupujuciCestujuci.add(cestujuci.getCestujuci().getCestujuciInfo());
+            });
+        }
 
         return new VozidloInfo(
                 _idVozidla,
@@ -229,10 +237,14 @@ public class Vozidlo extends SimulationEntity {
                 kolkoSekundSaJazdilo(),
                 _stavVozidla.getStav(),
                 infoOStave(),
+                _casVstupuDoFrontuVozidielNaZastavke,
+                _nastupujuciCestujuci.size(),
+                _cestujuciVoVozidle.size(),
+                _vystupujuciCestujuci.size(),
                 nastupujuciCestujuci,
                 cestujuciVoVozidle,
                 vystupujuciCestujuci
-                );
+        );
     }
 
     public long getIdVozidla() {
@@ -284,7 +296,7 @@ public class Vozidlo extends SimulationEntity {
             if (this._nastupujuciCestujuci.containsKey(idCestujuceho)) {
                 throw new RuntimeException("Cestujuci uz nastupuje");
             }
-            this._cestujuciVoVozidle.forEach(c-> {
+            this._cestujuciVoVozidle.forEach(c -> {
                 if (c.getCestujuci().getIdCestujuceho() == idCestujuceho) {
                     throw new RuntimeException("Cestujuci uz nastupil");
                 }
@@ -315,7 +327,7 @@ public class Vozidlo extends SimulationEntity {
                 throw new RuntimeException("Cestujuci uz vystupuje");
             }
             boolean cestujuciNajdeny = false;
-            for (Sprava sprava:_cestujuciVoVozidle) {
+            for (Sprava sprava : _cestujuciVoVozidle) {
                 Cestujuci cestujuci = sprava.getCestujuci();
                 if (idCestujuceho == cestujuci.getIdCestujuceho()) {
                     cestujuciNajdeny = true;
@@ -348,7 +360,7 @@ public class Vozidlo extends SimulationEntity {
                 throw new RuntimeException("Cestujuci nastupuje");
             }
 
-            for (Sprava sprava:_cestujuciVoVozidle) {
+            for (Sprava sprava : _cestujuciVoVozidle) {
                 Cestujuci cestujuci = sprava.getCestujuci();
                 if (idCestujuceho == cestujuci.getIdCestujuceho()) {
                     throw new RuntimeException("Cestujuci je uz vo vozidle");
@@ -428,4 +440,13 @@ public class Vozidlo extends SimulationEntity {
     public int getMaximalnaKapacita() {
         return _maximalnaKapacita;
     }
+
+    public double casZaciakuVystupu = 0.0;
+    public double casKoncaVystupu = 0.0;
+
+    public double getCasVystupovania() {
+        return casKoncaVystupu - casZaciakuVystupu;
+    }
+
+
 }

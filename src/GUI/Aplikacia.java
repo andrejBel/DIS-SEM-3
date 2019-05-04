@@ -31,8 +31,7 @@ public class Aplikacia {
         tabPane_ = new JFXTabPane();
         tabPane_.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         controllers = Arrays.asList(
-                new CSimulacia(simulaciaWrapper_, stage),
-                new CStanok(simulaciaWrapper_, stage)
+                new CSimulacia(simulaciaWrapper_, stage)
         );
 
         for (ControllerBase controller : controllers) {
@@ -72,7 +71,7 @@ public class Aplikacia {
                 System.err.println(e);
             }
         });
-        */
+*       */
         stage.setOnCloseRequest(e -> {
             Platform.exit();
             simulaciaWrapper_.getSimulaciaDopravy().stopSimulation();
