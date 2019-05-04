@@ -6,7 +6,6 @@ import Model.Info.CestujuciInfo;
 import Model.Info.VozidloInfo;
 import OSPABA.Simulation;
 import OSPDataStruct.SimQueue;
-import Statistiky.StatNamed;
 import Statistiky.StatistikaInfo;
 import Statistiky.WStatNamed;
 import Statistiky.WeightStat;
@@ -18,7 +17,6 @@ import simulation.SimulaciaDopravy;
 import simulation.Sprava;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.function.Function;
 
@@ -49,6 +47,10 @@ public class Vozidlo extends SimulationEntity {
     private double _casVstupuDoFrontuVozidielNaZastavke = 0.0;
     private boolean _vozidloVoFronteVozidielCakajucichNaZastavke = false;
 
+    private int pocetPrichodovKStadionu = 0;
+    private int pocetPrivezenychCestujucichStadion = 0;
+    private double _trzba = 0.0;
+
     public Vozidlo(Simulation mySim, long idVozidla, double casPrijazduNaPrvuZastavku, Linka linkaNaKtorejJazdi, TYP_VOZIDLA typVozidla) {
         super(mySim);
         this._idVozidla = idVozidla;
@@ -56,7 +58,7 @@ public class Vozidlo extends SimulationEntity {
         this._casPrijazduNaPrvuZastavku = casPrijazduNaPrvuZastavku;
         this._linkaNaKtorejJazdi = linkaNaKtorejJazdi;
         this._typVozidla = typVozidla;
-        this._cestujuciVoVozidle = new SimQueue<>(new WStatNamed(mySim(), "Priemerný počet cestujúcich V. " + idVozidla + ", linka: " + linkaNaKtorejJazdi.getTypLinky().getSkratka()));
+        this._cestujuciVoVozidle = new SimQueue<>();
         this._nastupujuciCestujuci = new TreeMap<>();
         this._vystupujuciCestujuci = new TreeMap<>();
         this._obsadenostDveri = new Boolean[typVozidla.getPocetDveri()];
@@ -84,6 +86,10 @@ public class Vozidlo extends SimulationEntity {
         _indexZastavkyLinky = -1;
         _casVstupuDoFrontuVozidielNaZastavke = 0.0;
         _vozidloVoFronteVozidielCakajucichNaZastavke = false;
+
+        pocetPrichodovKStadionu = 0;
+        pocetPrivezenychCestujucichStadion = 0;
+        _trzba = 0.0;
     }
 
     @Override
@@ -146,8 +152,6 @@ public class Vozidlo extends SimulationEntity {
         ++_indexZastavkyLinky;
         if (_indexZastavkyLinky >= _linkaNaKtorejJazdi.getZastavky().size()) {
             _indexZastavkyLinky = 0;
-            WeightStat stat = (WeightStat) this._cestujuciVoVozidle.lengthStatistic();
-            stat.setPrevTimeToCurrent(); // aby sme zaratavali vytazenie iba v ramci prepravy zakaznikov, neratame okruznu jazdu
         }
         _zastavkaNaKtorejJeNaposledyBol = _linkaNaKtorejJazdi.getZastavky().get(_indexZastavkyLinky);
 
@@ -167,7 +171,6 @@ public class Vozidlo extends SimulationEntity {
 
                 info = "Presun : " + getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() + "->" + getNasledujucaZastavka().getNazovZastavky() + "[" + Helper.FormatujDouble(kolkoPercentPrejdenych) + " %" + "]";
                 info += ", začiatok presunu: " + Helper.FormatujSimulacnyCas(_casOdchoduZPoslednejZastavky) + ", koniec presunu: " + Helper.FormatujSimulacnyCas(_casPrichoduNaDalsiuZastavu);
-                info += ", prejdených ";
                 break;
             case CAKANIE_NA_ZASTAVKE:
                 info = "Čakanie na zastávke: " + getAktualnaAleboPoslednaNavstivenaZastavka().getNazovZastavky() +
@@ -238,6 +241,7 @@ public class Vozidlo extends SimulationEntity {
                 _stavVozidla.getStav(),
                 infoOStave(),
                 _casVstupuDoFrontuVozidielNaZastavke,
+                _trzba,
                 _nastupujuciCestujuci.size(),
                 _cestujuciVoVozidle.size(),
                 _vystupujuciCestujuci.size(),
@@ -367,6 +371,7 @@ public class Vozidlo extends SimulationEntity {
                 }
             }
         }
+        _trzba += _typVozidla.getCenaListka();
         _cestujuciVoVozidle.add(spravaSCestujucim);
     }
 
@@ -418,23 +423,10 @@ public class Vozidlo extends SimulationEntity {
     }
 
     public StatistikaInfo getStatistikaInfoVytazenieVozidlaRep() {
-        DecimalFormat decimalFormat = new DecimalFormat(".0000");
+        DecimalFormat decimalFormat = new DecimalFormat(".00");
         Function<Double, Double> getVytazenie = (pocet -> (pocet / _maximalnaKapacita) * 100.0);
 
-        WStatNamed cestujiciStat = (WStatNamed) this._cestujuciVoVozidle.lengthStatistic();
-        if (cestujiciStat.sampleSize() < 2.0) {
-            return new StatistikaInfo("Priemerné vyťaženie V. " + _idVozidla, decimalFormat.format(getVytazenie.apply(cestujiciStat.mean())));
-        } else {
-            double[] confidenceInteval = cestujiciStat.confidenceInterval_90();
-            double mean = cestujiciStat.mean();
-            double difference = confidenceInteval[1] - mean;
-            return new StatistikaInfo("Priemerné vyťaženie V. " + _idVozidla,
-                    decimalFormat.format(getVytazenie.apply(confidenceInteval[0])) + "; " +
-                            decimalFormat.format(getVytazenie.apply(mean)) + " ±" +
-                            decimalFormat.format(getVytazenie.apply(difference)) + " ; " +
-                            decimalFormat.format(getVytazenie.apply(confidenceInteval[1]))
-            );
-        }
+        return new StatistikaInfo("Vyťaženie V. " + _idVozidla, decimalFormat.format(getVytazenieVozidlaRep() * 100) + " %");
     }
 
     public int getMaximalnaKapacita() {
@@ -448,5 +440,60 @@ public class Vozidlo extends SimulationEntity {
         return casKoncaVystupu - casZaciakuVystupu;
     }
 
+    public void zvysPocetPrichodovKStadionu() {
+        ++this.pocetPrichodovKStadionu;
+    }
+
+    public void zvysPocetPrivezenychStadionu() {
+        ++this.pocetPrivezenychCestujucichStadion;
+    }
+
+    public double getVytazenieVozidlaRep() {
+        if (pocetPrichodovKStadionu == 0) {
+            return ((double) this.getCelkovyPocetCestujucichVoVozidle() ) / ((double) _maximalnaKapacita);
+        }
+
+        return ( ( (double) (pocetPrivezenychCestujucichStadion) ) / ((double) pocetPrichodovKStadionu) ) /  ((double) _maximalnaKapacita);
+    }
+
+    public double getKolkoKratStiholPrejstKStadionu() {
+        double kolkePresielZAktualnejTrasy = 0.0;
+        double celkovaVzdialenostKStadionu = _linkaNaKtorejJazdi.getZastavky().get(0).getVzdialenostKStadionu();
+        switch (_stavVozidla) {
+            case CAKA_NA_VYJAZD:
+                kolkePresielZAktualnejTrasy = 0.0;
+                break;
+            case POHYB:
+                if (_zastavkaNaKtorejJeNaposledyBol.getZastavka().getNazovZastavky().equals(KONSTANTY.STADION)) {
+                    kolkePresielZAktualnejTrasy = 0.0;
+                } else {
+                    double kolkoPresielZTrasyMedziZastavkami = ((mySim().currentTime() - _casOdchoduZPoslednejZastavky) / (_casPrichoduNaDalsiuZastavu - _casOdchoduZPoslednejZastavky));
+                    double kolkoUzPresiel =  kolkoPresielZTrasyMedziZastavkami * _zastavkaNaKtorejJeNaposledyBol.getCasPresunuNaDalsiuZastavku();
+
+                    double vzdialenostKZastavkePrejdena = celkovaVzdialenostKStadionu - _zastavkaNaKtorejJeNaposledyBol.getVzdialenostKStadionu() + kolkoUzPresiel;
+                    kolkePresielZAktualnejTrasy = vzdialenostKZastavkePrejdena / celkovaVzdialenostKStadionu;
+                }
+
+
+                break;
+            case CAKANIE_NA_ZASTAVKE:
+                if (_zastavkaNaKtorejJeNaposledyBol.getZastavka().getNazovZastavky().equals(KONSTANTY.STADION)) {
+                    kolkePresielZAktualnejTrasy = 0.0;
+                } else {
+                    double vzdialenostPrejdena = celkovaVzdialenostKStadionu - _zastavkaNaKtorejJeNaposledyBol.getVzdialenostKStadionu();
+                    kolkePresielZAktualnejTrasy = vzdialenostPrejdena / celkovaVzdialenostKStadionu;
+                }
+
+                break;
+            default:
+                break;
+        }
+
+        return pocetPrichodovKStadionu + kolkePresielZAktualnejTrasy;
+    }
+
+    public double getTrzba() {
+        return _trzba;
+    }
 
 }

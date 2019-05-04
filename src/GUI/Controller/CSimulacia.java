@@ -229,6 +229,9 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                     lineChartCakanieNaZastavke.getXAxis().setLabel("Čas replikácie");
                 });
             }
+            if (!newValue && !checkBoxStatistikySimulacie.isSelected()) {
+                checkBoxStatistikySimulacie.setSelected(true);
+            }
         });
         checkBoxStatistikySimulacie.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -241,6 +244,9 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                     });
                 });
 
+            }
+            if (!newValue && !checkBoxStatistikyReplikacie.isSelected()) {
+                checkBoxStatistikyReplikacie.setSelected(true);
             }
         });
 
@@ -273,7 +279,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
             //simulaciaWrapper_.zastavSimulaciu();
             //computation.cancel();
             int pocetReplikacii = Integer.parseInt(textFieldReplications.getText());
-            double koncovyCasReplikacie = Helper.CASOVE_JEDNOTKY.DEN.getPocetSekund() * 20;
+            double koncovyCasReplikacie = Double.MAX_VALUE;
 
             _simulacia.setKrokovanie(checkBoxKrokovanie.isSelected());
 

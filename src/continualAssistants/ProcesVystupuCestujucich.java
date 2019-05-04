@@ -6,7 +6,6 @@ import Model.Enumeracie.TYP_VOZIDLA;
 import Model.Vozidlo;
 import Model.Zastavka;
 import OSPABA.*;
-import OSPDataStruct.SimQueue;
 import OSPRNG.TriangularRNG;
 import simulation.*;
 import agents.*;
@@ -47,6 +46,7 @@ public class ProcesVystupuCestujucich extends Scheduler {
 	//meta! sender="AgentZastavok", id="343", type="Notice"
 	public void processCestujuciVystupil(MessageForm message) {
 		Sprava sprava = (Sprava) message;
+		sprava.getVozidlo().zvysPocetPrivezenychStadionu();
 		vystupCestujucehoKoniec(sprava);
 	}
 

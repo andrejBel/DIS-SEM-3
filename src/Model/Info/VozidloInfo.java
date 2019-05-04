@@ -27,24 +27,26 @@ public class VozidloInfo {
     private int _pocetCestujucich;
     private int _pocetVystupujucich;
     private int _celkovyPocet;
+    private double _trzba;
 
     public static List<TableColumnItem<VozidloInfo>> ATRIBUTY = Arrays.asList(
             new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._idVozidla), "ID", 30, 40),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._typVozidla, "Typ vozidla", 95, 100),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._kolkoSekundJazdi), "Doba jazdy", 80, 80),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._stavVozidla, "Stav vozidla", 100, 100),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._infoOStave, "Podrobnosti o stave", 300, IGNORE_MAX_WIDTH),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._infoOStave, "Podrobnosti o stave", 240, IGNORE_MAX_WIDTH),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetNastupujucich), "P. N", 30, 40),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetCestujucich), "P. C", 30, 40),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetVystupujucich), "P. V", 30, 40),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._celkovyPocet), "C. P.", 30, 40)
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._celkovyPocet), "C. P.", 30, 40),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> Helper.FormatujDouble(vozidloInfo._trzba, 0), "Tržba", 30, 40)
     );
     public static List<TableColumnItem<VozidloInfo>> ATRIBUTY_FRONT_VOZIDIEL = Arrays.asList(
             new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._idVozidla), "ID", 30, 40),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._typVozidla, "Typ vozidla", 95, 100),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> Helper.FormatujSimulacnyCas(vozidloInfo._kolkoSekundJazdi), "Doba jazdy", 80, 80),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._stavVozidla, "Stav vozidla", 100, 100),
-            new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._infoOStave, "Podrobnosti o stave", 300, IGNORE_MAX_WIDTH),
+            new TableColumnItem<VozidloInfo>(vozidloInfo -> vozidloInfo._infoOStave, "Podrobnosti o stave", 240, IGNORE_MAX_WIDTH),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetNastupujucich), "P. N", 30, 40),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetCestujucich), "P. C", 30, 40),
             new TableColumnItem<VozidloInfo>(vozidloInfo -> String.valueOf(vozidloInfo._pocetVystupujucich), "P. V", 30, 40),
@@ -59,6 +61,7 @@ public class VozidloInfo {
                        String stavVozidla,
                        String infoOStave,
                        double casVstupuDoFrontuVozidielNaZastavke,
+                       double trzba,
                        int pocetNastupujucich,
                        int pocetCestujucich,
                        int pocetVystupujucich,
@@ -70,7 +73,8 @@ public class VozidloInfo {
         this._kolkoSekundJazdi = kolkoSekundJazdi;
         this._stavVozidla = stavVozidla;
         this._infoOStave = infoOStave;
-        _casVstupuDoFrontuVozidielNaZastavke = casVstupuDoFrontuVozidielNaZastavke;
+        this._casVstupuDoFrontuVozidielNaZastavke = casVstupuDoFrontuVozidielNaZastavke;
+        this._trzba = trzba;
         this._pocetNastupujucich = pocetNastupujucich;
         this._pocetCestujucich = pocetCestujucich;
         this._pocetVystupujucich = pocetVystupujucich;

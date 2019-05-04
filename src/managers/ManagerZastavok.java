@@ -39,6 +39,7 @@ public class ManagerZastavok extends Manager {
 		ZastavkaKonfiguracia zastavkaNaKtoruVozidloPrislo = vozidlo.getAktualnaAleboPoslednaNavstivenaZastavka();
 
 		if (zastavkaNaKtoruVozidloPrislo.isVystup()) {
+			vozidlo.zvysPocetPrichodovKStadionu();
 			if (vozidlo.getCelkovyPocetCestujucichVoVozidle() == 0) {
 				posliVozidloNaDalsiuZastavku(sprava);
 				return;
@@ -85,43 +86,6 @@ public class ManagerZastavok extends Manager {
 			startContinualAssistant(spravaSVozidlomNaZastavke);
 		}
 
-	}
-
-	//meta! sender="AgentPrepravy", id="258", type="Request"
-	public void processCestujuciNaZastavke(MessageForm message) {
-		Sprava sprava = (Sprava) message;
-		ZastavkaKonfiguracia ktoraZastavka = sprava.getZastavkaKonfiguracie();
-		Zastavka zastavka = myAgent().getZastavka(ktoraZastavka.getNazovZastavky());
-		Vozidlo vozidlo = sprava.getVozidlo();
-		SimQueue<Sprava> cestujuci = zastavka.getCestujuciNaZastavke();
-		if (cestujuci.size() == 0) {
-			sprava.setCestujuci(null);
-		} else {
-			Cestujuci prvyCakajuciCestujuci = cestujuci.peek().getCestujuci();
-			if (prvyCakajuciCestujuci.jeOchotnyNastupit(vozidlo)) {
-				myAgent().pridajCasCakaniaCestujucehoNaZastavke(prvyCakajuciCestujuci.getCasCakaniaNaZastavke());
-				zastavka.getPriemernyCasCakaniaCestujecehoNaZastavke().addSample(prvyCakajuciCestujuci.getCasCakaniaNaZastavke());
-				sprava.setCestujuci(cestujuci.poll().getCestujuci());
-			} else {
-				sprava.setCestujuci(null);
-			}
-		}
-
-		response(sprava);
-	}
-
-	//meta! sender="AgentPrepravy", id="319", type="Notice"
-	public void processPrichodCestujucehoNaStadion(MessageForm message) {
-		Sprava sprava = (Sprava) message;
-		myAgent().getZastavka(KONSTANTY.STADION).pridajCestujucehoNaZastavku(sprava);
-		Cestujuci cestujuci = sprava.getCestujuci();
-		cestujuci.setStavCestujuci(STAV_CESTUJUCI.NA_STADIONE);
-		myAgent().zvysPocetCestujucichNaStadione(cestujuci.getCasKoncaVystupovania() <= mySim().getCasZaciatkuZapasu());
-
-		if (mySim().isKrokovanie()) {
-			mySim().pauseSimulation();
-			mySim().pridajUdalostCoPozastavilaSimulaciu("Príchod cestjúceho " + cestujuci.getIdCestujuceho() + " na štadión");
-		}
 	}
 
 	//meta! sender="PlanovacPresunuVozidlaNaDalsiuZastavku", id="365", type="Notice"
