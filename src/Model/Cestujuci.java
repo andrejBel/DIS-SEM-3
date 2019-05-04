@@ -90,6 +90,9 @@ public class Cestujuci {
     }
 
     public void setVozidlo(Vozidlo vozidlo) {
+        if (_vozidlo != null) {
+            throw new RuntimeException("Vozidlo je uz setnute");
+        }
         this._vozidlo = vozidlo;
     }
 
