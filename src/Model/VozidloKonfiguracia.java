@@ -47,4 +47,11 @@ public class VozidloKonfiguracia {
     public void setTypLinky(TYP_LINKY typLinky) {
         this._typLinky = typLinky;
     }
+
+    @Override
+    public String toString() {
+        return  _typVozidla.getNazov() +
+                ", " + _typLinky.getNazovLinky() +
+                ", " + _casPrijazduNaPrvuZastavku;
+    }
 }

@@ -255,7 +255,7 @@ public class SimulaciaDopravy extends Simulation {
         _priemernyPocetJazdSim.clear();
         _priemerneVytazenieVozidielSim.clear();
         agentPohybu().getVozidla().forEach(vozidlo -> {
-            _priemernyPocetJazdSim.add(new StatNamed("Priemerný počet jázd: " + vozidlo.getIdVozidla() + ", linka: " + vozidlo.getLinkaNaKtorejJazdi().getTypLinky().getSkratka()));
+            _priemernyPocetJazdSim.add(new StatNamed("Priemerný počet jázd V. " + vozidlo.getIdVozidla() + ", linka: " + vozidlo.getLinkaNaKtorejJazdi().getTypLinky().getSkratka()));
             _priemerneVytazenieVozidielSim.add(new StatNamed("Vyťaženie V " + vozidlo.getIdVozidla() + ", linka: " + vozidlo.getLinkaNaKtorejJazdi().getTypLinky().getSkratka()));
         });
 
@@ -353,11 +353,15 @@ public class SimulaciaDopravy extends Simulation {
 
         info._priemernyCasCakaniaCestujucehoNaZastavke = _agentZastavok.getPriemernyCasCakaniaCestujucehoNaZastavkeRep().mean();
 
-
+        double ziskMinibusov = 0.0;
         for (Vozidlo vozidlo : agentPohybu().getVozidla()) {
             statistiky.add(vozidlo.getStatistikaInfoVytazenieVozidlaRep());
             statistiky.add(new StatistikaInfo("Počet jázd vozidlo " + vozidlo.getIdVozidla(), Helper.FormatujDouble(vozidlo.getKolkoKratStiholPrejstKStadionu()))); // TODO
+            if (!vozidlo.getTypVozidla().isAutobus()) {
+                ziskMinibusov += vozidlo.getTrzba();
+            }
         }
+        statistiky.add(new StatistikaInfo("Zisk minibusov", Helper.FormatujDouble(ziskMinibusov, 0)));
 
         ObservableList<VozidloInfo> vozidlaStatistiky = info.vozidlaInfo_;
         for (Vozidlo vozidlo : agentPohybu().getVozidla()) {
@@ -400,7 +404,9 @@ public class SimulaciaDopravy extends Simulation {
         _simStats.forEach(stat -> {
             statistiky.add(stat.getStatistikaInfo());
         });
+
         statistiky.add(_pocetCestujucichSim.getStatistikaInfo());
+        statistiky.add(new StatistikaInfo("Náklady konfigurácie", Helper.FormatujDouble(_konfiguraciaVozidiel.getNakladyKonfiguracie() ,0)));
 
         _agentZastavok.getZastavky().forEach((s, zastavka) -> {
             info.statistikyZastavky_.add(_priemernyCasCakaniaCestujucichNaZastavkeSim.get(s).getStatistikaInfo());

@@ -148,7 +148,6 @@ public class ProcesVystupuCestujucich extends Scheduler {
 			// vsetci vystupili
 			vozidlo.casKoncaVystupu = mySim().currentTime();
 			//System.out.println("Cas vystupu cestujucich vozidla" +  vozidlo.getIdVozidla() + ": " + vozidlo.getCasVystupovania());
-
 			assistantFinished(sprava);
 		}
 

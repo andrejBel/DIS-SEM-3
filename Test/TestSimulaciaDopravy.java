@@ -75,10 +75,18 @@ public class TestSimulaciaDopravy {
             upravenaKonfiguracia.setKonfiguraciaVozidiel(konfiguracie);
             _simulaciaDopravy.setKonfiguracia(upravenaKonfiguracia);
             _simulaciaDopravy.simulate(100, Double.MAX_VALUE);
-            _simulaciaDopravy.zapisVysledokSimulacieDoSuboru("jedenVon.csv");
+            BehSimulacieInfo behSimulacieInfo = _simulaciaDopravy.getStatistikySimulacie();
+            System.out.println("vozidlo von: " + Integer.valueOf(indexToRemove + 1) );
+            System.out.println("cas cakania: " + behSimulacieInfo._priemernyCasCakaniaNaZastavke);
+            System.out.println("percento: " + behSimulacieInfo._percentoCestujuciochPrichadzajucichPoZaciatku);
+            if (behSimulacieInfo._priemernyCasCakaniaNaZastavke < 600) {
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+            //_simulaciaDopravy.zapisVysledokSimulacieDoSuboru("jedenVon.csv");
         }
-
     }
+
+
 
     @Test
     public void vozidlo17() {
@@ -528,7 +536,7 @@ public class TestSimulaciaDopravy {
         konfiguraciaVozidiel.setKonfiguraciaVozidiel(konfiguraciaOriginalna);
 
         _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
-        _simulaciaDopravy.simulate(100, Double.MAX_VALUE);
+        _simulaciaDopravy.simulate(1000, Double.MAX_VALUE);
 
         cakanieNajlepsejKonfiguracie = _simulaciaDopravy.getStatistikySimulacie()._priemernyCasCakaniaNaZastavke;
         System.out.println("Povodne cakanie: " + cakanieNajlepsejKonfiguracie);
@@ -547,13 +555,13 @@ public class TestSimulaciaDopravy {
             ArrayList<VozidloKonfiguracia> novaKonfiguracia = new ArrayList<>(doposialNajlepsiaKonfiguracia);
             VozidloKonfiguracia vozidloKtoremuCasBudememePosuvat = novaKonfiguracia.get(indexMinibusu);
 
-            for (int casPrijazduNaPrvu = 0; casPrijazduNaPrvu < 4000; casPrijazduNaPrvu += 30) {
+            for (int casPrijazduNaPrvu = 0; casPrijazduNaPrvu < 4000; casPrijazduNaPrvu += 60) {
                 vozidloKtoremuCasBudememePosuvat.setCasPrijazduNaPrvuZastavku(casPrijazduNaPrvu);
                 konfiguraciaVozidiel.setKonfiguraciaVozidiel(novaKonfiguracia);
                 _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
                 _simulaciaDopravy.simulate(100, Double.MAX_VALUE);
                 BehSimulacieInfo behSimulacieInfo = _simulaciaDopravy.getStatistikySimulacie();
-                if (behSimulacieInfo._priemernyCasCakaniaNaZastavke < cakanieNajlepsejKonfiguracie && behSimulacieInfo._percentoCestujuciochPrichadzajucichPoZaciatku < 7.1) {
+                if (behSimulacieInfo._priemernyCasCakaniaNaZastavke < cakanieNajlepsejKonfiguracie && behSimulacieInfo._percentoCestujuciochPrichadzajucichPoZaciatku < 7) {
                     cakanieNajlepsejKonfiguracie = behSimulacieInfo._priemernyCasCakaniaNaZastavke;
                     doposialNajlepsiaKonfiguracia = new ArrayList<>(novaKonfiguracia);
                     System.out.println("Nova konfiguracia, cakanie:  " + cakanieNajlepsejKonfiguracie);
@@ -599,7 +607,9 @@ public class TestSimulaciaDopravy {
          
          int iteracia = 1;
 
-        UniformDiscreteRNG generatorVyberVozidla = new UniformDiscreteRNG(indexPrvehoMinibusu, indexPoslednehoMinibusu); 
+        UniformDiscreteRNG generatorVyberVozidla = new UniformDiscreteRNG(indexPrvehoMinibusu, indexPoslednehoMinibusu);
+
+
         ArrayList<VozidloKonfiguracia> doposialNajlepsiaKonfiguracia = new ArrayList<>(konfiguraciaOriginalna); 
         
          while (iteracia <= maximalnyPocetIteracii) {
@@ -609,18 +619,22 @@ public class TestSimulaciaDopravy {
              ArrayList<VozidloKonfiguracia> novaKonfiguracia = new ArrayList<>(doposialNajlepsiaKonfiguracia); 
              VozidloKonfiguracia vozidloKtoremuCasBudememePosuvat = novaKonfiguracia.get(indexMinibusu);
 
-             for (int casPrijazduNaPrvu = 0; casPrijazduNaPrvu < 4000; casPrijazduNaPrvu += 60) {
+             for (int casPrijazduNaPrvu = 60; casPrijazduNaPrvu < 4000; casPrijazduNaPrvu += 60) {
                  vozidloKtoremuCasBudememePosuvat.setCasPrijazduNaPrvuZastavku(casPrijazduNaPrvu);
-                 konfiguraciaVozidiel.setKonfiguraciaVozidiel(novaKonfiguracia);
-                 _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
-                 _simulaciaDopravy.simulate(100, Double.MAX_VALUE);
-                 BehSimulacieInfo behSimulacieInfo = _simulaciaDopravy.getStatistikySimulacie();
-                 if (behSimulacieInfo._ziskMinibusov > ziskNajlepsejKonfiguracie) {
-                     ziskNajlepsejKonfiguracie = behSimulacieInfo._ziskMinibusov;
-                     doposialNajlepsiaKonfiguracia = new ArrayList<>(novaKonfiguracia);
-                     System.out.println("Nova konfiguracia, zisk " + ziskNajlepsejKonfiguracie);
-                     _simulaciaDopravy.zapisVysledokSimulacieDoSuboru("minibusyHladanieKonfiguracie.csv");
-                 }
+
+                for (TYP_LINKY typLinky: TYP_LINKY.values()) {
+                    vozidloKtoremuCasBudememePosuvat.setTypLinky(typLinky);
+                    konfiguraciaVozidiel.setKonfiguraciaVozidiel(novaKonfiguracia);
+                    _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
+                    _simulaciaDopravy.simulate(50, Double.MAX_VALUE);
+                    BehSimulacieInfo behSimulacieInfo = _simulaciaDopravy.getStatistikySimulacie();
+                    if (behSimulacieInfo._ziskMinibusov > ziskNajlepsejKonfiguracie) {
+                        ziskNajlepsejKonfiguracie = behSimulacieInfo._ziskMinibusov;
+                        doposialNajlepsiaKonfiguracia = new ArrayList<>(novaKonfiguracia);
+                        System.out.println("Nova konfiguracia, zisk " + ziskNajlepsejKonfiguracie);
+                        _simulaciaDopravy.zapisVysledokSimulacieDoSuboru("minibusyHladanieKonfiguracie.csv");
+                    }
+                }
              }
             iteracia++;    
          }
@@ -628,5 +642,100 @@ public class TestSimulaciaDopravy {
         
     }
 
+    @Test
+    public void pridanie1VozidlaNaLinku() {
+        KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel();
+        _simulaciaDopravy.nacitajKonfiguraciuVozidiel("vychodzie iba 1 typ po nastupeni caka.csv", konfiguraciaVozidiel);
+        konfiguraciaVozidiel.setPrevadzkaLiniek(PREVADZKA_LINIEK.PO_NASTUPENI_CAKA);
+        ArrayList<VozidloKonfiguracia> originalnaKonfuguracia = konfiguraciaVozidiel.getKonfiguraciaVozidiel();
 
+        double najnizsiCas = Double.MAX_VALUE;
+        double najnizsiePercento = Double.MAX_VALUE;
+
+        int iteracia = 0;
+        for (TYP_LINKY typLinky: TYP_LINKY.values()) {
+            System.out.println("Linka " + typLinky.getNazovLinky());
+            for (int casPrijazdu = 0; casPrijazdu < 3000; casPrijazdu+= 60) {
+                System.out.println("Iteracia: " + iteracia);
+                VozidloKonfiguracia vozidloKonfiguracia = new VozidloKonfiguracia(TYP_VOZIDLA.AUTOBUS_TYP_1, typLinky, casPrijazdu);
+                ArrayList<VozidloKonfiguracia> novaKonfiguracia = new ArrayList<>(originalnaKonfuguracia);
+                novaKonfiguracia.add(vozidloKonfiguracia);
+                konfiguraciaVozidiel.setKonfiguraciaVozidiel(novaKonfiguracia);
+                _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
+                _simulaciaDopravy.simulate(100, Double.MAX_VALUE);
+
+                BehSimulacieInfo behSimulacieInfo = _simulaciaDopravy.getStatistikySimulacie();
+                if (najnizsiePercento > behSimulacieInfo._percentoCestujuciochPrichadzajucichPoZaciatku) {
+                    najnizsiCas = behSimulacieInfo._priemernyCasCakaniaNaZastavke;
+                    najnizsiePercento = behSimulacieInfo._percentoCestujuciochPrichadzajucichPoZaciatku;
+                    System.out.println("najnizsiCas: " + najnizsiCas);
+                    System.out.println("po zapase %: " + behSimulacieInfo._percentoCestujuciochPrichadzajucichPoZaciatku);
+                    System.out.println("Konfig: " + typLinky.getNazovLinky() + ", cas prijazdu: " + casPrijazdu + ", " + Helper.FormatujSimulacnyCas(casPrijazdu));
+
+                }
+                _simulaciaDopravy.zapisVysledokSimulacieDoSuboru("pridanie1VozidlaZVychodzej1Typ.csv");
+                iteracia++;
+            }
+        }
+        System.out.println("Pocet iteracii: " + iteracia);
+    }
+
+    @Test
+    public void vylepsenieVychodzejPoNastupeCaka() {
+        KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel();
+        _simulaciaDopravy.nacitajKonfiguraciuVozidiel("vychodzie iba 1 typ po nastupeni caka.csv", konfiguraciaVozidiel);
+
+        int indexPrvehoAutobusu = 0;
+        int indexPoslednehoAutobusu = konfiguraciaVozidiel.getKonfiguraciaVozidiel().size() - 1;
+
+        ArrayList<VozidloKonfiguracia> konfiguraciaOriginalna = new ArrayList<>(konfiguraciaVozidiel.getKonfiguraciaVozidiel());
+
+        int pocetAutobusov = indexPoslednehoAutobusu - indexPrvehoAutobusu + 1;
+        System.out.println("Pocet autobusov: " + pocetAutobusov);
+
+        double cakanieNajlepsejKonfiguracie = 0.0;
+        konfiguraciaVozidiel.setKonfiguraciaVozidiel(konfiguraciaOriginalna);
+
+        _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
+        _simulaciaDopravy.simulate(100, Double.MAX_VALUE);
+
+        cakanieNajlepsejKonfiguracie = _simulaciaDopravy.getStatistikySimulacie()._priemernyCasCakaniaNaZastavke;
+        double najlespiePercento = _simulaciaDopravy.getStatistikySimulacie()._percentoCestujuciochPrichadzajucichPoZaciatku;
+        System.out.println("Povodne cakanie: " + cakanieNajlepsejKonfiguracie);
+
+        int iteracia = 0;
+
+        UniformDiscreteRNG generatorVyberVozidla = new UniformDiscreteRNG(indexPrvehoAutobusu, indexPoslednehoAutobusu);
+        ArrayList<VozidloKonfiguracia> doposialNajlepsiaKonfiguracia = new ArrayList<>(konfiguraciaOriginalna);
+
+        for (int indexMinibusu = 0; indexMinibusu < indexPoslednehoAutobusu; indexMinibusu++) {
+            System.out.println("Iteracia: " + iteracia);
+            System.out.println("Index vozidla: " + indexMinibusu);
+            ArrayList<VozidloKonfiguracia> novaKonfiguracia = new ArrayList<>(konfiguraciaOriginalna);
+            VozidloKonfiguracia vozidloKtoremuCasBudememePosuvat = novaKonfiguracia.get(indexMinibusu);
+            najlespiePercento = Double.MAX_VALUE;
+            for (int casPrijazduNaPrvu = 0; casPrijazduNaPrvu < 3400; casPrijazduNaPrvu += 60) {
+                vozidloKtoremuCasBudememePosuvat.setCasPrijazduNaPrvuZastavku(casPrijazduNaPrvu);
+                konfiguraciaVozidiel.setKonfiguraciaVozidiel(novaKonfiguracia);
+                _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
+                _simulaciaDopravy.simulate(40, Double.MAX_VALUE);
+                BehSimulacieInfo behSimulacieInfo = _simulaciaDopravy.getStatistikySimulacie();
+                if (behSimulacieInfo._percentoCestujuciochPrichadzajucichPoZaciatku < najlespiePercento && behSimulacieInfo._priemernyCasCakaniaNaZastavke < 600) {
+                    cakanieNajlepsejKonfiguracie = behSimulacieInfo._priemernyCasCakaniaNaZastavke;
+                    najlespiePercento = behSimulacieInfo._percentoCestujuciochPrichadzajucichPoZaciatku;
+                    doposialNajlepsiaKonfiguracia = new ArrayList<>(novaKonfiguracia);
+                    System.out.println("Nova konfiguracia, cakanie:  " + cakanieNajlepsejKonfiguracie);
+                    System.out.println("percento: " + najlespiePercento);
+                    System.out.println("KonfiG: " + vozidloKtoremuCasBudememePosuvat);
+                    _simulaciaDopravy.zapisVysledokSimulacieDoSuboru("vychodziePoNastupeniCakaUpravaCasov.csv");
+                }
+            }
+            iteracia++;
+        }
+
+
+
+
+
+    }
 }
