@@ -137,9 +137,9 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         _simulacia = simulaciaWrapper.getSimulaciaDopravy();
         _simulacia.registerDelegate(this);
         _oknoKonfiguracie = new CKonfiguracie(simulaciaWrapper, stage);
-        KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, null);
+        //KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, null);
         //_simulacia.nacitajKonfiguraciuVozidiel("vychodzie.csv", konfiguraciaVozidiel);
-        _oknoKonfiguracie.konfiguraciaToGUI(konfiguraciaVozidiel);
+        //_oknoKonfiguracie.konfiguraciaToGUI(konfiguraciaVozidiel);
 
         // TABULKY
         Helper.PridajTabulkeStlpce(tableViewStatistiky, StatistikaInfo.ATRIBUTY);
