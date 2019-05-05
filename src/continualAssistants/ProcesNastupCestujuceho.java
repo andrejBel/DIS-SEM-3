@@ -2,6 +2,7 @@ package continualAssistants;
 
 import Model.Cestujuci;
 import Model.Vozidlo;
+import Model.Zastavka;
 import OSPABA.*;
 import simulation.*;
 import agents.*;
@@ -35,7 +36,15 @@ public class ProcesNastupCestujuceho extends Process {
 	public void processCestujuciNastupil(MessageForm message) {
 		Sprava sprava = (Sprava) message;
 		myAgent().getProcesNastupuCestujucich().cestujuciNastupil(sprava);
-		assistantFinished(sprava);
+
+		if (myAgent().getProcesNastupuCestujucich().jeSplnenaPodmienkaPreNastupenie(sprava)) {
+			myAgent().getProcesNastupuCestujucich().nastupCestujuceho( sprava, (casNastupu, spravaCopy) -> {
+				hold(casNastupu, spravaCopy);
+				return null;
+			});
+		} else {
+			assistantFinished(sprava);
+		}
 	}
 
 	//meta! userInfo="Process messages defined in code", id="0"

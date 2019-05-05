@@ -138,7 +138,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         _simulacia.registerDelegate(this);
         _oknoKonfiguracie = new CKonfiguracie(simulaciaWrapper, stage);
         KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, null);
-        _simulacia.nacitajKonfiguraciuVozidiel("easy.csv", konfiguraciaVozidiel);
+        _simulacia.nacitajKonfiguraciuVozidiel("vychodzie.csv", konfiguraciaVozidiel);
         _oknoKonfiguracie.konfiguraciaToGUI(konfiguraciaVozidiel);
 
         // TABULKY
@@ -363,7 +363,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                 checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(true));
                 buttonStart.setDisable(true);
                 buttonKonfiguraciaVozidiel.setDisable(true);
-
+                sliderSkip.setDisable(true);
                 statistikyReplikacieData_.clear();
                 statistikySimulacieData_.clear();
 
@@ -424,29 +424,33 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
         _simulacia.onReplicationDidFinish(s -> {
 
+
+            int kolkoVynechat = (int) Math.floor(((double)_simulacia.replicationCount() / 100.0) * (sliderSkip.getValue()));
+            long step = (long) Math.floor(sliderStep.getValue());
+
+
             BehSimulacieInfo behSimulacieInfo = _simulacia.getStatistikySimulacie();
             //System.out.println("Replikacia: " + behSimulacieInfo._cisloReplikacie);
-            Platform.runLater(() -> {
-                statistikySimulacieData_.clear();
-                for (StatistikaInfo statistika: behSimulacieInfo.statistiky_) {
-                    statistikySimulacieData_.add(statistika);
+            if ((_simulacia.currentReplication() + 1) > kolkoVynechat && ((_simulacia.currentReplication() + 1) == _simulacia.replicationCount() || _simulacia.currentReplication() % step == 0)) {
+                Platform.runLater(() -> {
+                    statistikySimulacieData_.clear();
+                    for (StatistikaInfo statistika: behSimulacieInfo.statistiky_) {
+                        statistikySimulacieData_.add(statistika);
+                    }
+                    for (StatistikaInfo statistika: behSimulacieInfo.statistikyZastavky_) {
+                        statistikySimulacieData_.add(statistika);
+                    }
+                    for (StatistikaInfo statistika: behSimulacieInfo.statistikyVozidla_) {
+                        statistikySimulacieData_.add(statistika);
+                    }
+                    chartValuesCasCakaniaCestujucehoSim_.getData().add(new XYChart.Data<>(behSimulacieInfo._cisloReplikacie, behSimulacieInfo._priemernyCasCakaniaNaZastavke));
+                });
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                for (StatistikaInfo statistika: behSimulacieInfo.statistikyZastavky_) {
-                    statistikySimulacieData_.add(statistika);
-                }
-                for (StatistikaInfo statistika: behSimulacieInfo.statistikyVozidla_) {
-                    statistikySimulacieData_.add(statistika);
-                }
-
-                chartValuesCasCakaniaCestujucehoSim_.getData().add(new XYChart.Data<>(behSimulacieInfo._cisloReplikacie, behSimulacieInfo._priemernyCasCakaniaNaZastavke));
-            });
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
-
-            // TODO vypis globalnych statistik
         });
 
         _simulacia.onSimulationDidFinish(s -> {
@@ -454,6 +458,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                 checkBoxesToDisable.forEach(checkBox -> checkBox.setDisable(false));
                 buttonStart.setDisable(false);
                 buttonKonfiguraciaVozidiel.setDisable(false);
+                sliderSkip.setDisable(false);
                 cestujuciInfo_.forEach((id, info) -> {
                     if (info.isActive()) {
                         info.closeWindow();
@@ -495,48 +500,51 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
     public void refresh(Simulation simulation) {
         //System.out.println(_simulacia.currentTime());
         double simTime = _simulacia.currentTime();
-        if (simTime < _simulacia.getCasZaciatkuZapasu()) {
-            //return;
-        }
-
 
         BehReplikacieInfo behReplikacieInfo = _simulacia.getStatistikyVRamciReplikacie();
 
-        Platform.runLater(() -> {
-            statistikyReplikacieData_.clear();
-            statistikyReplikacieData_.addAll(behReplikacieInfo.statistiky_);
-            tableViewVozidla.setItems(behReplikacieInfo.vozidlaInfo_);
+        int kolkoVynechat = (int) Math.floor(((double)_simulacia.getCasZaciatkuZapasu() / 100.0) * (sliderSkip.getValue()));
 
 
-            chartValuesCasCakaniaCestujucehoRep_.getData().add(new XYChart.Data<>(simTime ,behReplikacieInfo._priemernyCasCakaniaCestujucehoNaZastavke));
+        if (simTime > kolkoVynechat ) {
+            Platform.runLater(() -> {
+                statistikyReplikacieData_.clear();
+                statistikyReplikacieData_.addAll(behReplikacieInfo.statistiky_);
+                tableViewVozidla.setItems(behReplikacieInfo.vozidlaInfo_);
 
-            for (VozidloInfo vozidloInfo : behReplikacieInfo.vozidlaInfo_) {
-                CCestujuciVozidlo cestujuciVozidlo = cestujuciInfo_.get(vozidloInfo.getIdVozidla());
 
-                cestujuciVozidlo.setTableViewDatasLazy(
-                        vozidloInfo.getNastupujuci(),
-                        vozidloInfo.getCestujuci(),
-                        vozidloInfo.getVystupujuci()
-                );
+                chartValuesCasCakaniaCestujucehoRep_.getData().add(new XYChart.Data<>(simTime ,behReplikacieInfo._priemernyCasCakaniaCestujucehoNaZastavke));
+
+                for (VozidloInfo vozidloInfo : behReplikacieInfo.vozidlaInfo_) {
+                    CCestujuciVozidlo cestujuciVozidlo = cestujuciInfo_.get(vozidloInfo.getIdVozidla());
+
+                    cestujuciVozidlo.setTableViewDatasLazy(
+                            vozidloInfo.getNastupujuci(),
+                            vozidloInfo.getCestujuci(),
+                            vozidloInfo.getVystupujuci()
+                    );
+                }
+
+                for (Map.Entry<String, ZastavkaInfo> zastavkaEntry : zastavkyInfo_.entrySet()) {
+
+                    String nazovZastavky = zastavkaEntry.getKey();
+                    CTableHolder<CestujuciInfo> cestujuciInfoHolder = zastavkaEntry.getValue().cestujuciInfoHolder;
+                    CTableHolder<VozidloInfo> vozidloInfoHolder = zastavkaEntry.getValue().vozidlaInfoHolder;
+                    Model.Info.ZastavkaInfo zastavkaInfo = behReplikacieInfo.zastavkyInfo_.get(nazovZastavky);
+                    cestujuciInfoHolder.setTableViewDataLazy(zastavkaInfo.getCestujuciInfo());
+                    vozidloInfoHolder.setTableViewDataLazy(zastavkaInfo.getVozidloInfo()); // TODO
+                }
+
+
+            });
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
-            for (Map.Entry<String, ZastavkaInfo> zastavkaEntry : zastavkyInfo_.entrySet()) {
-
-                String nazovZastavky = zastavkaEntry.getKey();
-                CTableHolder<CestujuciInfo> cestujuciInfoHolder = zastavkaEntry.getValue().cestujuciInfoHolder;
-                CTableHolder<VozidloInfo> vozidloInfoHolder = zastavkaEntry.getValue().vozidlaInfoHolder;
-                Model.Info.ZastavkaInfo zastavkaInfo = behReplikacieInfo.zastavkyInfo_.get(nazovZastavky);
-                cestujuciInfoHolder.setTableViewDataLazy(zastavkaInfo.getCestujuciInfo());
-                vozidloInfoHolder.setTableViewDataLazy(zastavkaInfo.getVozidloInfo()); // TODO
-            }
-
-
-        });
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
+
+
     }
 
     private void setSimulationSpeed() {

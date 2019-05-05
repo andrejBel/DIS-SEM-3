@@ -12,7 +12,7 @@ import java.util.List;
 public class VozidloKonfiguracia {
 
     private final TYP_VOZIDLA _typVozidla;
-    private final TYP_LINKY _typLinky;
+    private TYP_LINKY _typLinky;
     private double _casPrijazduNaPrvuZastavku;
 
     public VozidloKonfiguracia(TYP_VOZIDLA typVozidla, TYP_LINKY typLinky, double casPrijazduNaPrvuZastavku) {
@@ -42,5 +42,9 @@ public class VozidloKonfiguracia {
 
     public void setCasPrijazduNaPrvuZastavku(double casPrijazduNaPrvuZastavku) {
         this._casPrijazduNaPrvuZastavku = casPrijazduNaPrvuZastavku;
+    }
+
+    public void setTypLinky(TYP_LINKY typLinky) {
+        this._typLinky = typLinky;
     }
 }

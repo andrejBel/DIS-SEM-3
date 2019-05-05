@@ -105,29 +105,11 @@ public class Vozidlo extends SimulationEntity {
         _casPrichoduNaDalsiuZastavu = mySim().currentTime();
     }
 
-    /*
-    ++_indexZastavkyLinky;
-        if (_indexZastavkyLinky > _linkaNaKtorejJazdi.getZastavky().size()) {
-            _indexZastavkyLinky = 0;
-        }
-        _zastavkaNaKtorejJeNaposledyBol = _linkaNaKtorejJazdi.getZastavky().get(_indexZastavkyLinky);
-    */
 
     public void vykonajPresunKDalsejZastavke() {
         if (_pohybujeSa == true) {
             throw new RuntimeException("Vozidlo musi stat, aby sa mohlo pohnut");
         }
-        //_zastavkaNaKtorejJeNaposledyBol =
-        /*
-        _stavVozidla = STAV_VOZIDLA.CAKA_NA_VYJAZD;
-
-        _zastavkaNaKtorejJeNaposledyBol = null;
-        _casOdchoduZPoslednejZastavky = -1.0;
-        _casPrichoduNaDalsiuZastavu = -1.0;
-        _pohybujeSa = false;
-        _kolkoSekundJazdilo = 0.0;
-        */
-
         _stavVozidla = STAV_VOZIDLA.POHYB;
         _casOdchoduZPoslednejZastavky = mySim().currentTime();
         _casPrichoduNaDalsiuZastavu = mySim().currentTime() + _zastavkaNaKtorejJeNaposledyBol.getCasPresunuNaDalsiuZastavku();
@@ -138,15 +120,7 @@ public class Vozidlo extends SimulationEntity {
         if (_pohybujeSa == false) {
             throw new RuntimeException("Vozidlo musi byt v pohybe, aby sa mohlo zastavit");
         }
-        /*
-        _stavVozidla = STAV_VOZIDLA.CAKA_NA_VYJAZD;
 
-        _zastavkaNaKtorejJeNaposledyBol = null;
-        _casOdchoduZPoslednejZastavky = -1.0;
-        _casPrichoduNaDalsiuZastavu = -1.0;
-        _pohybujeSa = false;
-        _kolkoSekundJazdilo = 0.0;
-        */
         _kolkoSekundJazdilo += _zastavkaNaKtorejJeNaposledyBol.getCasPresunuNaDalsiuZastavku();
 
         ++_indexZastavkyLinky;
