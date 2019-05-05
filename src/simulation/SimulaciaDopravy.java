@@ -495,7 +495,7 @@ public class SimulaciaDopravy extends Simulation {
 
             String line = br.readLine();
             Helper.ParseLine(line, parsedLine);
-            vyslednaKonfiguracia.setPrevadzkaLiniek(PREVADZKA_LINIEK.GetPrevadzkuLiniekPodlaNazvu(parsedLine.get(0)));
+            vyslednaKonfiguracia.setPrevadzkaLiniek(PREVADZKA_LINIEK.GetPrevadzkuLiniekPodlaOrdinal(Integer.parseInt(parsedLine.get(0))));
             ArrayList<VozidloKonfiguracia> konfiguraciaVozidiel = new ArrayList<>();
             for (; (line = br.readLine()) != null; ) {
                 Helper.ParseLine(line, parsedLine);

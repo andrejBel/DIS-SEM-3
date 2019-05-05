@@ -42,7 +42,7 @@ public class KonfiguraciaVozidiel {
     public String getCsvFormat() {
         DecimalFormat decimalFormat = new DecimalFormat(".0000");
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(_prevadzkaLiniek.getNazov() + "\n");
+        stringBuilder.append(_prevadzkaLiniek.ordinal() + "\n");
         for (int indexKonfiguracie = 0; indexKonfiguracie < _konfiguraciaVozidiel.size(); indexKonfiguracie++) {
             VozidloKonfiguracia konfiguracia = _konfiguraciaVozidiel.get(indexKonfiguracie);
             stringBuilder.append(konfiguracia.getTypVozidla().getNazov() + Helper.DEFAULT_SEPARATOR +

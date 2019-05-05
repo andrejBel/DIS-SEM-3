@@ -25,4 +25,13 @@ public enum PREVADZKA_LINIEK {
         return null;
     }
 
+    public static PREVADZKA_LINIEK GetPrevadzkuLiniekPodlaOrdinal(int ordinal) {
+        for (PREVADZKA_LINIEK prevadzkaLiniek: PREVADZKA_LINIEK.values()) {
+            if (prevadzkaLiniek.ordinal() == ordinal) {
+                return prevadzkaLiniek;
+            }
+        }
+        return null;
+    }
+
 }
