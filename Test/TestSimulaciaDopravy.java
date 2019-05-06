@@ -62,7 +62,7 @@ public class TestSimulaciaDopravy {
     @Test
     public void simulacia() {
         KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel();
-        _simulaciaDopravy.nacitajKonfiguraciuVozidiel("vychodzie.csv", konfiguraciaVozidiel);
+        _simulaciaDopravy.nacitajKonfiguraciuVozidiel("vychodzie iba 1 typ po nastupeni caka final.csv", konfiguraciaVozidiel);
         _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
         _simulaciaDopravy.simulate(10000, Double.MAX_VALUE);
 
@@ -696,9 +696,59 @@ public class TestSimulaciaDopravy {
     }
 
     @Test
-    public void nasadenieMinibusov() {
+    public void nasadenieMinibusovPridanieMinibusov() {
         KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel();
-        _simulaciaDopravy.nacitajKonfiguraciuVozidiel("minibusy.csv", konfiguraciaVozidiel);
+        _simulaciaDopravy.nacitajKonfiguraciuVozidiel("vychodzie.csv", konfiguraciaVozidiel);
+        _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
+        ArrayList<VozidloKonfiguracia> konfiguraciaOriginalna = konfiguraciaVozidiel.getKonfiguraciaVozidiel();
+
+        double najZisk = -1;
+        for (int pocetMinubusov = 1; pocetMinubusov <= 13; pocetMinubusov++) {
+
+
+            VozidloKonfiguracia noveVozidlo = new VozidloKonfiguracia(TYP_VOZIDLA.MINIBUS, null, 0);
+            VozidloKonfiguracia najVozidlo = new VozidloKonfiguracia(noveVozidlo);
+            for (TYP_LINKY typLinky: TYP_LINKY.values()) {
+                noveVozidlo.setTypLinky(typLinky);
+
+                for (int pociatocnyCas = 0; pociatocnyCas <= 4000; pociatocnyCas+= 60) {
+                    noveVozidlo.setCasPrijazduNaPrvuZastavku(pociatocnyCas);
+                    ArrayList<VozidloKonfiguracia> novaKonfiguracia = new ArrayList<>(konfiguraciaOriginalna);
+                    novaKonfiguracia.add(noveVozidlo);
+                    konfiguraciaVozidiel.setKonfiguraciaVozidiel(novaKonfiguracia);
+                    _simulaciaDopravy.simulate(40, Double.MAX_VALUE);
+
+                    BehSimulacieInfo behSimulacieInfo = _simulaciaDopravy.getStatistikySimulacie();
+                    if (najZisk < behSimulacieInfo._ziskMinibusov) {
+                        najZisk = behSimulacieInfo._ziskMinibusov;
+                        najVozidlo = new VozidloKonfiguracia(noveVozidlo);
+                        System.out.println("Naj zisk: " + najZisk);
+                        System.out.println("Konfig: " + najVozidlo.toString());
+                    }
+                    if (najZisk >= (pocetMinubusov * 2 * 8.0) ) {
+                        break;
+                    }
+
+                }
+                if (najZisk >= (pocetMinubusov * 2 * 8.0) ) {
+                    break;
+                }
+            }
+            System.out.println("MinibusNaPridanie : " + najVozidlo.toString());
+            System.out.println("Naj zisk: " + najZisk);
+            konfiguraciaOriginalna.add(najVozidlo);
+            System.out.println(konfiguraciaVozidiel.getCsvFormat());
+        }
+
+    }
+
+
+
+
+    @Test
+    public void nasadenieMinibusovUprava() {
+        KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel();
+        _simulaciaDopravy.nacitajKonfiguraciuVozidiel("vychodzie minibusy.csv", konfiguraciaVozidiel);
 
         int indexPrvehoMinibusu = -1;
         int indexPoslednehoMinibusu = -1;
@@ -731,9 +781,37 @@ public class TestSimulaciaDopravy {
         UniformDiscreteRNG generatorVyberVozidla = new UniformDiscreteRNG(indexPrvehoMinibusu, indexPoslednehoMinibusu);
 
 
-        ArrayList<VozidloKonfiguracia> doposialNajlepsiaKonfiguracia = new ArrayList<>(konfiguraciaOriginalna); 
-        
-         while (iteracia <= maximalnyPocetIteracii) {
+        ArrayList<VozidloKonfiguracia> doposialNajlepsiaKonfiguracia = new ArrayList<>(konfiguraciaOriginalna);
+
+        for (int indexMinibusu = indexPrvehoMinibusu; indexMinibusu <= indexPoslednehoMinibusu; indexMinibusu++) {
+
+            System.out.println("Index minibusu: " + indexMinibusu);
+            ArrayList<VozidloKonfiguracia> novaKonfiguracia = new ArrayList<>(doposialNajlepsiaKonfiguracia);
+            VozidloKonfiguracia vozidloKtoremuCasBudememePosuvat = new VozidloKonfiguracia(novaKonfiguracia.get(indexMinibusu));
+            novaKonfiguracia.set(indexMinibusu, vozidloKtoremuCasBudememePosuvat);
+
+            for (int casPrijazduNaPrvu = 60; casPrijazduNaPrvu < 4000; casPrijazduNaPrvu += 60) {
+                vozidloKtoremuCasBudememePosuvat.setCasPrijazduNaPrvuZastavku(casPrijazduNaPrvu);
+
+                    //vozidloKtoremuCasBudememePosuvat.setTypLinky(typLinky);
+                    konfiguraciaVozidiel.setKonfiguraciaVozidiel(novaKonfiguracia);
+                    _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
+                    _simulaciaDopravy.simulate(50, Double.MAX_VALUE);
+                    BehSimulacieInfo behSimulacieInfo = _simulaciaDopravy.getStatistikySimulacie();
+                    if (behSimulacieInfo._ziskMinibusov > ziskNajlepsejKonfiguracie) {
+                        ziskNajlepsejKonfiguracie = behSimulacieInfo._ziskMinibusov;
+                        doposialNajlepsiaKonfiguracia = new ArrayList<>(novaKonfiguracia);
+                        System.out.println("Nova konfiguracia, zisk " + ziskNajlepsejKonfiguracie);
+
+                        System.out.println(_simulaciaDopravy.getKonfiguraciaVozidiel().getCsvFormat());
+                        //_simulaciaDopravy.zapisVysledokSimulacieDoSuboru("minibusyHladanieKonfiguracie.csv");
+
+                }
+            }
+        }
+
+        /*
+        while (iteracia <= maximalnyPocetIteracii) {
              System.out.println("Iteracia: " + iteracia);
              int indexMinibusu = generatorVyberVozidla.sample();
              System.out.println("Index minibusu: " + indexMinibusu);
@@ -754,12 +832,15 @@ public class TestSimulaciaDopravy {
                         ziskNajlepsejKonfiguracie = behSimulacieInfo._ziskMinibusov;
                         doposialNajlepsiaKonfiguracia = new ArrayList<>(novaKonfiguracia);
                         System.out.println("Nova konfiguracia, zisk " + ziskNajlepsejKonfiguracie);
-                        _simulaciaDopravy.zapisVysledokSimulacieDoSuboru("minibusyHladanieKonfiguracie.csv");
+
+                        System.out.println(_simulaciaDopravy.getKonfiguraciaVozidiel().getCsvFormat());
+                        //_simulaciaDopravy.zapisVysledokSimulacieDoSuboru("minibusyHladanieKonfiguracie.csv");
                     }
                 }
              }
             iteracia++;    
          }
+         */
          
         
     }

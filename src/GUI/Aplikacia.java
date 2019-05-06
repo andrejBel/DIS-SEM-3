@@ -59,7 +59,7 @@ public class Aplikacia {
         stage.setScene(scene);
         stage.setMaximized(true);
 
-
+        /*
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             System.err.println("***Default exception handler***");
             if (Platform.isFxApplicationThread()) {
@@ -71,6 +71,7 @@ public class Aplikacia {
                 System.err.println(e);
             }
         });
+        */
 
         stage.setOnCloseRequest(e -> {
             Platform.exit();
