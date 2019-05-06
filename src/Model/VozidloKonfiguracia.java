@@ -11,7 +11,7 @@ import java.util.List;
 
 public class VozidloKonfiguracia {
 
-    private final TYP_VOZIDLA _typVozidla;
+    private TYP_VOZIDLA _typVozidla;
     private TYP_LINKY _typLinky;
     private double _casPrijazduNaPrvuZastavku;
 
@@ -19,6 +19,12 @@ public class VozidloKonfiguracia {
         this._typVozidla = typVozidla;
         this._typLinky = typLinky;
         this._casPrijazduNaPrvuZastavku = casPrijazduNaPrvuZastavku;
+    }
+
+    public VozidloKonfiguracia(VozidloKonfiguracia original) {
+        this._typVozidla = original._typVozidla;
+        this._typLinky = original._typLinky;
+        this._casPrijazduNaPrvuZastavku = original._casPrijazduNaPrvuZastavku;
     }
 
     public static List<TableColumnItem<VozidloKonfiguracia>> ATRIBUTY = Arrays.asList(
@@ -40,6 +46,10 @@ public class VozidloKonfiguracia {
         return _casPrijazduNaPrvuZastavku;
     }
 
+    public void setTypVozidla(TYP_VOZIDLA typVozidla) {
+        this._typVozidla = typVozidla;
+    }
+
     public void setCasPrijazduNaPrvuZastavku(double casPrijazduNaPrvuZastavku) {
         this._casPrijazduNaPrvuZastavku = casPrijazduNaPrvuZastavku;
     }
@@ -54,4 +64,7 @@ public class VozidloKonfiguracia {
                 ", " + _typLinky.getNazovLinky() +
                 ", " + _casPrijazduNaPrvuZastavku;
     }
+
+
+
 }
