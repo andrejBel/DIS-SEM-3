@@ -62,7 +62,7 @@ public class TestSimulaciaDopravy {
     @Test
     public void simulacia() {
         KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel();
-        _simulaciaDopravy.nacitajKonfiguraciuVozidiel("vychodzie iba 1 typ po nastupeni caka final.csv", konfiguraciaVozidiel);
+        _simulaciaDopravy.nacitajKonfiguraciuVozidiel("vychodzie minibusy.csv", konfiguraciaVozidiel);
         _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
         _simulaciaDopravy.simulate(10000, Double.MAX_VALUE);
 
@@ -77,7 +77,7 @@ public class TestSimulaciaDopravy {
         behSimulacieInfo.statistikyVozidla_.forEach(statistikaInfo -> {
             System.out.println(statistikaInfo.getNazovStatistiky() + Helper.DEFAULT_SEPARATOR + statistikaInfo.getHodnotaStatistiky());
         });
-
+        System.out.println(_simulaciaDopravy.getKonfiguraciaVozidiel().getCsvFormat());
     }
 
 
@@ -790,13 +790,16 @@ public class TestSimulaciaDopravy {
             VozidloKonfiguracia vozidloKtoremuCasBudememePosuvat = new VozidloKonfiguracia(novaKonfiguracia.get(indexMinibusu));
             novaKonfiguracia.set(indexMinibusu, vozidloKtoremuCasBudememePosuvat);
 
-            for (int casPrijazduNaPrvu = 60; casPrijazduNaPrvu < 4000; casPrijazduNaPrvu += 60) {
-                vozidloKtoremuCasBudememePosuvat.setCasPrijazduNaPrvuZastavku(casPrijazduNaPrvu);
 
+
+            for (int casPrijazduNaPrvu = 60; casPrijazduNaPrvu < 4000; casPrijazduNaPrvu += 60) {
+                for (TYP_LINKY typLinky: TYP_LINKY.values()) {
+                    vozidloKtoremuCasBudememePosuvat.setCasPrijazduNaPrvuZastavku(casPrijazduNaPrvu);
+                    vozidloKtoremuCasBudememePosuvat.setTypLinky(typLinky);
                     //vozidloKtoremuCasBudememePosuvat.setTypLinky(typLinky);
                     konfiguraciaVozidiel.setKonfiguraciaVozidiel(novaKonfiguracia);
                     _simulaciaDopravy.setKonfiguracia(konfiguraciaVozidiel);
-                    _simulaciaDopravy.simulate(50, Double.MAX_VALUE);
+                    _simulaciaDopravy.simulate(100, Double.MAX_VALUE);
                     BehSimulacieInfo behSimulacieInfo = _simulaciaDopravy.getStatistikySimulacie();
                     if (behSimulacieInfo._ziskMinibusov > ziskNajlepsejKonfiguracie) {
                         ziskNajlepsejKonfiguracie = behSimulacieInfo._ziskMinibusov;
@@ -806,7 +809,9 @@ public class TestSimulaciaDopravy {
                         System.out.println(_simulaciaDopravy.getKonfiguraciaVozidiel().getCsvFormat());
                         //_simulaciaDopravy.zapisVysledokSimulacieDoSuboru("minibusyHladanieKonfiguracie.csv");
 
+                    }
                 }
+
             }
         }
 

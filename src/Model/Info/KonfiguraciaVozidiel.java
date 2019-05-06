@@ -61,4 +61,13 @@ public class KonfiguraciaVozidiel {
         return naklady;
     }
 
+    public boolean obsahujeMiniBusy() {
+        for (VozidloKonfiguracia vozidloKonfiguracia: _konfiguraciaVozidiel) {
+            if (!vozidloKonfiguracia.getTypVozidla().isAutobus()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

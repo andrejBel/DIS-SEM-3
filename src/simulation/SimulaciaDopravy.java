@@ -35,7 +35,10 @@ public class SimulaciaDopravy extends Simulation {
 
     // GLOBALNE STATISTIKY
     private StatNamed _pocetCestujucichSim = new StatNamed("Počet cestujúcich");
-    private StatNamed _priemernyCasCakaniaNaZastavkeSim = new StatNamed("Priemerný čas čakania na zastávke");
+    private StatNamed _priemernyCasCakaniaNaZastavkeSim = new StatNamed("Priemerný čas čakania Z.");
+    private StatNamed _priemernyCasCakaniaNaAutobusSim = new StatNamed("Priemerný čas čakania A.");
+    private StatNamed _priemernyCasCakaniaNaMinibusSim = new StatNamed("Priemerný čas čakania M.");
+
     private StatNamed _percentoCestujucichPrichadzajucichPoZaciatkuZapasuSim = new StatNamed("Percento ľudí prichádzajúcich po začiatku zapasu");
     private StatNamed _priemernyZiskMinibusovSim = new StatNamed("Priemerný zisk minibusov");
 
@@ -48,6 +51,8 @@ public class SimulaciaDopravy extends Simulation {
     private List<StatNamed> _simStats = Arrays.asList(
             _pocetCestujucichSim,
             _priemernyCasCakaniaNaZastavkeSim,
+            _priemernyCasCakaniaNaAutobusSim,
+            _priemernyCasCakaniaNaMinibusSim,
             _percentoCestujucichPrichadzajucichPoZaciatkuZapasuSim,
             _priemernyZiskMinibusovSim
     );
@@ -277,6 +282,9 @@ public class SimulaciaDopravy extends Simulation {
 
         _pocetCestujucichSim.addSample(_agentZastavok.getPocetCestujucichRep());
         _priemernyCasCakaniaNaZastavkeSim.addSample(_agentZastavok.getPriemernyCasCakaniaCestujucehoNaZastavkeRep().mean());
+        _priemernyCasCakaniaNaAutobusSim.addSample(_agentZastavok.getPriemernyCasCakaniaCestujucehoNaAutobusRep().mean());
+        _priemernyCasCakaniaNaMinibusSim.addSample(_agentZastavok.getPriemernyCasCakaniaCestujucehoNaMinibusRep().mean());
+
         _percentoCestujucichPrichadzajucichPoZaciatkuZapasuSim.addSample(_agentZastavok.getPercentoLudiPrichadzajucichPoZapase());
 
 
@@ -337,6 +345,8 @@ public class SimulaciaDopravy extends Simulation {
 
         statistiky.add(new StatistikaInfo("Počet cestujúcich", String.valueOf(_agentZastavok.getPocetCestujucichRep())));
         statistiky.add(_agentZastavok.getPriemernyCasCakaniaCestujucehoNaZastavkeRep().getStatistikaInfo());
+        statistiky.add(_agentZastavok.getPriemernyCasCakaniaCestujucehoNaAutobusRep().getStatistikaInfo());
+        statistiky.add(_agentZastavok.getPriemernyCasCakaniaCestujucehoNaMinibusRep().getStatistikaInfo());
         _agentZastavok.getZastavky().forEach((s, z) -> {
             statistiky.add(z.getPriemernyCasCakaniaCestujecehoNaZastavke().getStatistikaInfo());
             statistiky.add(((WStatNamed) z.getCestujuciNaZastavke().lengthStatistic()).getStatistikaInfo());
@@ -352,6 +362,8 @@ public class SimulaciaDopravy extends Simulation {
 
 
         info._priemernyCasCakaniaCestujucehoNaZastavke = _agentZastavok.getPriemernyCasCakaniaCestujucehoNaZastavkeRep().mean();
+        info._priemernyCasCakaniaCestujucehoNaAutobus = _agentZastavok.getPriemernyCasCakaniaCestujucehoNaAutobusRep().mean();
+        info._priemernyCasCakaniaCestujucehoNaMinibus = _agentZastavok.getPriemernyCasCakaniaCestujucehoNaMinibusRep().mean();
 
         double ziskMinibusov = 0.0;
         for (Vozidlo vozidlo : agentPohybu().getVozidla()) {
@@ -394,6 +406,9 @@ public class SimulaciaDopravy extends Simulation {
         BehSimulacieInfo info = new BehSimulacieInfo();
         info._cisloReplikacie = this.currentReplication();
         info._priemernyCasCakaniaNaZastavke = _priemernyCasCakaniaNaZastavkeSim.mean();
+        info._priemernyCasCakaniaNaAutobus = _priemernyCasCakaniaNaAutobusSim.mean();
+        info._priemernyCasCakaniaNaMinibus = _priemernyCasCakaniaNaMinibusSim.mean();
+
         info._percentoCestujuciochPrichadzajucichPoZaciatku = _percentoCestujucichPrichadzajucichPoZaciatkuZapasuSim.mean();
         info._ziskMinibusov = _priemernyZiskMinibusovSim.mean();
 

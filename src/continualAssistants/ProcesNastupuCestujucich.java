@@ -135,7 +135,7 @@ public class ProcesNastupuCestujucich extends Scheduler {
 		cestujuci.setVozidlo(vozidlo);
 		cestujuci.setStavCestujuci(STAV_CESTUJUCI.NASTUPUJE_DO_VOZIDLA);
 
-		myAgent().pridajCasCakaniaCestujucehoNaZastavke(cestujuci.getCasCakaniaNaZastavke());
+		myAgent().pridajCasCakaniaCestujucehoNaZastavke(copy);
 		zastavka.getPriemernyCasCakaniaCestujecehoNaZastavke().addSample(cestujuci.getCasCakaniaNaZastavke());
 
 		vozidlo.pridajCestujucehoNaNastup(copy);

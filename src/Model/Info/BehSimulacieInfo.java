@@ -8,6 +8,8 @@ public class BehSimulacieInfo {
 
     public int _cisloReplikacie;
     public double _priemernyCasCakaniaNaZastavke;
+    public double _priemernyCasCakaniaNaAutobus;
+    public double _priemernyCasCakaniaNaMinibus;
     public double _percentoCestujuciochPrichadzajucichPoZaciatku;
     public double _ziskMinibusov;
     public ObservableList<StatistikaInfo> statistiky_ = FXCollections.observableArrayList();

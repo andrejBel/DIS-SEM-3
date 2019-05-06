@@ -9,6 +9,10 @@ import java.util.HashMap;
 public class BehReplikacieInfo {
 
     public double _priemernyCasCakaniaCestujucehoNaZastavke;
+    public double _priemernyCasCakaniaCestujucehoNaAutobus;
+    public double _priemernyCasCakaniaCestujucehoNaMinibus;
+
+
 
     public ObservableList<StatistikaInfo> statistiky_ = FXCollections.observableArrayList();
     public ObservableList<VozidloInfo> vozidlaInfo_ = FXCollections.observableArrayList();

@@ -26,7 +26,9 @@ public class AgentZastavok extends Agent {
 	private int _pocetCestujucichRep;
 	private int _pocetCestujucichNaStadione;
 	private int _pocetCestujucichNaStadioneNaCas;
-	private StatNamed _priemernyCasCakaniaCestujucehoNaZastavkeRep = new StatNamed("Priemerný čas čakania cestujúceho na zastávke");
+	private StatNamed _priemernyCasCakaniaCestujucehoNaZastavkeRep = new StatNamed("Priem. čas čakania cestujúceho Z.");
+	private StatNamed _priemernyCasCakaniaCestujucehoNaAutobusRep = new StatNamed("Priem. čas čakania cestujúceho A.");
+	private StatNamed _priemernyCasCakaniaCestujucehoNaMinibusRep = new StatNamed("Priem. čas čakania cestujúceho MIK.");
 
 
 	public AgentZastavok(int id, Simulation mySim, Agent parent, TreeMap<String, ZastavkaKonfiguracia> konfiguraciaZastavok) {
@@ -48,6 +50,8 @@ public class AgentZastavok extends Agent {
 		_pocetCestujucichNaStadione = 0;
 		_pocetCestujucichNaStadioneNaCas = 0;
 		_priemernyCasCakaniaCestujucehoNaZastavkeRep.clear();
+		_priemernyCasCakaniaCestujucehoNaAutobusRep.clear();
+		_priemernyCasCakaniaCestujucehoNaMinibusRep.clear();
 		// Setup component for the next replication
 	}
 
@@ -112,12 +116,25 @@ public class AgentZastavok extends Agent {
 		return _pocetCestujucichNaStadione > 0 ? (((double) pocetCestujucichPoZaciatkuZapasu) / ((double) _pocetCestujucichNaStadione )) * 100.0 : 0.0;
 	}
 
-	public void pridajCasCakaniaCestujucehoNaZastavke(double casCakania) {
-		this._priemernyCasCakaniaCestujucehoNaZastavkeRep.addSample(casCakania);
+	public void pridajCasCakaniaCestujucehoNaZastavke(Sprava sprava) {
+		if (sprava.getCestujuci().getVozidlo().getTypVozidla().isAutobus()) {
+			this._priemernyCasCakaniaCestujucehoNaAutobusRep.addSample(sprava.getCestujuci().getCasCakaniaNaZastavke());
+		} else {
+			this._priemernyCasCakaniaCestujucehoNaMinibusRep.addSample(sprava.getCestujuci().getCasCakaniaNaZastavke());
+		}
+		this._priemernyCasCakaniaCestujucehoNaZastavkeRep.addSample(sprava.getCestujuci().getCasCakaniaNaZastavke());
 	}
 
 	public StatNamed getPriemernyCasCakaniaCestujucehoNaZastavkeRep() {
 		return _priemernyCasCakaniaCestujucehoNaZastavkeRep;
+	}
+
+	public StatNamed getPriemernyCasCakaniaCestujucehoNaAutobusRep() {
+		return _priemernyCasCakaniaCestujucehoNaAutobusRep;
+	}
+
+	public StatNamed getPriemernyCasCakaniaCestujucehoNaMinibusRep() {
+		return _priemernyCasCakaniaCestujucehoNaMinibusRep;
 	}
 
 	public PlanovacPresunuVozidlaNaDalsiuZastavku getPlanovacPresunuVozidlaNaDalsiuZastavku() {

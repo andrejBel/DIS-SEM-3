@@ -16,6 +16,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.TableCell;
@@ -116,7 +117,12 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
     private HashMap<Long, CCestujuciVozidlo> cestujuciInfo_ = new HashMap<>();
 
     private XYChart.Series<Number, Number> chartValuesCasCakaniaCestujucehoRep_ = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> chartValuesCasCakaniaAutobusRep_ = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> chartValuesCasCakaniaMinibusRep_ = new XYChart.Series<>();
+
     private XYChart.Series<Number, Number> chartValuesCasCakaniaCestujucehoSim_ = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> chartValuesCasCakaniaAutobusSim_ = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> chartValuesCasCakaniaMinibusSim_ = new XYChart.Series<>();
 
     private SimpleBooleanProperty isReplicationOK = new SimpleBooleanProperty(false);
 
@@ -140,6 +146,14 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         //KonfiguraciaVozidiel konfiguraciaVozidiel = new KonfiguraciaVozidiel(null, null);
         //_simulacia.nacitajKonfiguraciuVozidiel("vychodzie.csv", konfiguraciaVozidiel);
         //_oknoKonfiguracie.konfiguraciaToGUI(konfiguraciaVozidiel);
+
+        chartValuesCasCakaniaCestujucehoRep_.setName("Celkové čakanie");
+        chartValuesCasCakaniaAutobusRep_.setName("Čakanie autobus");
+        chartValuesCasCakaniaMinibusRep_.setName("Čakanie minibus");
+
+        chartValuesCasCakaniaCestujucehoSim_.setName("Celkové čakanie");
+        chartValuesCasCakaniaAutobusSim_.setName("Čakanie autobus");
+        chartValuesCasCakaniaMinibusSim_.setName("Čakanie minibus");
 
         // TABULKY
         Helper.PridajTabulkeStlpce(tableViewStatistiky, StatistikaInfo.ATRIBUTY);
@@ -226,6 +240,9 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                     tableViewStatistiky.setItems(statistikyReplikacieData_);
                     lineChartCakanieNaZastavke.getData().clear();
                     lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaCestujucehoRep_);
+                    lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaAutobusRep_);
+                    lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaMinibusRep_);
+
                     lineChartCakanieNaZastavke.getXAxis().setLabel("Čas replikácie");
                 });
             }
@@ -240,6 +257,8 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                     Platform.runLater(() -> {
                         lineChartCakanieNaZastavke.getData().clear();
                         lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaCestujucehoSim_);
+                        lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaAutobusSim_);
+                        lineChartCakanieNaZastavke.getData().add(chartValuesCasCakaniaMinibusSim_);
                         lineChartCakanieNaZastavke.getXAxis().setLabel("Číslo replikácie");
                     });
                 });
@@ -370,6 +389,9 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
                 cestujuciInfo_.clear();
                 chartValuesCasCakaniaCestujucehoSim_.getData().clear();
+                chartValuesCasCakaniaAutobusSim_.getData().clear();
+                chartValuesCasCakaniaMinibusSim_.getData().clear();
+
 
                 tableViewVozidla.getItems().clear();
             }); // TODO
@@ -399,6 +421,8 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                         holder.clearTableViewData();
                     });
                     chartValuesCasCakaniaCestujucehoRep_.getData().clear();
+                    chartValuesCasCakaniaAutobusRep_.getData().clear();
+                    chartValuesCasCakaniaMinibusRep_.getData().clear();
                 });
                 try {
                     Thread.sleep(1);
@@ -411,6 +435,8 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                         holder.clearTableViewData();
                     });
                     chartValuesCasCakaniaCestujucehoRep_.getData().clear();
+                    chartValuesCasCakaniaAutobusRep_.getData().clear();
+                    chartValuesCasCakaniaMinibusRep_.getData().clear();
                 });
                 try {
                     Thread.sleep(10);
@@ -430,6 +456,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
 
             BehSimulacieInfo behSimulacieInfo = _simulacia.getStatistikySimulacie();
+            boolean jeMikrobus = _simulacia.getKonfiguraciaVozidiel().obsahujeMiniBusy();
             //System.out.println("Replikacia: " + behSimulacieInfo._cisloReplikacie);
             if ((_simulacia.currentReplication() + 1) > kolkoVynechat && ((_simulacia.currentReplication() + 1) == _simulacia.replicationCount() || _simulacia.currentReplication() % step == 0)) {
                 Platform.runLater(() -> {
@@ -444,6 +471,12 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
                         statistikySimulacieData_.add(statistika);
                     }
                     chartValuesCasCakaniaCestujucehoSim_.getData().add(new XYChart.Data<>(behSimulacieInfo._cisloReplikacie, behSimulacieInfo._priemernyCasCakaniaNaZastavke));
+                    if (jeMikrobus) {
+                        chartValuesCasCakaniaAutobusSim_.getData().add(new XYChart.Data<>(behSimulacieInfo._cisloReplikacie, behSimulacieInfo._priemernyCasCakaniaNaAutobus));
+                        chartValuesCasCakaniaMinibusSim_.getData().add(new XYChart.Data<>(behSimulacieInfo._cisloReplikacie, behSimulacieInfo._priemernyCasCakaniaNaMinibus));
+                    }
+
+
                 });
                 try {
                     Thread.sleep(1);
@@ -504,7 +537,7 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
         BehReplikacieInfo behReplikacieInfo = _simulacia.getStatistikyVRamciReplikacie();
 
         int kolkoVynechat = (int) Math.floor(((double)_simulacia.getCasZaciatkuZapasu() / 100.0) * (sliderSkip.getValue()));
-
+        boolean jeMikrobus = _simulacia.getKonfiguraciaVozidiel().obsahujeMiniBusy();
 
         if (simTime > kolkoVynechat ) {
             Platform.runLater(() -> {
@@ -514,6 +547,10 @@ public class CSimulacia extends ControllerBase implements ISimDelegate {
 
 
                 chartValuesCasCakaniaCestujucehoRep_.getData().add(new XYChart.Data<>(simTime ,behReplikacieInfo._priemernyCasCakaniaCestujucehoNaZastavke));
+                if (jeMikrobus) {
+                    chartValuesCasCakaniaAutobusRep_.getData().add(new XYChart.Data<>(simTime ,behReplikacieInfo._priemernyCasCakaniaCestujucehoNaAutobus));
+                    chartValuesCasCakaniaMinibusRep_.getData().add(new XYChart.Data<>(simTime ,behReplikacieInfo._priemernyCasCakaniaCestujucehoNaMinibus));
+                }
 
                 for (VozidloInfo vozidloInfo : behReplikacieInfo.vozidlaInfo_) {
                     CCestujuciVozidlo cestujuciVozidlo = cestujuciInfo_.get(vozidloInfo.getIdVozidla());
